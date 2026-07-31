@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PriceTag } from './PriceTag';
 import {
   Appointment,
@@ -172,6 +172,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   // Site Settings Form State
   const [settingsForm, setSettingsForm] = useState<SiteSettings>(siteSettings);
   const [settingsSavedMessage, setSettingsSavedMessage] = useState(false);
+
+  useEffect(() => {
+    setSettingsForm(siteSettings);
+  }, [siteSettings]);
 
   // Gallery Add & Edit Form State
   const [newGalleryUrl, setNewGalleryUrl] = useState('');
@@ -1343,56 +1347,185 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </div>
             )}
 
-            <form onSubmit={handleSaveSiteInfo} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-[#594045] mb-1">رقم هاتف الصالون</label>
-                  <input
-                    type="text"
-                    required
-                    value={settingsForm.phone}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, phone: e.target.value })}
-                    className="w-full border rounded-xl p-2.5 text-sm bg-white font-bold"
-                  />
-                </div>
+            <form onSubmit={handleSaveSiteInfo} className="space-y-6">
+              {/* Contact Information */}
+              <div className="bg-[#fcf9f8] p-5 rounded-2xl border border-[#D4AF37]/30 space-y-4">
+                <h4 className="font-bold text-sm text-[#9b0044] flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-base">call</span>
+                  <span>{isArabic ? 'بيانات الاتصال والتواصل' : 'Contact Details'}</span>
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-[#594045] mb-1">
+                      {isArabic ? 'رقم هاتف الصالون *' : 'Salon Phone *'}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={settingsForm.phone}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, phone: e.target.value })}
+                      className="w-full border rounded-xl p-2.5 text-sm bg-white font-bold"
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-[#594045] mb-1">رقم الواتساب المباشر</label>
-                  <input
-                    type="text"
-                    required
-                    value={settingsForm.whatsapp}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, whatsapp: e.target.value })}
-                    className="w-full border rounded-xl p-2.5 text-sm bg-white font-bold"
-                  />
-                </div>
+                  <div>
+                    <label className="block text-xs font-bold text-[#594045] mb-1">
+                      {isArabic ? 'رقم الواتساب المباشر *' : 'Direct WhatsApp *'}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={settingsForm.whatsapp}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, whatsapp: e.target.value })}
+                      className="w-full border rounded-xl p-2.5 text-sm bg-white font-bold"
+                    />
+                  </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-[#594045] mb-1">اسم الموقع والفرع بالعربية</label>
-                  <input
-                    type="text"
-                    required
-                    value={settingsForm.locationAR}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, locationAR: e.target.value })}
-                    className="w-full border rounded-xl p-2.5 text-sm bg-white font-bold text-[#9b0044]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-[#594045] mb-1">English Location</label>
-                  <input
-                    type="text"
-                    required
-                    value={settingsForm.locationEN}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, locationEN: e.target.value })}
-                    className="w-full border rounded-xl p-2.5 text-sm bg-white font-bold text-[#9b0044]"
-                  />
+                  <div>
+                    <label className="block text-xs font-bold text-[#594045] mb-1">
+                      {isArabic ? 'البريد الإلكتروني للصالون *' : 'Salon Email *'}
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      value={settingsForm.email}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, email: e.target.value })}
+                      className="w-full border rounded-xl p-2.5 text-sm bg-white font-bold text-[#9b0044]"
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div className="pt-3">
+              {/* Location & Address */}
+              <div className="bg-[#fcf9f8] p-5 rounded-2xl border border-[#D4AF37]/30 space-y-4">
+                <h4 className="font-bold text-sm text-[#9b0044] flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-base">location_on</span>
+                  <span>{isArabic ? 'الموقع والعنوان' : 'Branch Location'}</span>
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-[#594045] mb-1">
+                      {isArabic ? 'اسم الموقع والفرع بالعربية *' : 'Location in Arabic *'}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={settingsForm.locationAR}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, locationAR: e.target.value })}
+                      className="w-full border rounded-xl p-2.5 text-sm bg-white font-bold text-[#9b0044]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#594045] mb-1">
+                      {isArabic ? 'اسم الموقع والفرع بالإنجليزية *' : 'Location in English *'}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={settingsForm.locationEN}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, locationEN: e.target.value })}
+                      className="w-full border rounded-xl p-2.5 text-sm bg-white font-bold text-[#9b0044]"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Working Hours */}
+              <div className="bg-[#fcf9f8] p-5 rounded-2xl border border-[#D4AF37]/30 space-y-4">
+                <h4 className="font-bold text-sm text-[#9b0044] flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-base">schedule</span>
+                  <span>{isArabic ? 'أوقات وساعات العمل' : 'Working Hours'}</span>
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-[#594045] mb-1">
+                      {isArabic ? 'أوقات العمل بالعربية' : 'Working Hours (Arabic)'}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={settingsForm.workingHoursAR}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, workingHoursAR: e.target.value })}
+                      className="w-full border rounded-xl p-2.5 text-sm bg-white font-bold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#594045] mb-1">
+                      {isArabic ? 'أوقات العمل بالإنجليزية' : 'Working Hours (English)'}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={settingsForm.workingHoursEN}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, workingHoursEN: e.target.value })}
+                      className="w-full border rounded-xl p-2.5 text-sm bg-white font-bold"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Social Media Links */}
+              <div className="bg-[#fcf9f8] p-5 rounded-2xl border border-[#D4AF37]/30 space-y-4">
+                <h4 className="font-bold text-sm text-[#9b0044] flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-base">share</span>
+                  <span>{isArabic ? 'روابط منصات التواصل الاجتماعي' : 'Social Media Platforms'}</span>
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-[#594045] mb-1">
+                      {isArabic ? 'رابط انستجرام (Instagram)' : 'Instagram URL'}
+                    </label>
+                    <input
+                      type="url"
+                      value={settingsForm.instagramUrl}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, instagramUrl: e.target.value })}
+                      className="w-full border rounded-xl p-2.5 text-xs bg-white font-bold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#594045] mb-1">
+                      {isArabic ? 'رابط تيك توك (TikTok)' : 'TikTok URL'}
+                    </label>
+                    <input
+                      type="url"
+                      value={settingsForm.tiktokUrl}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, tiktokUrl: e.target.value })}
+                      className="w-full border rounded-xl p-2.5 text-xs bg-white font-bold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#594045] mb-1">
+                      {isArabic ? 'رابط سناب شات (Snapchat)' : 'Snapchat URL'}
+                    </label>
+                    <input
+                      type="url"
+                      value={settingsForm.snapchatUrl}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, snapchatUrl: e.target.value })}
+                      className="w-full border rounded-xl p-2.5 text-xs bg-white font-bold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#594045] mb-1">
+                      {isArabic ? 'رابط فيسبوك (Facebook)' : 'Facebook URL'}
+                    </label>
+                    <input
+                      type="url"
+                      value={settingsForm.facebookUrl}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, facebookUrl: e.target.value })}
+                      className="w-full border rounded-xl p-2.5 text-xs bg-white font-bold"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-2">
                 <button type="submit" className="btn-burgundy px-8 py-3 rounded-xl text-sm font-bold cursor-pointer shadow-md">
-                  {isArabic ? 'حفظ كافة البيانات' : 'Save Site Settings'}
+                  {isArabic ? 'حفظ كافة البيانات والبيانات الإلكترونية' : 'Save Site Settings'}
                 </button>
               </div>
             </form>
