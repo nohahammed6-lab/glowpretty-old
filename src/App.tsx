@@ -56,13 +56,7 @@ export default function App() {
   const [services, setServices] = useState<Service[]>(() => {
     try {
       const saved = localStorage.getItem('glow_services');
-      if (saved) {
-        const parsed: Service[] = JSON.parse(saved);
-        const existingIds = new Set(parsed.map((s) => s.id));
-        const missing = INITIAL_SERVICES.filter((s) => !existingIds.has(s.id));
-        return missing.length > 0 ? [...parsed, ...missing] : parsed;
-      }
-      return INITIAL_SERVICES;
+      return saved ? JSON.parse(saved) : INITIAL_SERVICES;
     } catch {
       return INITIAL_SERVICES;
     }
@@ -212,12 +206,6 @@ export default function App() {
       localStorage.setItem('glow_supervisors', JSON.stringify(supervisors));
     } catch (e) { console.error(e); }
   }, [supervisors]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('glow_about_content', JSON.stringify(aboutContent));
-    } catch (e) { console.error(e); }
-  }, [aboutContent]);
 
   // Modals & Toast State
   const [confirmedAppointment, setConfirmedAppointment] = useState<Appointment | null>(null);
