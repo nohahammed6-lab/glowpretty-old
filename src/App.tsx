@@ -587,7 +587,12 @@ export default function App() {
       <BookingModal
         appointment={confirmedAppointment}
         language={language}
-        onClose={() => setConfirmedAppointment(null)}
+        onClose={() => {
+          setConfirmedAppointment(null);
+          setSelectedCategory('all');
+          setViewMode('home');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
       />
 
       <NewAppointmentModal
