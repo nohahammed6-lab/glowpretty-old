@@ -195,35 +195,6 @@ export const Header: React.FC<HeaderProps> = ({
                 <span>{isArabic ? 'اتصل بنا واللوكيشن' : 'Contact & Location'}</span>
               </button>
 
-              {/* Management Portals - Separate Links */}
-              <div className="pt-3 border-t border-[#D4AF37]/30 mt-2 space-y-2">
-                <p className="text-[11px] font-bold text-[#8f003f] uppercase tracking-wider mb-1">
-                  {isArabic ? 'لوحات التحكم والإدارة' : 'Management Consoles'}
-                </p>
-
-                <button
-                  onClick={() => {
-                    setSidebarOpen(false);
-                    onAdminLoginClick('owner');
-                  }}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-start font-bold bg-[#9b0044] text-white hover:bg-[#8f003f] transition-all cursor-pointer shadow-xs text-xs"
-                >
-                  <span className="material-symbols-outlined text-sm">admin_panel_settings</span>
-                  <span>{isArabic ? 'دخول المدير العام 👑' : 'Owner / Manager Portal 👑'}</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    setSidebarOpen(false);
-                    onAdminLoginClick('supervisor');
-                  }}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-start font-bold bg-[#fdf5f7] text-[#9b0044] hover:bg-[#f9e2e8] border border-[#9b0044]/30 transition-all cursor-pointer text-xs"
-                >
-                  <span className="material-symbols-outlined text-sm">badge</span>
-                  <span>{isArabic ? 'دخول المشرفين 🔑' : 'Supervisor Portal 🔑'}</span>
-                </button>
-              </div>
-
             </div>
 
             {/* Quick Contact & WhatsApp Bottom Info */}

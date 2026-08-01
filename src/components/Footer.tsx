@@ -222,9 +222,9 @@ export const Footer: React.FC<FooterProps> = ({
 
       {/* Bottom Rights */}
       <div className="py-6 border-t border-white/10 bg-[#160f11] px-6">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-center sm:justify-between text-xs text-white/60 gap-3">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between text-xs text-white/60 gap-3">
           <p className="text-center sm:text-start font-medium text-white/70">
-            All Copyright @
+            All Copyright @{' '}
             <a
               href="https://instagram.com/solimanmedia"
               target="_blank"
@@ -234,6 +234,24 @@ export const Footer: React.FC<FooterProps> = ({
               solimanMedia
             </a>
           </p>
+
+          <div className="flex items-center gap-4 text-white/50 text-[11px]">
+            <button
+              onClick={() => onAdminLoginClick('owner')}
+              className="hover:text-[#D4AF37] transition-colors cursor-pointer flex items-center gap-1"
+            >
+              <span className="material-symbols-outlined text-xs">lock</span>
+              <span>{isArabic ? 'دخول الإدارة' : 'Admin Login'}</span>
+            </button>
+            <span>•</span>
+            <button
+              onClick={() => onAdminLoginClick('supervisor')}
+              className="hover:text-[#D4AF37] transition-colors cursor-pointer flex items-center gap-1"
+            >
+              <span className="material-symbols-outlined text-xs">badge</span>
+              <span>{isArabic ? 'دخول المشرفين' : 'Staff Portal'}</span>
+            </button>
+          </div>
         </div>
       </div>
     </footer>
