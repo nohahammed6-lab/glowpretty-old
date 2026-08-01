@@ -3,8 +3,8 @@
 @layer base {
   body {
     font-family: 'Cairo', system-ui, -apple-system, sans-serif;
-    background-color: #fcf9f8;
-    color: #1c1b1b;
+    background-color: #FFFDF5;
+    color: #121212;
   }
 
   h1, h2, h3, .font-display, .font-headline {
@@ -21,7 +21,7 @@
 }
 
 .silk-base {
-  background-color: #fcf9f8;
+  background-color: #FFFDF5;
 }
 
 .gold-border {
@@ -32,54 +32,56 @@
   background: linear-gradient(135deg, #D4AF37 0%, #AA7C11 100%);
 }
 
-.burgundy-gradient-bg {
-  background: linear-gradient(135deg, #9b0044 0%, #68002b 100%);
+.black-gradient-bg, .burgundy-gradient-bg {
+  background: linear-gradient(135deg, #121212 0%, #1a1a1a 100%);
 }
 
-/* Luxurious Styling Buttons */
+/* Luxurious Black & Ivory Yellow Styling Buttons */
 .btn-gold {
-  background: linear-gradient(135deg, #dfb738 0%, #b8860b 100%);
-  color: #ffffff;
-  border: 1px solid #f3d168;
+  background: linear-gradient(135deg, #E5C358 0%, #B8860B 100%);
+  color: #121212;
+  border: 1px solid #F3E5AB;
   box-shadow: 0 4px 15px rgba(212, 175, 55, 0.35);
+  font-weight: 800;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .btn-gold:hover {
-  background: linear-gradient(135deg, #ebd05f 0%, #c99616 100%);
+  background: linear-gradient(135deg, #F3E5AB 0%, #C99616 100%);
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(212, 175, 55, 0.5);
 }
 
-.btn-burgundy {
-  background: linear-gradient(135deg, #9b0044 0%, #700030 100%);
-  color: #ffffff;
-  border: 1px solid rgba(255, 217, 223, 0.3);
-  box-shadow: 0 4px 20px rgba(155, 0, 68, 0.3);
+.btn-black, .btn-burgundy {
+  background: linear-gradient(135deg, #121212 0%, #262626 100%);
+  color: #FFFDF0;
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.btn-burgundy:hover {
-  background: linear-gradient(135deg, #b80051 0%, #830039 100%);
+.btn-black:hover, .btn-burgundy:hover {
+  background: linear-gradient(135deg, #262626 0%, #000000 100%);
   transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(155, 0, 68, 0.45);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  border-color: #D4AF37;
 }
 
 .btn-outline-gold {
-  background: rgba(252, 249, 248, 0.8);
-  color: #8f003f;
+  background: #FFFDF5;
+  color: #121212;
   border: 1.5px solid #D4AF37;
   transition: all 0.3s ease;
 }
 
 .btn-outline-gold:hover {
-  background: #fdf6e2;
-  border-color: #b8860b;
+  background: #FAF4E1;
+  border-color: #B8860B;
   transform: translateY(-1px);
 }
 
 .soft-glow:hover {
-  box-shadow: 0 0 25px 0 rgba(185, 12, 85, 0.15);
+  box-shadow: 0 0 25px 0 rgba(212, 175, 55, 0.3);
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -91,18 +93,18 @@
 }
 
 .active-day {
-  background-color: #9b0044 !important;
-  color: white !important;
+  background-color: #121212 !important;
+  color: #FFFDF0 !important;
 }
 
 .glass-panel {
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 253, 245, 0.92);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(212, 175, 55, 0.25);
+  border: 1px solid rgba(212, 175, 55, 0.3);
 }
 
 .glow-soft {
-  box-shadow: 0 10px 40px -10px rgba(155, 0, 68, 0.2);
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.25);
 }
 
 /* Animations */

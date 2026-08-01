@@ -53,6 +53,8 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
   
   // Preferred Time selection state
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('11:30 AM');
+  const [isCustomTime, setIsCustomTime] = useState<boolean>(false);
+  const [customTimeInput, setCustomTimeInput] = useState<string>('');
 
   // Form Inputs
   const [fullName, setFullName] = useState('');
@@ -81,12 +83,18 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
       setFormError(isArabic ? 'يرجى تحديد تاريخ الحجز' : 'Please select an appointment date.');
       return;
     }
+    if (!selectedTimeSlot && !customTimeInput) {
+      setFormError(isArabic ? 'يرجى تحديد توقيت الموعد' : 'Please select an appointment time.');
+      return;
+    }
     if (!fullName.trim() || !email.trim() || !phone.trim() || phone.trim() === '+974') {
       setFormError(isArabic ? 'يرجى إكمال جميع حقول الحجز' : 'Please complete all required booking fields.');
       return;
     }
 
     setFormError('');
+
+    const finalTimeSlot = isCustomTime && customTimeInput ? customTimeInput : selectedTimeSlot;
 
     const nameParts = fullName.trim().split(' ');
     const initials = nameParts.length > 1 
@@ -107,7 +115,7 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
       serviceId: serviceIds,
       serviceName: serviceNameSummary,
       date: selectedBookingDate,
-      time: selectedTimeSlot,
+      time: finalTimeSlot,
     });
 
     setFullName('');
@@ -120,14 +128,14 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
       
       {/* Hero Header */}
       <section className="mb-10 text-center">
-        <div className="inline-flex items-center gap-2 bg-[#9b0044] text-[#D4AF37] border border-[#D4AF37]/40 px-3 py-1 rounded-full text-xs font-bold mb-3 shadow-xs">
+        <div className="inline-flex items-center gap-2 bg-[#121212] text-[#D4AF37] border border-[#D4AF37]/40 px-3 py-1 rounded-full text-xs font-bold mb-3 shadow-xs">
           <span>🇶🇦</span>
           <span>{isArabic ? 'الأسعار المعلنة بالريال القطري (ر.ق)' : 'Prices in Qatari Riyal (QAR)'}</span>
         </div>
-        <h1 className="font-display text-3xl sm:text-5xl text-[#9b0044] mb-3 font-extrabold">
+        <h1 className="font-display text-3xl sm:text-5xl text-[#121212] mb-3 font-extrabold">
           {isArabic ? 'قائمة الخدمات والحجز الفوري' : 'Luxury Beauty Services & Reservation'}
         </h1>
-        <p className="text-[#594045] text-base sm:text-lg max-w-2xl mx-auto leading-relaxed font-medium">
+        <p className="text-[#3a3528] text-base sm:text-lg max-w-2xl mx-auto leading-relaxed font-medium">
           {isArabic
             ? 'اختاري الخدمة المناسبة لكِ واستكملي بيانات الحجز بسهولة لضمان موعدكِ الملكي في صالون غلو بريتي بالدوحة.'
             : 'Explore our bespoke hair, nail, skincare, and makeup offerings in West Bay, Doha.'}
@@ -151,8 +159,8 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
                     onClick={() => setSelectedCategory(cat.id)}
                     className={`px-5 py-2.5 rounded-full whitespace-nowrap text-sm font-bold transition-all cursor-pointer ${
                       isActive
-                        ? 'bg-[#9b0044] text-white shadow-md border border-[#D4AF37]'
-                        : 'bg-white text-[#594045] border border-[#D4AF37]/30 hover:border-[#9b0044] hover:bg-[#fdf5f7]'
+                        ? 'bg-[#121212] text-[#FFFDF0] shadow-md border border-[#D4AF37]'
+                        : 'bg-[#FFFDF5] text-[#121212] border border-[#D4AF37]/40 hover:border-[#121212] hover:bg-[#FAF4E1]'
                     }`}
                   >
                     {isArabic ? cat.arabicLabel : cat.label}
@@ -161,16 +169,16 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
               })}
             </div>
 
-            <div className="bg-[#fdf5f7] border border-[#D4AF37]/40 rounded-2xl p-3 px-4 flex items-center justify-between text-xs text-[#9b0044] font-bold shadow-2xs">
+            <div className="bg-[#FAF6ED] border border-[#D4AF37]/50 rounded-2xl p-3 px-4 flex items-center justify-between text-xs text-[#121212] font-bold shadow-2xs">
               <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-base">checklist</span>
+                <span className="material-symbols-outlined text-base text-[#D4AF37]">checklist</span>
                 <span>
                   {isArabic
                     ? 'يمكنكِ تحديد أكثر من خدمة للحجز في نفس الموعد'
                     : 'You can select multiple services for a single appointment'}
                 </span>
               </div>
-              <span className="bg-[#9b0044] text-white px-2.5 py-1 rounded-full font-bold text-[11px] whitespace-nowrap">
+              <span className="bg-[#121212] text-[#FFFDF0] border border-[#D4AF37]/50 px-2.5 py-1 rounded-full font-bold text-[11px] whitespace-nowrap">
                 {isArabic ? `${selectedServices.length} خدمات محددة` : `${selectedServices.length} Selected`}
               </span>
             </div>
@@ -186,19 +194,19 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
                   onClick={() => toggleServiceSelection(service)}
                   className={`bg-white p-5 rounded-2xl border-2 transition-all flex flex-col justify-between cursor-pointer relative ${
                     isSelected 
-                      ? 'border-[#9b0044] bg-[#fdf5f7] shadow-xl scale-[1.01]' 
+                      ? 'border-[#121212] bg-[#FAF6ED] shadow-xl scale-[1.01]' 
                       : 'border-[#D4AF37]/30 hover:border-[#D4AF37] hover:shadow-md'
                   }`}
                 >
                   {/* Selected Badge */}
                   <div className="absolute top-3 right-3 flex items-center gap-1">
                     {isSelected ? (
-                      <span className="bg-[#9b0044] text-[#D4AF37] border border-[#D4AF37] rounded-full px-2.5 py-0.5 shadow-md text-xs font-bold flex items-center gap-1">
+                      <span className="bg-[#121212] text-[#D4AF37] border border-[#D4AF37] rounded-full px-2.5 py-0.5 shadow-md text-xs font-bold flex items-center gap-1">
                         <span className="material-symbols-outlined text-sm">check_circle</span>
                         <span>{isArabic ? 'محددة' : 'Selected'}</span>
                       </span>
                     ) : (
-                      <span className="bg-white/90 text-[#8f003f] border border-[#D4AF37]/50 rounded-full px-2.5 py-0.5 text-xs font-bold flex items-center gap-1 shadow-2xs">
+                      <span className="bg-white/95 text-[#121212] border border-[#D4AF37]/50 rounded-full px-2.5 py-0.5 text-xs font-bold flex items-center gap-1 shadow-2xs">
                         <span className="material-symbols-outlined text-sm">add</span>
                         <span>{isArabic ? 'إضافة' : 'Add'}</span>
                       </span>
@@ -217,10 +225,10 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
                   {/* Details */}
                   <div className="flex-1">
                     <div className="flex justify-between items-start mb-1.5">
-                      <h3 className="font-display text-lg font-extrabold text-[#9b0044]">
+                      <h3 className="font-display text-lg font-extrabold text-[#121212]">
                         {isArabic ? service.arabicTitle : service.title}
                       </h3>
-                      <div className="text-end bg-[#9b0044]/10 text-[#9b0044] px-2.5 py-1 rounded-lg font-extrabold text-sm border border-[#D4AF37]/30 whitespace-nowrap ms-2">
+                      <div className="text-end bg-[#121212] text-[#D4AF37] px-2.5 py-1 rounded-lg font-extrabold text-sm border border-[#D4AF37]/40 whitespace-nowrap ms-2">
                         <PriceTag
                           priceQAR={service.priceQAR}
                           priceDisplay={service.priceDisplay}
@@ -230,17 +238,17 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
                       </div>
                     </div>
 
-                    <p className="text-[#594045] text-xs leading-relaxed mb-3 font-medium">
+                    <p className="text-[#3a3528] text-xs leading-relaxed mb-3 font-medium">
                       {isArabic ? service.arabicDescription : service.description}
                     </p>
                   </div>
 
                   {/* Footer Meta */}
                   <div className="flex justify-between items-center border-t border-[#D4AF37]/20 pt-3 mt-2 text-xs font-semibold">
-                    <span className="text-[#594045] text-[11px]">
+                    <span className="text-[#665a3c] text-[11px]">
                       {service.durationMinutes ? `${service.durationMinutes} ${isArabic ? 'دقيقة' : 'mins'}` : ''}
                     </span>
-                    <span className={isSelected ? "text-[#9b0044] font-bold" : "text-[#D4AF37] font-bold"}>
+                    <span className={isSelected ? "text-[#121212] font-bold" : "text-[#B8860B] font-bold"}>
                       {isSelected 
                         ? (isArabic ? '✓ محددة (انقري للإلغاء)' : '✓ Selected (Click to remove)') 
                         : (isArabic ? '+ انقري لإضافة الخدمة' : '+ Click to add service')}
@@ -259,10 +267,10 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
           <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-2xl border-2 border-[#D4AF37]/40">
             
             <div className="flex justify-between items-center mb-6">
-              <h2 className="font-display text-2xl text-[#9b0044] font-extrabold">
+              <h2 className="font-display text-2xl text-[#121212] font-extrabold">
                 {isArabic ? 'تأكيد حجز الموعد' : 'Reserve Appointment'}
               </h2>
-              <span className="text-xs bg-[#ffd9df] text-[#9b0044] font-bold px-2.5 py-1 rounded-md">
+              <span className="text-xs bg-[#FAF6ED] text-[#121212] border border-[#D4AF37]/50 font-bold px-2.5 py-1 rounded-md">
                 🇶🇦 {isArabic ? 'الدوحة' : 'Doha'}
               </span>
             </div>
@@ -270,7 +278,7 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
             {/* Selected Services Box */}
             <div className="mb-6 space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-xs font-extrabold uppercase tracking-wider text-[#8f003f]">
+                <span className="text-xs font-extrabold uppercase tracking-wider text-[#121212]">
                   {isArabic ? `الخدمات المختارة (${selectedServices.length}):` : `Selected Services (${selectedServices.length}):`}
                 </span>
                 {selectedServices.length > 0 && (
@@ -285,7 +293,7 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
               </div>
 
               {selectedServices.length === 0 ? (
-                <div className="p-4 bg-[#fdf5f7] rounded-2xl border border-dashed border-[#9b0044]/30 text-center text-xs text-[#8f003f] font-semibold">
+                <div className="p-4 bg-[#FAF6ED] rounded-2xl border border-dashed border-[#121212]/30 text-center text-xs text-[#121212] font-semibold">
                   {isArabic ? 'لم تقمي باختيار أي خدمة بعد. انقري على إحدى الخدمات لإضافتها للحجز.' : 'No services selected yet. Click any service to add it to your reservation.'}
                 </div>
               ) : (
@@ -293,7 +301,7 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
                   {selectedServices.map((service) => (
                     <div
                       key={service.id}
-                      className="p-3 bg-[#fdf5f7] rounded-xl border border-[#D4AF37]/40 flex items-center justify-between gap-3 shadow-2xs"
+                      className="p-3 bg-[#FAF6ED] rounded-xl border border-[#D4AF37]/40 flex items-center justify-between gap-3 shadow-2xs"
                     >
                       <img
                         src={service.imageUrl}
@@ -305,13 +313,13 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
                           {isArabic ? service.arabicTitle : service.title}
                         </h4>
                         {service.durationMinutes ? (
-                          <span className="text-[10px] text-[#594045] font-semibold block">
+                          <span className="text-[10px] text-[#665a3c] font-semibold block">
                             {service.durationMinutes} {isArabic ? 'دقيقة' : 'mins'}
                           </span>
                         ) : null}
                       </div>
                       <div className="text-end flex items-center gap-2">
-                        <span className="font-extrabold text-[#9b0044] text-xs">
+                        <span className="font-extrabold text-[#121212] text-xs">
                           <PriceTag
                             priceQAR={service.priceQAR}
                             priceDisplay={service.priceDisplay}
@@ -325,7 +333,7 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
                             e.stopPropagation();
                             removeServiceSelection(service.id);
                           }}
-                          className="text-[#9b0044] hover:bg-[#9b0044] hover:text-white rounded-full p-0.5 transition-colors cursor-pointer"
+                          className="text-[#121212] hover:bg-[#121212] hover:text-white rounded-full p-0.5 transition-colors cursor-pointer"
                           title={isArabic ? 'حذف هذه الخدمة' : 'Remove service'}
                         >
                           <span className="material-symbols-outlined text-sm block">close</span>
@@ -338,7 +346,7 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
 
               {/* Total Price & Duration Summary */}
               {selectedServices.length > 0 && (
-                <div className="p-3.5 bg-gradient-to-r from-[#9b0044] to-[#730032] text-white rounded-2xl flex justify-between items-center shadow-md border border-[#D4AF37]/50">
+                <div className="p-3.5 bg-gradient-to-r from-[#121212] to-[#262626] text-white rounded-2xl flex justify-between items-center shadow-md border border-[#D4AF37]/50">
                   <div>
                     <span className="text-[11px] text-[#D4AF37] font-bold block">
                       {isArabic ? `الإجمالي (${selectedServices.length} خدمات):` : `Total (${selectedServices.length} services):`}
@@ -362,7 +370,7 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
               
               {/* Date Selection */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#8f003f] mb-2">
+                <label className="block text-xs font-bold uppercase tracking-wider text-[#121212] mb-2">
                   {isArabic ? 'اختر تاريخ الموعد المناسب:' : 'Select Appointment Date:'}
                 </label>
                 <div className="relative">
@@ -372,41 +380,130 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
                     min={new Date().toISOString().split('T')[0]}
                     value={selectedBookingDate}
                     onChange={(e) => setSelectedBookingDate(e.target.value)}
-                    className="w-full border-2 border-[#D4AF37]/50 rounded-xl py-2.5 px-3.5 bg-[#fdf5f7] focus:bg-white focus:outline-none focus:border-[#9b0044] text-sm font-bold text-[#1c1b1b] cursor-pointer"
+                    className="w-full border-2 border-[#D4AF37]/50 rounded-xl py-2.5 px-3.5 bg-[#FFFDF5] focus:bg-white focus:outline-none focus:border-[#121212] text-sm font-bold text-[#1c1b1b] cursor-pointer"
                   />
                 </div>
               </div>
 
-              {/* Time Slots */}
+              {/* Time Slots & Custom Time Input */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[#8f003f] mb-2.5">
-                  {isArabic ? 'توقيت الموعد المفضل:' : 'Preferred Time Slot:'}
-                </label>
-                <div className="grid grid-cols-4 gap-1.5">
-                  {TIME_SLOTS.map((slot) => {
-                    const isSlotSelected = selectedTimeSlot === slot;
-                    return (
-                      <button
-                        key={slot}
-                        type="button"
-                        onClick={() => setSelectedTimeSlot(slot)}
-                        className={`py-2 px-1 rounded-xl text-[11px] font-bold border transition-all cursor-pointer ${
-                          isSlotSelected
-                            ? 'bg-[#9b0044] text-white border-[#D4AF37] shadow-sm'
-                            : 'border-[#D4AF37]/30 text-[#1c1b1b] hover:bg-[#fdf5f7]'
-                        }`}
-                      >
-                        {slot}
-                      </button>
-                    );
-                  })}
+                <div className="flex justify-between items-center mb-2.5">
+                  <label className="text-xs font-bold uppercase tracking-wider text-[#121212]">
+                    {isArabic ? 'توقيت الموعد المفضل:' : 'Preferred Time Slot:'}
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const nextState = !isCustomTime;
+                      setIsCustomTime(nextState);
+                      if (nextState && customTimeInput) {
+                        setSelectedTimeSlot(customTimeInput);
+                      }
+                    }}
+                    className="text-xs font-bold text-[#121212] underline hover:opacity-80 flex items-center gap-1 cursor-pointer"
+                  >
+                    <span className="material-symbols-outlined text-sm text-[#D4AF37]">schedule</span>
+                    <span>
+                      {isArabic 
+                        ? (isCustomTime ? 'العودة للمواعيد المتاحة' : 'تحديد موعد مخصص ⏱️') 
+                        : (isCustomTime ? 'Standard Slots' : 'Custom Time ⏱️')}
+                    </span>
+                  </button>
                 </div>
+
+                {!isCustomTime ? (
+                  <div className="space-y-2">
+                    <div className="grid grid-cols-4 gap-1.5">
+                      {TIME_SLOTS.map((slot) => {
+                        const isSlotSelected = selectedTimeSlot === slot && !isCustomTime;
+                        return (
+                          <button
+                            key={slot}
+                            type="button"
+                            onClick={() => {
+                              setSelectedTimeSlot(slot);
+                              setIsCustomTime(false);
+                            }}
+                            className={`py-2 px-1 rounded-xl text-[11px] font-bold border transition-all cursor-pointer ${
+                              isSlotSelected
+                                ? 'bg-[#121212] text-[#FFFDF0] border-[#D4AF37] shadow-sm'
+                                : 'border-[#D4AF37]/40 text-[#121212] bg-[#FAF6ED] hover:bg-[#FAF4E1]'
+                            }`}
+                          >
+                            {slot}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <div className="text-end pt-1">
+                      <button
+                        type="button"
+                        onClick={() => setIsCustomTime(true)}
+                        className="text-[11px] font-bold text-[#665a3c] hover:text-[#121212] cursor-pointer underline flex items-center justify-end gap-1 ms-auto"
+                      >
+                        <span className="material-symbols-outlined text-xs">edit_calendar</span>
+                        <span>{isArabic ? 'غير مناسبك المواعيد؟ انقري لتحديد توقيت آخر مخصص' : 'Need a different time? Click to set custom time'}</span>
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-3.5 bg-[#FAF6ED] border-2 border-[#D4AF37]/60 rounded-xl space-y-2.5 shadow-2xs">
+                    <div className="flex justify-between items-center">
+                      <label className="block text-xs font-bold text-[#121212]">
+                        {isArabic ? 'أدخلي أو اختاري التوقيت المفضل لكِ:' : 'Specify your preferred custom time:'}
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setIsCustomTime(false)}
+                        className="text-[11px] text-[#121212] font-bold underline"
+                      >
+                        {isArabic ? 'إلغاء' : 'Cancel'}
+                      </button>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="time"
+                        value={customTimeInput.includes(':') ? customTimeInput.split(' ')[0] : ''}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (val) {
+                            const [hStr, mStr] = val.split(':');
+                            let h = parseInt(hStr, 10);
+                            const ampm = h >= 12 ? (isArabic ? 'م' : 'PM') : (isArabic ? 'ص' : 'AM');
+                            h = h % 12 || 12;
+                            const formatted = `${h}:${mStr} ${ampm}`;
+                            setCustomTimeInput(formatted);
+                            setSelectedTimeSlot(formatted);
+                          }
+                        }}
+                        className="border-2 border-[#D4AF37] rounded-xl py-2 px-3 bg-white text-sm font-bold text-[#121212] focus:outline-none cursor-pointer"
+                      />
+                      <input
+                        type="text"
+                        placeholder={isArabic ? 'أو اكتبي الوقت (مثال: 03:30 عصراً)' : 'Or type time (e.g. 03:30 PM)'}
+                        value={customTimeInput}
+                        onChange={(e) => {
+                          setCustomTimeInput(e.target.value);
+                          setSelectedTimeSlot(e.target.value);
+                        }}
+                        className="flex-1 border border-[#D4AF37]/50 rounded-xl py-2 px-3 bg-white text-xs font-bold text-[#121212] focus:outline-none"
+                      />
+                    </div>
+                    {customTimeInput && (
+                      <p className="text-[11px] font-bold text-[#121212] flex items-center gap-1">
+                        <span className="material-symbols-outlined text-xs text-[#D4AF37]">check_circle</span>
+                        <span>{isArabic ? `التوقيت المحدد: ${customTimeInput}` : `Selected time: ${customTimeInput}`}</span>
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Client Info Inputs */}
               <div className="space-y-3 pt-2">
                 <div>
-                  <label className="block text-xs font-bold text-[#594045] mb-1">
+                  <label className="block text-xs font-bold text-[#3a3528] mb-1">
                     {isArabic ? 'الاسم الكامل:' : 'Full Name:'}
                   </label>
                   <input
@@ -415,12 +512,12 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
                     placeholder={isArabic ? 'مثال: شيخة الكواري' : 'e.g., Sheikha Al-Kuwari'}
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    className="w-full border border-[#D4AF37]/40 rounded-xl py-2.5 px-3 bg-[#fcf9f8] focus:bg-white focus:outline-none focus:border-[#9b0044] text-sm text-[#1c1b1b]"
+                    className="w-full border border-[#D4AF37]/40 rounded-xl py-2.5 px-3 bg-[#FFFDF5] focus:bg-white focus:outline-none focus:border-[#121212] text-sm text-[#1c1b1b]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#594045] mb-1">
+                  <label className="block text-xs font-bold text-[#3a3528] mb-1">
                     {isArabic ? 'البريد الإلكتروني:' : 'Email Address:'}
                   </label>
                   <input
@@ -429,12 +526,12 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
                     placeholder="name@example.qa"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full border border-[#D4AF37]/40 rounded-xl py-2.5 px-3 bg-[#fcf9f8] focus:bg-white focus:outline-none focus:border-[#9b0044] text-sm text-[#1c1b1b]"
+                    className="w-full border border-[#D4AF37]/40 rounded-xl py-2.5 px-3 bg-[#FFFDF5] focus:bg-white focus:outline-none focus:border-[#121212] text-sm text-[#1c1b1b]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#594045] mb-1">
+                  <label className="block text-xs font-bold text-[#3a3528] mb-1">
                     {isArabic ? 'رقم الهاتف القطري:' : 'Qatar Phone Number:'}
                   </label>
                   <input
@@ -443,7 +540,7 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
                     placeholder="+974 5512 3456"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full border border-[#D4AF37]/40 rounded-xl py-2.5 px-3 bg-[#fcf9f8] focus:bg-white focus:outline-none focus:border-[#9b0044] text-sm text-[#1c1b1b]"
+                    className="w-full border border-[#D4AF37]/40 rounded-xl py-2.5 px-3 bg-[#FFFDF5] focus:bg-white focus:outline-none focus:border-[#121212] text-sm text-[#1c1b1b]"
                   />
                 </div>
               </div>

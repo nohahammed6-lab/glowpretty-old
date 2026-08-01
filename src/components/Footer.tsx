@@ -17,7 +17,7 @@ export const Footer: React.FC<FooterProps> = ({
   const isArabic = language === 'ar';
 
   return (
-    <footer id="contact" className="bg-[#1f1618] text-white mt-24 border-t border-[#D4AF37]/30">
+    <footer id="contact" className="bg-[#0f0f0f] text-white mt-24 border-t border-[#D4AF37]/40">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-10 px-6 md:px-16 py-16 w-full max-w-7xl mx-auto">
         
         {/* Brand Column */}
@@ -26,7 +26,7 @@ export const Footer: React.FC<FooterProps> = ({
             <span className="font-display text-2xl md:text-3xl font-extrabold text-[#D4AF37]">
               GLOW PRETTY
             </span>
-            <span className="text-xs bg-[#9b0044] text-[#D4AF37] border border-[#D4AF37]/40 px-2 py-0.5 rounded font-bold">
+            <span className="text-xs bg-[#121212] text-[#D4AF37] border border-[#D4AF37]/60 px-2 py-0.5 rounded font-bold">
               🇶🇦 {isArabic ? 'قطر' : 'Qatar'}
             </span>
           </div>
@@ -177,7 +177,7 @@ export const Footer: React.FC<FooterProps> = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 title="Instagram"
-                className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#9b0044] border border-[#D4AF37]/30 flex items-center justify-center transition-all hover:scale-110 text-[#D4AF37] hover:text-white"
+                className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#D4AF37] border border-[#D4AF37]/30 flex items-center justify-center transition-all hover:scale-110 text-[#D4AF37] hover:text-[#121212]"
               >
                 <span className="material-symbols-outlined text-lg">photo_camera</span>
               </a>
@@ -188,7 +188,7 @@ export const Footer: React.FC<FooterProps> = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 title="TikTok"
-                className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#9b0044] border border-[#D4AF37]/30 flex items-center justify-center transition-all hover:scale-110 text-[#D4AF37] hover:text-white"
+                className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#D4AF37] border border-[#D4AF37]/30 flex items-center justify-center transition-all hover:scale-110 text-[#D4AF37] hover:text-[#121212]"
               >
                 <span className="material-symbols-outlined text-lg">videocam</span>
               </a>
@@ -199,7 +199,7 @@ export const Footer: React.FC<FooterProps> = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 title="Snapchat"
-                className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#9b0044] border border-[#D4AF37]/30 flex items-center justify-center transition-all hover:scale-110 text-[#D4AF37] hover:text-white"
+                className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#D4AF37] border border-[#D4AF37]/30 flex items-center justify-center transition-all hover:scale-110 text-[#D4AF37] hover:text-[#121212]"
               >
                 <span className="material-symbols-outlined text-lg">ghost</span>
               </a>
@@ -210,7 +210,7 @@ export const Footer: React.FC<FooterProps> = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 title="Facebook"
-                className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#9b0044] border border-[#D4AF37]/30 flex items-center justify-center transition-all hover:scale-110 text-[#D4AF37] hover:text-white"
+                className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#D4AF37] border border-[#D4AF37]/30 flex items-center justify-center transition-all hover:scale-110 text-[#D4AF37] hover:text-[#121212]"
               >
                 <span className="material-symbols-outlined text-lg">share</span>
               </a>
@@ -221,7 +221,7 @@ export const Footer: React.FC<FooterProps> = ({
       </div>
 
       {/* Bottom Rights */}
-      <div className="py-6 border-t border-white/10 bg-[#160f11] px-6">
+      <div className="py-6 border-t border-white/10 bg-[#000000] px-6">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-center text-xs text-white/60 gap-3">
           <p className="text-center font-medium text-white/70">
             All Copyright @{' '}

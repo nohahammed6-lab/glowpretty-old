@@ -29,10 +29,11 @@ export function subscribeToDoc<T>(
   const docRef = doc(db, 'app_data', docId);
   return onSnapshot(
     docRef,
+    { includeMetadataChanges: true },
     (snapshot) => {
       if (snapshot.exists()) {
         onData(snapshot.data() as T);
-      } else {
+      } else if (!snapshot.metadata.hasPendingWrites) {
         // First time initialization if doc doesn't exist yet
         setDoc(docRef, fallbackData as any, { merge: true }).catch(console.error);
         onData(fallbackData);
@@ -40,7 +41,6 @@ export function subscribeToDoc<T>(
     },
     (error) => {
       console.warn(`Firestore sync error for ${docId}:`, error);
-      onData(fallbackData);
     }
   );
 }
@@ -80,6 +80,7 @@ export function subscribeToDocArray<T>(
   const docRef = doc(db, 'app_data', docId);
   return onSnapshot(
     docRef,
+    { includeMetadataChanges: true },
     (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.data();
@@ -88,13 +89,14 @@ export function subscribeToDocArray<T>(
           return;
         }
       }
-      // Initialize with fallback
-      setDoc(docRef, { items: fallbackData }).catch(console.error);
-      onData(fallbackData);
+      if (!snapshot.metadata.hasPendingWrites) {
+        // Initialize with fallback
+        setDoc(docRef, { items: fallbackData }).catch(console.error);
+        onData(fallbackData);
+      }
     },
     (error) => {
       console.warn(`Firestore sync error for array ${docId}:`, error);
-      onData(fallbackData);
     }
   );
 }
