@@ -35,6 +35,12 @@ import { NewAppointmentModal } from './components/NewAppointmentModal';
 import { NewServiceModal } from './components/NewServiceModal';
 import { AdminLoginModal } from './components/AdminLoginModal';
 import { NotificationToast } from './components/NotificationToast';
+import {
+  subscribeToDoc,
+  subscribeToDocArray,
+  saveDoc,
+  saveDocArray,
+} from './lib/firebase';
 
 export default function App() {
   // Navigation & Language
@@ -43,7 +49,7 @@ export default function App() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [userSession, setUserSession] = useState<UserSession>({ role: 'owner' });
 
-  // Dynamic Application State with localStorage Persistence
+  // Dynamic Application State with localStorage Persistence & Firestore Real-time Sync
   const [categories, setCategories] = useState<CategoryItem[]>(() => {
     try {
       const saved = localStorage.getItem('glow_categories');
@@ -125,8 +131,34 @@ export default function App() {
     }
   });
 
+  // Real-time listener for Firestore DB synchronization across all devices
+  useEffect(() => {
+    const unsubSite = subscribeToDoc<SiteSettings>('site_settings', (data) => setSiteSettings(data), INITIAL_SITE_SETTINGS);
+    const unsubCat = subscribeToDocArray<CategoryItem>('categories', (items) => setCategories(items), INITIAL_CATEGORIES);
+    const unsubSrv = subscribeToDocArray<Service>('services', (items) => setServices(items), INITIAL_SERVICES);
+    const unsubApt = subscribeToDocArray<Appointment>('appointments', (items) => setAppointments(items), INITIAL_APPOINTMENTS);
+    const unsubRev = subscribeToDocArray<Review>('reviews', (items) => setReviews(items), INITIAL_REVIEWS);
+    const unsubGal = subscribeToDocArray<GalleryItem>('gallery', (items) => setGallery(items), INITIAL_GALLERY);
+    const unsubAbt = subscribeToDoc<AboutContent>('about_content', (data) => setAboutContent(data), INITIAL_ABOUT_CONTENT);
+    const unsubSup = subscribeToDocArray<Supervisor>('supervisors', (items) => setSupervisors(items), INITIAL_SUPERVISORS);
+    const unsubPin = subscribeToDoc<{ pin: string }>('owner_pin', (data) => setOwnerPin(data?.pin || '1234'), { pin: '1234' });
+
+    return () => {
+      unsubSite();
+      unsubCat();
+      unsubSrv();
+      unsubApt();
+      unsubRev();
+      unsubGal();
+      unsubAbt();
+      unsubSup();
+      unsubPin();
+    };
+  }, []);
+
   const handleUpdateOwnerPin = (newPin: string) => {
     setOwnerPin(newPin);
+    saveDoc('owner_pin', { pin: newPin });
     try {
       localStorage.setItem('glow_owner_pin', newPin);
     } catch {
@@ -256,7 +288,9 @@ export default function App() {
       createdAt: new Date().toISOString(),
     };
 
-    setAppointments((prev) => [newApt, ...prev]);
+    const nextAppointments = [newApt, ...appointments];
+    setAppointments(nextAppointments);
+    saveDocArray('appointments', nextAppointments);
 
     setConfirmedAppointment(newApt);
     showToast(
@@ -268,16 +302,18 @@ export default function App() {
 
   // Handlers for Admin - Appointments
   const handleUpdateAppointmentStatus = (id: string, newStatus: AppointmentStatus) => {
-    setAppointments((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, status: newStatus } : a))
-    );
+    const nextAppointments = appointments.map((a) => (a.id === id ? { ...a, status: newStatus } : a));
+    setAppointments(nextAppointments);
+    saveDocArray('appointments', nextAppointments);
     showToast(
       language === 'ar' ? `تم تغيير حالة الحجز إلى: ${newStatus}` : `Status updated to ${newStatus}`
     );
   };
 
   const handleDeleteAppointment = (id: string) => {
-    setAppointments((prev) => prev.filter((a) => a.id !== id));
+    const nextAppointments = appointments.filter((a) => a.id !== id);
+    setAppointments(nextAppointments);
+    saveDocArray('appointments', nextAppointments);
     showToast(language === 'ar' ? 'تم حذف الموعد' : 'Appointment deleted.');
   };
 
@@ -290,99 +326,133 @@ export default function App() {
       createdAt: new Date().toISOString(),
     };
 
-    setAppointments((prev) => [newApt, ...prev]);
+    const nextAppointments = [newApt, ...appointments];
+    setAppointments(nextAppointments);
+    saveDocArray('appointments', nextAppointments);
     showToast(language === 'ar' ? 'تم إضافة حجز جديد بنجاح' : 'New appointment added.');
   };
 
   // Handlers for Admin - Categories
   const handleAddCategory = (cat: CategoryItem) => {
-    setCategories((prev) => [...prev, cat]);
+    const nextCategories = [...categories, cat];
+    setCategories(nextCategories);
+    saveDocArray('categories', nextCategories);
     showToast(language === 'ar' ? `تم إضافة تصنيف: ${cat.arabicLabel}` : `Category added: ${cat.label}`);
   };
 
   const handleUpdateCategory = (cat: CategoryItem) => {
-    setCategories((prev) => prev.map((c) => (c.id === cat.id ? cat : c)));
+    const nextCategories = categories.map((c) => (c.id === cat.id ? cat : c));
+    setCategories(nextCategories);
+    saveDocArray('categories', nextCategories);
     showToast(language === 'ar' ? 'تم تحديث التصنيف' : 'Category updated.');
   };
 
   const handleDeleteCategory = (id: string) => {
-    setCategories((prev) => prev.filter((c) => c.id !== id));
+    const nextCategories = categories.filter((c) => c.id !== id);
+    setCategories(nextCategories);
+    saveDocArray('categories', nextCategories);
     showToast(language === 'ar' ? 'تم حذف التصنيف' : 'Category deleted.');
   };
 
   // Handlers for Admin - Services
   const handleAddServiceAdmin = (newService: Service) => {
-    setServices((prev) => [...prev, newService]);
+    const nextServices = [...services, newService];
+    setServices(nextServices);
+    saveDocArray('services', nextServices);
     showToast(language === 'ar' ? `تم إضافة خدمة: ${newService.arabicTitle}` : `New service added.`);
   };
 
   const handleUpdateServiceAdmin = (updatedService: Service) => {
-    setServices((prev) => prev.map((s) => (s.id === updatedService.id ? updatedService : s)));
+    const nextServices = services.map((s) => (s.id === updatedService.id ? updatedService : s));
+    setServices(nextServices);
+    saveDocArray('services', nextServices);
     showToast(language === 'ar' ? 'تم تحديث بيانات الخدمة' : 'Service updated.');
   };
 
   const handleDeleteServiceAdmin = (id: string) => {
-    setServices((prev) => prev.filter((s) => s.id !== id));
+    const nextServices = services.filter((s) => s.id !== id);
+    setServices(nextServices);
+    saveDocArray('services', nextServices);
     showToast(language === 'ar' ? 'تم حذف الخدمة من القائمة' : 'Service deleted.');
   };
 
   // Handlers for Admin - Site Settings
   const handleUpdateSiteSettings = (newSettings: SiteSettings) => {
     setSiteSettings(newSettings);
+    saveDoc('site_settings', newSettings);
     showToast(language === 'ar' ? 'تم حفظ بيانات الموقع والتواصل بنجاح' : 'Site settings saved.');
   };
 
   // Handlers for Admin - Gallery
   const handleAddGalleryItem = (item: GalleryItem) => {
-    setGallery((prev) => [item, ...prev]);
+    const nextGallery = [item, ...gallery];
+    setGallery(nextGallery);
+    saveDocArray('gallery', nextGallery);
     showToast(language === 'ar' ? 'تم إضافة الصورة لمعرض الصور' : 'Gallery item added.');
   };
 
   const handleUpdateGalleryItem = (updatedItem: GalleryItem) => {
-    setGallery((prev) => prev.map((g) => (g.id === updatedItem.id ? updatedItem : g)));
+    const nextGallery = gallery.map((g) => (g.id === updatedItem.id ? updatedItem : g));
+    setGallery(nextGallery);
+    saveDocArray('gallery', nextGallery);
     showToast(language === 'ar' ? 'تم تحديث الصورة بالمعرض' : 'Gallery item updated.');
   };
 
   const handleDeleteGalleryItem = (id: string) => {
-    setGallery((prev) => prev.filter((g) => g.id !== id));
+    const nextGallery = gallery.filter((g) => g.id !== id);
+    setGallery(nextGallery);
+    saveDocArray('gallery', nextGallery);
     showToast(language === 'ar' ? 'تم حذف الصورة من المعرض' : 'Gallery item deleted.');
   };
 
   // Handlers for Admin - Supervisors Management
   const handleAddSupervisor = (sup: Supervisor) => {
-    setSupervisors((prev) => [sup, ...prev]);
+    const nextSupervisors = [sup, ...supervisors];
+    setSupervisors(nextSupervisors);
+    saveDocArray('supervisors', nextSupervisors);
     showToast(language === 'ar' ? `تم إضافة المشرف: ${sup.name}` : `Supervisor ${sup.name} added.`);
   };
 
   const handleUpdateSupervisor = (updatedSup: Supervisor) => {
-    setSupervisors((prev) => prev.map((s) => (s.id === updatedSup.id ? updatedSup : s)));
+    const nextSupervisors = supervisors.map((s) => (s.id === updatedSup.id ? updatedSup : s));
+    setSupervisors(nextSupervisors);
+    saveDocArray('supervisors', nextSupervisors);
     showToast(language === 'ar' ? 'تم تحديث بيانات وصلاحيات المشرف' : 'Supervisor updated.');
   };
 
   const handleDeleteSupervisor = (id: string) => {
-    setSupervisors((prev) => prev.filter((s) => s.id !== id));
+    const nextSupervisors = supervisors.filter((s) => s.id !== id);
+    setSupervisors(nextSupervisors);
+    saveDocArray('supervisors', nextSupervisors);
     showToast(language === 'ar' ? 'تم حذف حساب المشرف' : 'Supervisor deleted.');
   };
 
   // Handlers for Admin - About Content
   const handleUpdateAboutContent = (about: AboutContent) => {
     setAboutContent(about);
+    saveDoc('about_content', about);
     showToast(language === 'ar' ? 'تم حفظ النبذة التعريفية للصالون' : 'About section updated.');
   };
 
   // Handlers for Admin/Client - Reviews
   const handleAddReview = (review: Review) => {
-    setReviews((prev) => [review, ...prev]);
+    const nextReviews = [review, ...reviews];
+    setReviews(nextReviews);
+    saveDocArray('reviews', nextReviews);
     showToast(language === 'ar' ? 'شكراً لكِ! تم إضافة تقييمكِ بنجاح.' : 'Thank you! Your review has been submitted.');
   };
 
   const handleUpdateReview = (review: Review) => {
-    setReviews((prev) => prev.map((r) => (r.id === review.id ? review : r)));
+    const nextReviews = reviews.map((r) => (r.id === review.id ? review : r));
+    setReviews(nextReviews);
+    saveDocArray('reviews', nextReviews);
     showToast(language === 'ar' ? 'تم تعديل التقييم بنجاح' : 'Review updated successfully.');
   };
 
   const handleDeleteReview = (id: string) => {
-    setReviews((prev) => prev.filter((r) => r.id !== id));
+    const nextReviews = reviews.filter((r) => r.id !== id);
+    setReviews(nextReviews);
+    saveDocArray('reviews', nextReviews);
     showToast(language === 'ar' ? 'تم حذف التقييم' : 'Review deleted.');
   };
 
