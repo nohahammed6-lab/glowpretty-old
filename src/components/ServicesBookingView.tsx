@@ -25,9 +25,7 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
   const isArabic = language === 'ar';
 
   // Selected Services Array (Supports multiple selection)
-  const [selectedServices, setSelectedServices] = useState<Service[]>(() => {
-    return services.length > 0 ? [services[0]] : [];
-  });
+  const [selectedServices, setSelectedServices] = useState<Service[]>([]);
 
   const toggleServiceSelection = (service: Service) => {
     setSelectedServices((prev) => {
