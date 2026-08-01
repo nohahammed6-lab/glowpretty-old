@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { PriceTag } from './PriceTag';
+import { exportAppointmentsPDF } from '../lib/pdfExport';
 import {
   Appointment,
   Service,
@@ -376,7 +377,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     <div className="flex flex-col lg:flex-row min-h-screen bg-[#fcf9f8]">
       
       {/* Sidebar Navigation */}
-      <aside className="w-full lg:w-72 bg-[#1f1618] text-white border-e border-[#D4AF37]/30 flex flex-col justify-between py-6 px-4 shrink-0 shadow-xl">
+      <aside className="w-full lg:w-72 bg-[#121212] text-white border-e border-[#D4AF37]/40 flex flex-col justify-between py-6 px-4 shrink-0 shadow-2xl">
         
         <div>
           {/* Brand & Badge */}
@@ -385,7 +386,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <h1 className="font-display text-2xl font-extrabold text-[#D4AF37] tracking-tight">
                 GLOW PRETTY
               </h1>
-              <p className="text-xs text-[#ffd9df] font-bold mt-0.5">
+              <p className="text-xs text-[#FAF6ED]/80 font-bold mt-0.5">
                 {isOwner
                   ? isArabic ? '👑 لوحة تحكم المدير العام' : '👑 Owner Admin Console'
                   : isArabic ? `🔑 حساب مشرف: ${userSession.supervisorData?.name}` : `🔑 Supervisor: ${userSession.supervisorData?.name}`}
@@ -393,7 +394,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
             <button
               onClick={onBackToClientView}
-              className="bg-[#9b0044] hover:bg-[#c2185b] text-white text-xs font-bold px-3 py-1.5 rounded-full border border-[#D4AF37]/50 transition-all cursor-pointer shadow-sm"
+              className="bg-[#262626] hover:bg-[#D4AF37] hover:text-[#121212] text-[#D4AF37] text-xs font-bold px-3 py-1.5 rounded-full border border-[#D4AF37]/50 transition-all cursor-pointer shadow-sm"
               title={isArabic ? 'العودة لموقع العملاء' : 'Back to Client Site'}
             >
               {isArabic ? 'الموقع' : 'Client Site'}
@@ -406,8 +407,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               onClick={() => setActiveTab('dashboard')}
               className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all cursor-pointer ${
                 activeTab === 'dashboard'
-                  ? 'bg-[#9b0044] text-white shadow-md border border-[#D4AF37]'
-                  : 'text-white/80 hover:bg-white/10'
+                  ? 'bg-[#D4AF37] text-[#121212] shadow-md border border-[#F3E5AB]'
+                  : 'text-white/80 hover:bg-white/10 hover:text-[#D4AF37]'
               }`}
             >
               <span className="material-symbols-outlined text-xl">dashboard</span>
@@ -419,8 +420,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 onClick={() => setActiveTab('appointments')}
                 className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all cursor-pointer ${
                   activeTab === 'appointments'
-                    ? 'bg-[#9b0044] text-white shadow-md border border-[#D4AF37]'
-                    : 'text-white/80 hover:bg-white/10'
+                    ? 'bg-[#D4AF37] text-[#121212] shadow-md border border-[#F3E5AB]'
+                    : 'text-white/80 hover:bg-white/10 hover:text-[#D4AF37]'
                 }`}
               >
                 <span className="material-symbols-outlined text-xl">calendar_month</span>
@@ -433,8 +434,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 onClick={() => setActiveTab('categories')}
                 className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all cursor-pointer ${
                   activeTab === 'categories'
-                    ? 'bg-[#9b0044] text-white shadow-md border border-[#D4AF37]'
-                    : 'text-white/80 hover:bg-white/10'
+                    ? 'bg-[#D4AF37] text-[#121212] shadow-md border border-[#F3E5AB]'
+                    : 'text-white/80 hover:bg-white/10 hover:text-[#D4AF37]'
                 }`}
               >
                 <span className="material-symbols-outlined text-xl">category</span>
@@ -447,8 +448,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 onClick={() => setActiveTab('services')}
                 className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all cursor-pointer ${
                   activeTab === 'services'
-                    ? 'bg-[#9b0044] text-white shadow-md border border-[#D4AF37]'
-                    : 'text-white/80 hover:bg-white/10'
+                    ? 'bg-[#D4AF37] text-[#121212] shadow-md border border-[#F3E5AB]'
+                    : 'text-white/80 hover:bg-white/10 hover:text-[#D4AF37]'
                 }`}
               >
                 <span className="material-symbols-outlined text-xl">spa</span>
@@ -461,8 +462,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 onClick={() => setActiveTab('reviews')}
                 className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all cursor-pointer ${
                   activeTab === 'reviews'
-                    ? 'bg-[#9b0044] text-white shadow-md border border-[#D4AF37]'
-                    : 'text-white/80 hover:bg-white/10'
+                    ? 'bg-[#D4AF37] text-[#121212] shadow-md border border-[#F3E5AB]'
+                    : 'text-white/80 hover:bg-white/10 hover:text-[#D4AF37]'
                 }`}
               >
                 <span className="material-symbols-outlined text-xl">rate_review</span>
@@ -475,8 +476,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 onClick={() => setActiveTab('gallery')}
                 className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all cursor-pointer ${
                   activeTab === 'gallery'
-                    ? 'bg-[#9b0044] text-white shadow-md border border-[#D4AF37]'
-                    : 'text-white/80 hover:bg-white/10'
+                    ? 'bg-[#D4AF37] text-[#121212] shadow-md border border-[#F3E5AB]'
+                    : 'text-white/80 hover:bg-white/10 hover:text-[#D4AF37]'
                 }`}
               >
                 <span className="material-symbols-outlined text-xl">photo_library</span>
@@ -489,8 +490,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 onClick={() => setActiveTab('siteInfo')}
                 className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all cursor-pointer ${
                   activeTab === 'siteInfo'
-                    ? 'bg-[#9b0044] text-white shadow-md border border-[#D4AF37]'
-                    : 'text-white/80 hover:bg-white/10'
+                    ? 'bg-[#D4AF37] text-[#121212] shadow-md border border-[#F3E5AB]'
+                    : 'text-white/80 hover:bg-white/10 hover:text-[#D4AF37]'
                 }`}
               >
                 <span className="material-symbols-outlined text-xl">settings_suggest</span>
@@ -503,8 +504,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 onClick={() => setActiveTab('about')}
                 className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all cursor-pointer ${
                   activeTab === 'about'
-                    ? 'bg-[#9b0044] text-white shadow-md border border-[#D4AF37]'
-                    : 'text-white/80 hover:bg-white/10'
+                    ? 'bg-[#D4AF37] text-[#121212] shadow-md border border-[#F3E5AB]'
+                    : 'text-white/80 hover:bg-white/10 hover:text-[#D4AF37]'
                 }`}
               >
                 <span className="material-symbols-outlined text-xl">info</span>
@@ -517,8 +518,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 onClick={() => setActiveTab('supervisors')}
                 className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all cursor-pointer ${
                   activeTab === 'supervisors'
-                    ? 'bg-[#9b0044] text-white shadow-md border border-[#D4AF37]'
-                    : 'text-white/80 hover:bg-white/10'
+                    ? 'bg-[#D4AF37] text-[#121212] shadow-md border border-[#F3E5AB]'
+                    : 'text-white/80 hover:bg-white/10 hover:text-[#D4AF37]'
                 }`}
               >
                 <span className="material-symbols-outlined text-xl">manage_accounts</span>
@@ -530,6 +531,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
         {/* CTAs Bottom */}
         <div className="mt-8 space-y-3 px-2">
+          {canAccess('appointments') && (
+            <button
+              onClick={() => exportAppointmentsPDF(appointments, language, siteSettings)}
+              className="w-full bg-[#FAF6ED] hover:bg-[#D4AF37] text-[#121212] py-3 px-4 rounded-xl flex items-center justify-center gap-2 font-black text-xs border border-[#D4AF37] transition-all cursor-pointer shadow-md"
+            >
+              <span className="material-symbols-outlined text-lg text-[#121212]">picture_as_pdf</span>
+              <span>{isArabic ? 'تصدير فايل الحجوزات PDF' : 'Export Bookings PDF'}</span>
+            </button>
+          )}
+
           {canAccess('appointments') && (
             <button
               onClick={onOpenNewAppointmentModal}
@@ -552,15 +563,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       </aside>
 
       {/* Main Admin Canvas */}
-      <main className="flex-1 p-6 lg:p-10 overflow-x-hidden">
+      <main className="flex-1 p-6 lg:p-10 overflow-x-hidden bg-[#FFFDF5]">
         
         {/* Header Title */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 bg-white p-6 rounded-3xl border border-[#D4AF37]/30 shadow-xs">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8 bg-white p-6 rounded-3xl border border-[#D4AF37]/40 shadow-xs">
           <div>
-            <span className="text-xs font-bold text-[#8f003f] uppercase tracking-wider">
+            <span className="text-xs font-bold text-[#D4AF37] uppercase tracking-wider">
               GLOW PRETTY Admin Console
             </span>
-            <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-[#9b0044] mt-0.5">
+            <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-[#121212] mt-0.5">
               {activeTab === 'dashboard' && (isArabic ? 'نظرة عامة وإحصائيات العمليات' : 'Dashboard Overview')}
               {activeTab === 'appointments' && (isArabic ? 'جدول المواعيد والحجوزات' : 'Appointments Schedule')}
               {activeTab === 'categories' && (isArabic ? 'إدارة تصنيفات الخدمات' : 'Service Categories')}
@@ -575,12 +586,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
           <div className="flex items-center gap-2">
             {!isOwner && (
-              <span className="bg-[#fdf5f7] text-[#9b0044] border border-[#D4AF37] text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+              <span className="bg-[#FAF6ED] text-[#121212] border border-[#D4AF37] text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5">
                 <span className="material-symbols-outlined text-base">badge</span>
                 <span>{userSession.supervisorData?.name}</span>
               </span>
             )}
-            <span className="text-xs text-gray-500 font-bold bg-[#fcf9f8] px-3.5 py-1.5 rounded-full border border-gray-200">
+
+            {canAccess('appointments') && (
+              <button
+                onClick={() => exportAppointmentsPDF(appointments, language, siteSettings)}
+                className="bg-[#121212] hover:bg-[#262626] text-[#FAF6ED] border border-[#D4AF37] text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 cursor-pointer shadow-sm transition-all"
+                title={isArabic ? 'تصدير وحفظ الحجوزات بتنسيق PDF' : 'Export PDF'}
+              >
+                <span className="material-symbols-outlined text-base text-[#D4AF37]">picture_as_pdf</span>
+                <span>{isArabic ? 'تصدير PDF' : 'Export PDF'}</span>
+              </button>
+            )}
+
+            <span className="text-xs text-gray-700 font-bold bg-[#FAF6ED] px-3.5 py-2 rounded-xl border border-[#D4AF37]/40">
               📅 {new Date().toLocaleDateString(isArabic ? 'ar-QA' : 'en-US')}
             </span>
           </div>
@@ -595,15 +618,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               
               <div className="bg-white p-6 rounded-3xl border border-[#D4AF37]/40 shadow-xs relative overflow-hidden">
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-xs font-extrabold text-[#594045]">
+                  <span className="text-xs font-extrabold text-gray-600">
                     {isArabic ? 'إجمالي الحجوزات' : 'Total Bookings'}
                   </span>
-                  <div className="w-10 h-10 bg-[#fdf5f7] text-[#9b0044] rounded-2xl flex items-center justify-center border border-[#D4AF37]/50">
+                  <div className="w-10 h-10 bg-[#FAF6ED] text-[#121212] rounded-2xl flex items-center justify-center border border-[#D4AF37]">
                     <span className="material-symbols-outlined">event_available</span>
                   </div>
                 </div>
                 <div className="flex items-baseline justify-between">
-                  <span className="font-display text-3xl font-extrabold text-[#1c1b1b]">
+                  <span className="font-display text-3xl font-extrabold text-[#121212]">
                     {stats.totalBookings}
                   </span>
                   <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
@@ -617,19 +640,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               <div className="bg-white p-6 rounded-3xl border border-[#D4AF37]/40 shadow-xs relative overflow-hidden">
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-xs font-extrabold text-[#594045]">
+                  <span className="text-xs font-extrabold text-gray-600">
                     {isArabic ? 'إجمالي الدخل الحقيقي' : 'Today Revenue'}
                   </span>
-                  <div className="w-10 h-10 bg-[#fdf5f7] text-[#9b0044] rounded-2xl flex items-center justify-center border border-[#D4AF37]/50">
+                  <div className="w-10 h-10 bg-[#FAF6ED] text-[#121212] rounded-2xl flex items-center justify-center border border-[#D4AF37]">
                     <span className="material-symbols-outlined">payments</span>
                   </div>
                 </div>
                 <div className="flex items-baseline justify-between">
                   <div className="flex items-baseline gap-1">
-                    <span className="font-display text-3xl font-extrabold text-[#9b0044]">
+                    <span className="font-display text-3xl font-extrabold text-[#121212]">
                       {stats.todayRevenueQAR}
                     </span>
-                    <span className="text-xs font-bold text-[#8f003f]">ر.ق</span>
+                    <span className="text-xs font-extrabold text-[#D4AF37]">ر.ق</span>
                   </div>
                   <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
                     {stats.revenueGrowth}
@@ -642,18 +665,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               <div className="bg-white p-6 rounded-3xl border border-[#D4AF37]/40 shadow-xs relative overflow-hidden">
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-xs font-extrabold text-[#594045]">
+                  <span className="text-xs font-extrabold text-gray-600">
                     {isArabic ? 'الخدمات المتاحة' : 'Active Services'}
                   </span>
-                  <div className="w-10 h-10 bg-[#fdf5f7] text-[#9b0044] rounded-2xl flex items-center justify-center border border-[#D4AF37]/50">
+                  <div className="w-10 h-10 bg-[#FAF6ED] text-[#121212] rounded-2xl flex items-center justify-center border border-[#D4AF37]">
                     <span className="material-symbols-outlined">spa</span>
                   </div>
                 </div>
                 <div className="flex items-baseline justify-between">
-                  <span className="font-display text-3xl font-extrabold text-[#1c1b1b]">
+                  <span className="font-display text-3xl font-extrabold text-[#121212]">
                     {stats.activeServicesCount}
                   </span>
-                  <span className="text-xs font-bold text-[#9b0044] bg-[#ffd9df] px-2 py-0.5 rounded-md">
+                  <span className="text-xs font-bold text-[#121212] bg-[#FAF4E1] px-2 py-0.5 rounded-md border border-[#D4AF37]/40">
                     خدمة
                   </span>
                 </div>
@@ -664,15 +687,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               <div className="bg-white p-6 rounded-3xl border border-[#D4AF37]/40 shadow-xs relative overflow-hidden">
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-xs font-extrabold text-[#594045]">
+                  <span className="text-xs font-extrabold text-gray-600">
                     {isArabic ? 'معدل رضا العملاء' : 'Customer Rating'}
                   </span>
-                  <div className="w-10 h-10 bg-[#fdf5f7] text-[#9b0044] rounded-2xl flex items-center justify-center border border-[#D4AF37]/50">
+                  <div className="w-10 h-10 bg-[#FAF6ED] text-[#121212] rounded-2xl flex items-center justify-center border border-[#D4AF37]">
                     <span className="material-symbols-outlined">star</span>
                   </div>
                 </div>
                 <div className="flex items-baseline justify-between">
-                  <span className="font-display text-3xl font-extrabold text-[#1c1b1b]">
+                  <span className="font-display text-3xl font-extrabold text-[#121212]">
                     {stats.customerSatisfaction}
                   </span>
                   <span className="text-xs font-bold text-[#D4AF37] bg-amber-50 px-2 py-0.5 rounded-md">
@@ -691,13 +714,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               
               <div className="lg:col-span-2 bg-white p-6 rounded-3xl border border-[#D4AF37]/30 shadow-xs">
                 <div className="flex justify-between items-center mb-6">
-                  <h3 className="font-display text-lg font-bold text-[#1c1b1b]">
+                  <h3 className="font-display text-lg font-bold text-[#121212]">
                     {isArabic ? 'أحدث المواعيد المسجلة' : 'Recent Appointments'}
                   </h3>
                   {canAccess('appointments') && (
                     <button
                       onClick={() => setActiveTab('appointments')}
-                      className="text-xs font-bold text-[#9b0044] hover:underline"
+                      className="text-xs font-bold text-[#D4AF37] hover:underline"
                     >
                       {isArabic ? 'عرض كل المواعيد ←' : 'View All →'}
                     </button>
@@ -705,9 +728,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
 
                 {appointments.length === 0 ? (
-                  <div className="py-12 text-center bg-[#fcf9f8] rounded-2xl border border-dashed border-gray-200">
-                    <span className="material-symbols-outlined text-4xl text-gray-300 mb-2">calendar_today</span>
-                    <p className="text-sm font-bold text-gray-500">
+                  <div className="py-12 text-center bg-[#FAF6ED] rounded-2xl border border-dashed border-[#D4AF37]/30">
+                    <span className="material-symbols-outlined text-4xl text-gray-400 mb-2">calendar_today</span>
+                    <p className="text-sm font-bold text-gray-600">
                       {isArabic ? 'لا توجد حجوزات مسجلة حالياً' : 'No bookings registered yet'}
                     </p>
                     <p className="text-xs text-gray-400 mt-1">
@@ -716,7 +739,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     {canAccess('appointments') && (
                       <button
                         onClick={onOpenNewAppointmentModal}
-                        className="btn-burgundy px-5 py-2.5 rounded-xl text-xs font-bold mt-4 cursor-pointer shadow-sm"
+                        className="btn-black px-5 py-2.5 rounded-xl text-xs font-bold mt-4 cursor-pointer shadow-sm"
                       >
                         {isArabic ? 'إضافة موعد جديد الآن' : 'Add First Appointment'}
                       </button>
@@ -725,7 +748,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-start text-xs text-gray-700">
-                      <thead className="bg-[#fdf5f7] text-[#9b0044] uppercase text-[10px] font-bold">
+                      <thead className="bg-[#121212] text-[#D4AF37] uppercase text-[10px] font-bold">
                         <tr>
                           <th className="py-3 px-3 text-start">{isArabic ? 'العميلة' : 'Client'}</th>
                           <th className="py-3 px-3 text-start">{isArabic ? 'الخدمة' : 'Service'}</th>
@@ -735,11 +758,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       </thead>
                       <tbody className="divide-y divide-gray-100">
                         {appointments.slice(0, 5).map((apt) => (
-                          <tr key={apt.id} className="hover:bg-gray-50/80">
-                            <td className="py-3 px-3 font-bold text-[#1c1b1b]">
+                          <tr key={apt.id} className="hover:bg-[#FAF6ED]/80">
+                            <td className="py-3 px-3 font-bold text-[#121212]">
                               {apt.clientName}
                             </td>
-                            <td className="py-3 px-3 font-semibold text-[#8f003f]">
+                            <td className="py-3 px-3 font-semibold text-[#121212]">
                               {apt.serviceName}
                             </td>
                             <td className="py-3 px-3 font-medium">
@@ -770,24 +793,34 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               {/* Quick Info & Salon System Summary */}
               <div className="bg-white p-6 rounded-3xl border border-[#D4AF37]/30 shadow-xs space-y-5">
-                <h3 className="font-display text-lg font-bold text-[#9b0044]">
+                <h3 className="font-display text-lg font-bold text-[#121212]">
                   {isArabic ? 'نظام صالون GLOW PRETTY' : 'GLOW PRETTY Summary'}
                 </h3>
                 
-                <div className="bg-[#fdf5f7] p-4 rounded-2xl border border-[#D4AF37]/30 text-xs space-y-2.5">
-                  <div className="flex justify-between items-center text-[#594045] font-semibold">
+                <div className="bg-[#FAF6ED] p-4 rounded-2xl border border-[#D4AF37]/40 text-xs space-y-2.5">
+                  <div className="flex justify-between items-center text-gray-700 font-semibold">
                     <span>{isArabic ? 'اسم الصالون:' : 'Salon Name:'}</span>
-                    <span className="font-bold text-[#9b0044]">GLOW PRETTY</span>
+                    <span className="font-bold text-[#121212]">GLOW PRETTY</span>
                   </div>
-                  <div className="flex justify-between items-center text-[#594045] font-semibold">
+                  <div className="flex justify-between items-center text-gray-700 font-semibold">
                     <span>{isArabic ? 'المنطقة:' : 'Location:'}</span>
-                    <span className="font-bold text-[#1c1b1b]">{isArabic ? 'الدوحة - مدينة خليفة - قطر 🇶🇦' : 'Madinat Khalifa, Doha, Qatar 🇶🇦'}</span>
+                    <span className="font-bold text-[#121212]">{isArabic ? 'الدوحة - مدينة خليفة - قطر 🇶🇦' : 'Madinat Khalifa, Doha, Qatar 🇶🇦'}</span>
                   </div>
-                  <div className="flex justify-between items-center text-[#594045] font-semibold">
+                  <div className="flex justify-between items-center text-gray-700 font-semibold">
                     <span>{isArabic ? 'المشرفون المسجلون:' : 'Registered Staff:'}</span>
-                    <span className="font-bold text-[#9b0044]">{supervisors.length} مشرف</span>
+                    <span className="font-bold text-[#121212]">{supervisors.length} مشرف</span>
                   </div>
                 </div>
+
+                {canAccess('appointments') && (
+                  <button
+                    onClick={() => exportAppointmentsPDF(appointments, language, siteSettings)}
+                    className="w-full bg-[#121212] hover:bg-[#262626] text-[#FAF6ED] border border-[#D4AF37] py-3 px-4 rounded-xl flex items-center justify-center gap-2 font-bold text-xs cursor-pointer shadow-md transition-all"
+                  >
+                    <span className="material-symbols-outlined text-lg text-[#D4AF37]">picture_as_pdf</span>
+                    <span>{isArabic ? 'تصدير وحفظ ملف الحجوزات PDF' : 'Download Bookings Backup PDF'}</span>
+                  </button>
+                )}
 
                 <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 text-xs text-amber-900 leading-relaxed font-medium">
                   💡 {isArabic
@@ -807,19 +840,28 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-100 pb-5">
               <div>
-                <h3 className="font-display text-xl font-bold text-[#9b0044]">
+                <h3 className="font-display text-xl font-bold text-[#121212]">
                   {isArabic ? 'قائمة الحجوزات والمواعيد' : 'Appointments List'}
                 </h3>
                 <p className="text-xs text-gray-500 mt-0.5 font-medium">
-                  {isArabic ? 'إدارة حالات الحجوزات وإضافة مواعيد جديدة' : 'Manage client booking statuses.'}
+                  {isArabic ? 'إدارة حالات الحجوزات، إضافة مواعيد، وتصدير ملف العملاء PDF' : 'Manage client booking statuses & export customer records.'}
                 </p>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                <button
+                  onClick={() => exportAppointmentsPDF(filteredAppointments, language, siteSettings)}
+                  className="bg-[#121212] hover:bg-[#262626] text-[#FAF6ED] border border-[#D4AF37] px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-sm transition-all"
+                  title={isArabic ? 'تصدير ملف الحجوزات المعروضة PDF' : 'Export PDF'}
+                >
+                  <span className="material-symbols-outlined text-base text-[#D4AF37]">picture_as_pdf</span>
+                  <span>{isArabic ? 'تصدير ملف PDF' : 'Export Bookings PDF'}</span>
+                </button>
+
                 <select
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
-                  className="bg-[#fcf9f8] border border-[#D4AF37] text-xs font-bold rounded-xl py-2 px-3 text-[#9b0044]"
+                  className="bg-[#FAF6ED] border border-[#D4AF37] text-xs font-bold rounded-xl py-2 px-3 text-[#121212]"
                 >
                   <option value="All">{isArabic ? 'جميع الحالات' : 'All Statuses'}</option>
                   <option value="Confirmed">Confirmed</option>
@@ -830,7 +872,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                 <button
                   onClick={onOpenNewAppointmentModal}
-                  className="btn-burgundy px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-sm"
+                  className="btn-gold px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-sm"
                 >
                   <span className="material-symbols-outlined text-base">add</span>
                   <span>{isArabic ? 'إضافة موعد' : 'Add Appointment'}</span>
@@ -839,16 +881,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
 
             {filteredAppointments.length === 0 ? (
-              <div className="py-16 text-center bg-[#fcf9f8] rounded-2xl border border-dashed border-gray-200">
-                <span className="material-symbols-outlined text-4xl text-gray-300 mb-2">event_busy</span>
-                <p className="text-sm font-bold text-gray-500">
+              <div className="py-16 text-center bg-[#FAF6ED] rounded-2xl border border-dashed border-[#D4AF37]/40">
+                <span className="material-symbols-outlined text-4xl text-gray-400 mb-2">event_busy</span>
+                <p className="text-sm font-bold text-gray-600">
                   {isArabic ? 'لا توجد مواعيد مطابقة للتصفية الحالية' : 'No appointments matching filter'}
                 </p>
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-start text-xs text-gray-700">
-                  <thead className="bg-[#9b0044] text-white uppercase text-[11px] font-bold">
+                  <thead className="bg-[#121212] text-[#D4AF37] uppercase text-[11px] font-bold">
                     <tr>
                       <th className="py-3 px-4 text-start">{isArabic ? 'العميلة' : 'Client'}</th>
                       <th className="py-3 px-4 text-start">{isArabic ? 'بيانات التواصل' : 'Contact'}</th>
@@ -860,15 +902,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   </thead>
                   <tbody className="divide-y divide-gray-100">
                     {filteredAppointments.map((apt) => (
-                      <tr key={apt.id} className="hover:bg-[#fdf5f7]/50 transition-colors">
-                        <td className="py-3.5 px-4 font-bold text-[#1c1b1b]">
+                      <tr key={apt.id} className="hover:bg-[#FAF6ED]/80 transition-colors">
+                        <td className="py-3.5 px-4 font-bold text-[#121212]">
                           {apt.clientName}
                         </td>
                         <td className="py-3.5 px-4 font-semibold text-gray-600">
                           <div>{apt.clientPhone}</div>
                           <div className="text-[10px] text-gray-400">{apt.clientEmail}</div>
                         </td>
-                        <td className="py-3.5 px-4 font-bold text-[#9b0044]">
+                        <td className="py-3.5 px-4 font-bold text-[#121212]">
                           {apt.serviceName}
                         </td>
                         <td className="py-3.5 px-4 font-medium text-gray-700">
@@ -917,7 +959,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         {activeTab === 'categories' && canAccess('categories') && (
           <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#D4AF37]/30 shadow-sm space-y-6">
             <div>
-              <h3 className="font-display text-xl font-bold text-[#9b0044]">
+              <h3 className="font-display text-xl font-bold text-[#121212]">
                 {isArabic ? 'إدارة تصنيفات الخدمات' : 'Service Categories'}
               </h3>
               <p className="text-xs text-gray-500 mt-0.5 font-medium">
@@ -926,8 +968,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSaveCategory} className="bg-[#fdf5f7] p-5 rounded-2xl border border-[#D4AF37]/30 space-y-3">
-              <h4 className="font-bold text-xs text-[#9b0044]">
+            <form onSubmit={handleSaveCategory} className="bg-[#FAF6ED] p-5 rounded-2xl border border-[#D4AF37]/40 space-y-3">
+              <h4 className="font-bold text-xs text-[#121212]">
                 {editingCategory ? (isArabic ? 'تعديل التصنيف' : 'Edit Category') : (isArabic ? 'إضافة تصنيف جديد' : 'Add New Category')}
               </h4>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -939,7 +981,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     placeholder="e.g., Skincare"
                     value={newCatEN}
                     onChange={(e) => setNewCatEN(e.target.value)}
-                    className="w-full border rounded-xl p-2.5 text-xs bg-white font-semibold"
+                    className="w-full border border-gray-300 rounded-xl p-2.5 text-xs bg-white font-semibold"
                   />
                 </div>
                 <div>
@@ -950,12 +992,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     placeholder="مثال: العناية بالبشرة والوجه"
                     value={newCatAR}
                     onChange={(e) => setNewCatAR(e.target.value)}
-                    className="w-full border rounded-xl p-2.5 text-xs bg-white font-semibold"
+                    className="w-full border border-gray-300 rounded-xl p-2.5 text-xs bg-white font-semibold"
                   />
                 </div>
               </div>
               <div className="flex gap-2 pt-1">
-                <button type="submit" className="btn-burgundy px-5 py-2 rounded-xl text-xs font-bold cursor-pointer">
+                <button type="submit" className="btn-black px-5 py-2 rounded-xl text-xs font-bold cursor-pointer">
                   {editingCategory ? (isArabic ? 'تحديث التصنيف' : 'Update Category') : (isArabic ? 'إضافة التصنيف' : 'Add Category')}
                 </button>
                 {editingCategory && (
@@ -977,10 +1019,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             {/* Category List */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {categories.map((cat) => (
-                <div key={cat.id} className="p-4 rounded-2xl border border-gray-200 bg-[#fcf9f8] flex justify-between items-center">
+                <div key={cat.id} className="p-4 rounded-2xl border border-[#D4AF37]/30 bg-[#FAF6ED] flex justify-between items-center">
                   <div>
-                    <h5 className="font-bold text-xs text-[#9b0044]">{cat.arabicLabel}</h5>
-                    <span className="text-[10px] text-gray-400 font-mono">{cat.label}</span>
+                    <h5 className="font-bold text-xs text-[#121212]">{cat.arabicLabel}</h5>
+                    <span className="text-[10px] text-gray-500 font-mono">{cat.label}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <button
@@ -989,7 +1031,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         setNewCatEN(cat.label);
                         setNewCatAR(cat.arabicLabel);
                       }}
-                      className="text-[#9b0044] hover:bg-[#ffd9df] p-1.5 rounded-lg text-xs font-bold cursor-pointer"
+                      className="text-[#121212] hover:bg-[#D4AF37]/20 p-1.5 rounded-lg text-xs font-bold cursor-pointer"
                     >
                       <span className="material-symbols-outlined text-base">edit</span>
                     </button>
@@ -1012,7 +1054,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#D4AF37]/30 shadow-sm space-y-6">
             <div className="flex justify-between items-center">
               <div>
-                <h3 className="font-display text-xl font-bold text-[#9b0044]">
+                <h3 className="font-display text-xl font-bold text-[#121212]">
                   {isArabic ? 'إدارة قائمة الخدمات والأسعار' : 'Services & Pricing Manager'}
                 </h3>
                 <p className="text-xs text-gray-500 mt-0.5 font-medium">
@@ -1022,7 +1064,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               <button
                 onClick={onOpenNewServiceModal}
-                className="btn-burgundy px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-sm"
+                className="btn-black px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-sm"
               >
                 <span className="material-symbols-outlined text-base">add</span>
                 <span>{isArabic ? 'إضافة خدمة جديدة' : 'Add New Service'}</span>

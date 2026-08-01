@@ -30,10 +30,10 @@ export function subscribeToDoc<T>(
   return onSnapshot(
     docRef,
     { includeMetadataChanges: true },
-    (snapshot) => {
+    (snapshot: any) => {
       if (snapshot.exists()) {
         onData(snapshot.data() as T);
-      } else if (!snapshot.metadata.hasPendingWrites) {
+      } else if (!snapshot.metadata?.hasPendingWrites) {
         // First time initialization if doc doesn't exist yet
         setDoc(docRef, fallbackData as any, { merge: true }).catch(console.error);
         onData(fallbackData);
