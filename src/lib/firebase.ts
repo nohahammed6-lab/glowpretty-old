@@ -29,15 +29,31 @@ export function subscribeToDoc<T>(
   const docRef = doc(db, 'app_data', docId);
   return onSnapshot(
     docRef,
-    { includeMetadataChanges: true },
     (snapshot: any) => {
       if (snapshot.exists()) {
-        onData(snapshot.data() as T);
-      } else if (!snapshot.metadata?.hasPendingWrites) {
-        // First time initialization if doc doesn't exist yet
-        setDoc(docRef, fallbackData as any, { merge: true }).catch(console.error);
-        onData(fallbackData);
+        const data = snapshot.data() as T;
+        if (data && Object.keys(data).length > 0) {
+          onData(data);
+          return;
+        }
       }
+      // Check localStorage first to preserve user modifications
+      try {
+        const saved = localStorage.getItem(`glow_${docId}`);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && typeof parsed === 'object') {
+            setDoc(docRef, parsed as any, { merge: true }).catch(console.error);
+            onData(parsed);
+            return;
+          }
+        }
+      } catch {
+        // ignore parse error
+      }
+      // Fallback
+      setDoc(docRef, fallbackData as any, { merge: true }).catch(console.error);
+      onData(fallbackData);
     },
     (error) => {
       console.warn(`Firestore sync error for ${docId}:`, error);
@@ -80,20 +96,31 @@ export function subscribeToDocArray<T>(
   const docRef = doc(db, 'app_data', docId);
   return onSnapshot(
     docRef,
-    { includeMetadataChanges: true },
     (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.data();
-        if (data && Array.isArray(data.items)) {
+        if (data && Array.isArray(data.items) && data.items.length > 0) {
           onData(data.items as T[]);
           return;
         }
       }
-      if (!snapshot.metadata.hasPendingWrites) {
-        // Initialize with fallback
-        setDoc(docRef, { items: fallbackData }).catch(console.error);
-        onData(fallbackData);
+      // Check localStorage first to preserve user modified items and custom uploaded images
+      try {
+        const saved = localStorage.getItem(`glow_${docId}`);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setDoc(docRef, { items: parsed }).catch(console.error);
+            onData(parsed);
+            return;
+          }
+        }
+      } catch {
+        // ignore parse error
       }
+      // Fallback
+      setDoc(docRef, { items: fallbackData }).catch(console.error);
+      onData(fallbackData);
     },
     (error) => {
       console.warn(`Firestore sync error for array ${docId}:`, error);
