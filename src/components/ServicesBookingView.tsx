@@ -24,10 +24,28 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
 }) => {
   const isArabic = language === 'ar';
 
-  // Selected Service
-  const [selectedService, setSelectedService] = useState<Service | null>(
-    services[0] || null
-  );
+  // Selected Services Array (Supports multiple selection)
+  const [selectedServices, setSelectedServices] = useState<Service[]>(() => {
+    return services.length > 0 ? [services[0]] : [];
+  });
+
+  const toggleServiceSelection = (service: Service) => {
+    setSelectedServices((prev) => {
+      const exists = prev.some((s) => s.id === service.id);
+      if (exists) {
+        return prev.filter((s) => s.id !== service.id);
+      } else {
+        return [...prev, service];
+      }
+    });
+  };
+
+  const removeServiceSelection = (serviceId: string) => {
+    setSelectedServices((prev) => prev.filter((s) => s.id !== serviceId));
+  };
+
+  const totalPriceQAR = selectedServices.reduce((sum, s) => sum + (s.priceQAR || 0), 0);
+  const totalDurationMinutes = selectedServices.reduce((sum, s) => sum + (s.durationMinutes || 0), 0);
 
   // Calendar Date selection state (Default: Today's date YYYY-MM-DD)
   const [selectedBookingDate, setSelectedBookingDate] = useState<string>(() => {
@@ -57,8 +75,8 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
 
   const handleBookingSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedService) {
-      setFormError(isArabic ? 'يرجى اختيار خدمة من القائمة أولاً' : 'Please select a service from the menu first.');
+    if (selectedServices.length === 0) {
+      setFormError(isArabic ? 'يرجى اختيار خدمة واحدة على الأقل من القائمة أولاً' : 'Please select at least one service from the menu.');
       return;
     }
     if (!selectedBookingDate) {
@@ -77,13 +95,19 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
       ? (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase()
       : nameParts[0].substring(0, 2).toUpperCase();
 
+    const serviceIds = selectedServices.map((s) => s.id).join(', ');
+    const serviceNamesList = selectedServices.map((s) => (isArabic ? s.arabicTitle : s.title)).join(' + ');
+    const serviceNameSummary = selectedServices.length > 1
+      ? `${serviceNamesList} (${isArabic ? 'الإجمالي' : 'Total'}: ${totalPriceQAR} ${isArabic ? 'ر.ق' : 'QAR'})`
+      : serviceNamesList;
+
     onConfirmBooking({
       clientName: fullName,
       clientInitials: initials,
       clientEmail: email,
       clientPhone: phone,
-      serviceId: selectedService.id,
-      serviceName: isArabic ? selectedService.arabicTitle : selectedService.title,
+      serviceId: serviceIds,
+      serviceName: serviceNameSummary,
       date: selectedBookingDate,
       time: selectedTimeSlot,
     });
@@ -118,34 +142,50 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
         {/* Left Column: Category Tabs & Services Cards */}
         <div className="lg:col-span-7 space-y-6">
           
-          {/* Category Filter Tabs */}
-          <div className="flex gap-2.5 overflow-x-auto no-scrollbar pb-2">
-            {filterCategories.map((cat) => {
-              const isActive = selectedCategory === cat.id;
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => setSelectedCategory(cat.id)}
-                  className={`px-5 py-2.5 rounded-full whitespace-nowrap text-sm font-bold transition-all cursor-pointer ${
-                    isActive
-                      ? 'bg-[#9b0044] text-white shadow-md border border-[#D4AF37]'
-                      : 'bg-white text-[#594045] border border-[#D4AF37]/30 hover:border-[#9b0044] hover:bg-[#fdf5f7]'
-                  }`}
-                >
-                  {isArabic ? cat.arabicLabel : cat.label}
-                </button>
-              );
-            })}
+          {/* Category Filter Tabs & Multi-select Hint */}
+          <div className="space-y-3">
+            <div className="flex gap-2.5 overflow-x-auto no-scrollbar pb-1">
+              {filterCategories.map((cat) => {
+                const isActive = selectedCategory === cat.id;
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => setSelectedCategory(cat.id)}
+                    className={`px-5 py-2.5 rounded-full whitespace-nowrap text-sm font-bold transition-all cursor-pointer ${
+                      isActive
+                        ? 'bg-[#9b0044] text-white shadow-md border border-[#D4AF37]'
+                        : 'bg-white text-[#594045] border border-[#D4AF37]/30 hover:border-[#9b0044] hover:bg-[#fdf5f7]'
+                    }`}
+                  >
+                    {isArabic ? cat.arabicLabel : cat.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="bg-[#fdf5f7] border border-[#D4AF37]/40 rounded-2xl p-3 px-4 flex items-center justify-between text-xs text-[#9b0044] font-bold shadow-2xs">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-base">checklist</span>
+                <span>
+                  {isArabic
+                    ? 'يمكنكِ تحديد أكثر من خدمة للحجز في نفس الموعد'
+                    : 'You can select multiple services for a single appointment'}
+                </span>
+              </div>
+              <span className="bg-[#9b0044] text-white px-2.5 py-1 rounded-full font-bold text-[11px] whitespace-nowrap">
+                {isArabic ? `${selectedServices.length} خدمات محددة` : `${selectedServices.length} Selected`}
+              </span>
+            </div>
           </div>
 
           {/* Service Cards Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             {filteredServices.map((service) => {
-              const isSelected = selectedService?.id === service.id;
+              const isSelected = selectedServices.some((s) => s.id === service.id);
               return (
                 <div
                   key={service.id}
-                  onClick={() => setSelectedService(service)}
+                  onClick={() => toggleServiceSelection(service)}
                   className={`bg-white p-5 rounded-2xl border-2 transition-all flex flex-col justify-between cursor-pointer relative ${
                     isSelected 
                       ? 'border-[#9b0044] bg-[#fdf5f7] shadow-xl scale-[1.01]' 
@@ -153,11 +193,19 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
                   }`}
                 >
                   {/* Selected Badge */}
-                  {isSelected && (
-                    <span className="absolute top-3 right-3 bg-[#9b0044] text-[#D4AF37] border border-[#D4AF37] rounded-full p-1 shadow-md">
-                      <span className="material-symbols-outlined text-sm block">check</span>
-                    </span>
-                  )}
+                  <div className="absolute top-3 right-3 flex items-center gap-1">
+                    {isSelected ? (
+                      <span className="bg-[#9b0044] text-[#D4AF37] border border-[#D4AF37] rounded-full px-2.5 py-0.5 shadow-md text-xs font-bold flex items-center gap-1">
+                        <span className="material-symbols-outlined text-sm">check_circle</span>
+                        <span>{isArabic ? 'محددة' : 'Selected'}</span>
+                      </span>
+                    ) : (
+                      <span className="bg-white/90 text-[#8f003f] border border-[#D4AF37]/50 rounded-full px-2.5 py-0.5 text-xs font-bold flex items-center gap-1 shadow-2xs">
+                        <span className="material-symbols-outlined text-sm">add</span>
+                        <span>{isArabic ? 'إضافة' : 'Add'}</span>
+                      </span>
+                    )}
+                  </div>
 
                   {/* Thumbnail Image */}
                   <div className="w-full h-44 mb-4 overflow-hidden rounded-xl bg-[#e5e2e1] border border-[#D4AF37]/20">
@@ -190,9 +238,14 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
                   </div>
 
                   {/* Footer Meta */}
-                  <div className="flex justify-end items-center border-t border-[#D4AF37]/20 pt-3 mt-2 text-xs font-semibold text-[#8f003f]">
-                    <span className="text-[#D4AF37] font-bold">
-                      {isSelected ? (isArabic ? 'الخدمة محددة للحجز' : 'Selected') : (isArabic ? 'انقري للاختيار' : 'Select Service')}
+                  <div className="flex justify-between items-center border-t border-[#D4AF37]/20 pt-3 mt-2 text-xs font-semibold">
+                    <span className="text-[#594045] text-[11px]">
+                      {service.durationMinutes ? `${service.durationMinutes} ${isArabic ? 'دقيقة' : 'mins'}` : ''}
+                    </span>
+                    <span className={isSelected ? "text-[#9b0044] font-bold" : "text-[#D4AF37] font-bold"}>
+                      {isSelected 
+                        ? (isArabic ? '✓ محددة (انقري للإلغاء)' : '✓ Selected (Click to remove)') 
+                        : (isArabic ? '+ انقري لإضافة الخدمة' : '+ Click to add service')}
                     </span>
                   </div>
 
@@ -216,34 +269,96 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
               </span>
             </div>
 
-            {/* Selected Service Card */}
-            {selectedService && (
-              <div className="mb-6 p-4 bg-[#fdf5f7] rounded-2xl border border-[#D4AF37]/40 flex items-center gap-3">
-                <img
-                  src={selectedService.imageUrl}
-                  alt={selectedService.title}
-                  className="w-14 h-14 rounded-xl object-cover border border-[#D4AF37]"
-                />
-                <div className="flex-1 min-w-0">
-                  <span className="text-[11px] text-[#8f003f] font-bold block">
-                    {isArabic ? 'الخدمة المختارة:' : 'Selected Service:'}
-                  </span>
-                  <h4 className="font-extrabold text-sm text-[#1c1b1b] truncate">
-                    {isArabic ? selectedService.arabicTitle : selectedService.title}
-                  </h4>
+            {/* Selected Services Box */}
+            <div className="mb-6 space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-xs font-extrabold uppercase tracking-wider text-[#8f003f]">
+                  {isArabic ? `الخدمات المختارة (${selectedServices.length}):` : `Selected Services (${selectedServices.length}):`}
+                </span>
+                {selectedServices.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedServices([])}
+                    className="text-[11px] text-red-600 hover:underline font-bold cursor-pointer"
+                  >
+                    {isArabic ? 'إلغاء الكل' : 'Clear All'}
+                  </button>
+                )}
+              </div>
+
+              {selectedServices.length === 0 ? (
+                <div className="p-4 bg-[#fdf5f7] rounded-2xl border border-dashed border-[#9b0044]/30 text-center text-xs text-[#8f003f] font-semibold">
+                  {isArabic ? 'لم تقمي باختيار أي خدمة بعد. انقري على إحدى الخدمات لإضافتها للحجز.' : 'No services selected yet. Click any service to add it to your reservation.'}
                 </div>
-                <div className="text-end">
-                  <div className="font-extrabold text-[#9b0044] text-base block">
-                    <PriceTag
-                      priceQAR={selectedService.priceQAR}
-                      priceDisplay={selectedService.priceDisplay}
-                      arabicPrice={selectedService.arabicPrice}
-                      isArabic={isArabic}
-                    />
+              ) : (
+                <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                  {selectedServices.map((service) => (
+                    <div
+                      key={service.id}
+                      className="p-3 bg-[#fdf5f7] rounded-xl border border-[#D4AF37]/40 flex items-center justify-between gap-3 shadow-2xs"
+                    >
+                      <img
+                        src={service.imageUrl}
+                        alt={service.title}
+                        className="w-10 h-10 rounded-lg object-cover border border-[#D4AF37]"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-xs text-[#1c1b1b] truncate">
+                          {isArabic ? service.arabicTitle : service.title}
+                        </h4>
+                        {service.durationMinutes ? (
+                          <span className="text-[10px] text-[#594045] font-semibold block">
+                            {service.durationMinutes} {isArabic ? 'دقيقة' : 'mins'}
+                          </span>
+                        ) : null}
+                      </div>
+                      <div className="text-end flex items-center gap-2">
+                        <span className="font-extrabold text-[#9b0044] text-xs">
+                          <PriceTag
+                            priceQAR={service.priceQAR}
+                            priceDisplay={service.priceDisplay}
+                            arabicPrice={service.arabicPrice}
+                            isArabic={isArabic}
+                          />
+                        </span>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeServiceSelection(service.id);
+                          }}
+                          className="text-[#9b0044] hover:bg-[#9b0044] hover:text-white rounded-full p-0.5 transition-colors cursor-pointer"
+                          title={isArabic ? 'حذف هذه الخدمة' : 'Remove service'}
+                        >
+                          <span className="material-symbols-outlined text-sm block">close</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Total Price & Duration Summary */}
+              {selectedServices.length > 0 && (
+                <div className="p-3.5 bg-gradient-to-r from-[#9b0044] to-[#730032] text-white rounded-2xl flex justify-between items-center shadow-md border border-[#D4AF37]/50">
+                  <div>
+                    <span className="text-[11px] text-[#D4AF37] font-bold block">
+                      {isArabic ? `الإجمالي (${selectedServices.length} خدمات):` : `Total (${selectedServices.length} services):`}
+                    </span>
+                    {totalDurationMinutes > 0 && (
+                      <span className="text-[10px] text-white/80 block font-medium">
+                        {isArabic ? `الوقت المتوقع: ${totalDurationMinutes} دقيقة` : `Est. Time: ${totalDurationMinutes} mins`}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-end">
+                    <span className="font-extrabold text-lg text-[#D4AF37]">
+                      {totalPriceQAR} {isArabic ? 'ر.ق' : 'QAR'}
+                    </span>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
 
             <form onSubmit={handleBookingSubmit} className="space-y-5" id="bookingForm">
               
@@ -361,8 +476,12 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
               <a
                 href={`https://wa.me/${siteSettings.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
                   isArabic
-                    ? `مرحباً، أود حجز خدمة: ${selectedService ? selectedService.arabicTitle : 'خدمة التجميل'}`
-                    : `Hello, I would like to book: ${selectedService ? selectedService.title : 'Beauty Service'}`
+                    ? `مرحباً، أود حجز الخدمات التالية: ${
+                        selectedServices.map((s) => s.arabicTitle).join(' + ') || 'خدمات التجميل'
+                      }${totalPriceQAR > 0 ? ` (المجموع: ${totalPriceQAR} ر.ق)` : ''}`
+                    : `Hello, I would like to book: ${
+                        selectedServices.map((s) => s.title).join(' + ') || 'Beauty Services'
+                      }${totalPriceQAR > 0 ? ` (Total: ${totalPriceQAR} QAR)` : ''}`
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
