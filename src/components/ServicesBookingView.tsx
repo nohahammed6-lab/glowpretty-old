@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Service, Language, Appointment, CategoryItem, SiteSettings } from '../types';
 import { TIME_SLOTS } from '../data/mockData';
 import { PriceTag } from './PriceTag';
@@ -380,6 +380,16 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
                     min={new Date().toISOString().split('T')[0]}
                     value={selectedBookingDate}
                     onChange={(e) => setSelectedBookingDate(e.target.value)}
+                    onClick={(e) => {
+                      try {
+                        (e.currentTarget as any).showPicker?.();
+                      } catch {}
+                    }}
+                    onFocus={(e) => {
+                      try {
+                        (e.currentTarget as any).showPicker?.();
+                      } catch {}
+                    }}
                     className="w-full border-2 border-[#D4AF37]/50 rounded-xl py-2.5 px-3.5 bg-[#FFFDF5] focus:bg-white focus:outline-none focus:border-[#121212] text-sm font-bold text-[#1c1b1b] cursor-pointer"
                   />
                 </div>
@@ -396,7 +406,11 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
                     onClick={() => {
                       const nextState = !isCustomTime;
                       setIsCustomTime(nextState);
-                      if (nextState && customTimeInput) {
+                      if (nextState && !customTimeInput) {
+                        const defaultCustom = isArabic ? '05:00 مساءً' : '05:00 PM';
+                        setCustomTimeInput(defaultCustom);
+                        setSelectedTimeSlot(defaultCustom);
+                      } else if (nextState && customTimeInput) {
                         setSelectedTimeSlot(customTimeInput);
                       }
                     }}
@@ -438,7 +452,14 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
                     <div className="text-end pt-1">
                       <button
                         type="button"
-                        onClick={() => setIsCustomTime(true)}
+                        onClick={() => {
+                          setIsCustomTime(true);
+                          if (!customTimeInput) {
+                            const defaultCustom = isArabic ? '05:00 مساءً' : '05:00 PM';
+                            setCustomTimeInput(defaultCustom);
+                            setSelectedTimeSlot(defaultCustom);
+                          }
+                        }}
                         className="text-[11px] font-bold text-[#665a3c] hover:text-[#121212] cursor-pointer underline flex items-center justify-end gap-1 ms-auto"
                       >
                         <span className="material-symbols-outlined text-xs">edit_calendar</span>
@@ -447,53 +468,73 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
                     </div>
                   </div>
                 ) : (
-                  <div className="p-3.5 bg-[#FAF6ED] border-2 border-[#D4AF37]/60 rounded-xl space-y-2.5 shadow-2xs">
-                    <div className="flex justify-between items-center">
+                  <div className="p-3.5 bg-[#FAF6ED] border-2 border-[#D4AF37]/60 rounded-2xl space-y-3 shadow-2xs">
+                    <div className="flex justify-between items-center border-b border-[#D4AF37]/30 pb-2">
                       <label className="block text-xs font-bold text-[#121212]">
-                        {isArabic ? 'أدخلي أو اختاري التوقيت المفضل لكِ:' : 'Specify your preferred custom time:'}
+                        {isArabic ? '⏱️ تحديد موعد مخصص:' : '⏱️ Custom Time Selection:'}
                       </label>
                       <button
                         type="button"
                         onClick={() => setIsCustomTime(false)}
-                        className="text-[11px] text-[#121212] font-bold underline"
+                        className="text-[11px] text-[#121212] font-bold underline cursor-pointer"
                       >
                         {isArabic ? 'إلغاء' : 'Cancel'}
                       </button>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="time"
-                        value={customTimeInput.includes(':') ? customTimeInput.split(' ')[0] : ''}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          if (val) {
-                            const [hStr, mStr] = val.split(':');
-                            let h = parseInt(hStr, 10);
-                            const ampm = h >= 12 ? (isArabic ? 'م' : 'PM') : (isArabic ? 'ص' : 'AM');
-                            h = h % 12 || 12;
-                            const formatted = `${h}:${mStr} ${ampm}`;
-                            setCustomTimeInput(formatted);
-                            setSelectedTimeSlot(formatted);
-                          }
-                        }}
-                        className="border-2 border-[#D4AF37] rounded-xl py-2 px-3 bg-white text-sm font-bold text-[#121212] focus:outline-none cursor-pointer"
-                      />
-                      <input
-                        type="text"
-                        placeholder={isArabic ? 'أو اكتبي الوقت (مثال: 03:30 عصراً)' : 'Or type time (e.g. 03:30 PM)'}
+                    {/* Full Dropdown Selector for Desktop & Mobile */}
+                    <div>
+                      <label className="text-[11px] text-[#665a3c] font-bold block mb-1">
+                        {isArabic ? 'اختاري الموعد المناسب من القائمة الكاملة:' : 'Select from full time list:'}
+                      </label>
+                      <select
                         value={customTimeInput}
                         onChange={(e) => {
                           setCustomTimeInput(e.target.value);
                           setSelectedTimeSlot(e.target.value);
                         }}
-                        className="flex-1 border border-[#D4AF37]/50 rounded-xl py-2 px-3 bg-white text-xs font-bold text-[#121212] focus:outline-none"
+                        className="w-full border-2 border-[#D4AF37] rounded-xl py-2 px-3 bg-white text-xs font-extrabold text-[#121212] focus:outline-none cursor-pointer"
+                      >
+                        {[
+                          '09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM',
+                          '12:00 PM', '12:30 PM', '01:00 PM', '01:30 PM', '02:00 PM', '02:30 PM',
+                          '03:00 PM', '03:30 PM', '04:00 PM', '04:30 PM', '05:00 PM', '05:30 PM',
+                          '06:00 PM', '06:30 PM', '07:00 PM', '07:30 PM', '08:00 PM', '08:30 PM',
+                          '09:00 PM', '09:30 PM', '10:00 PM'
+                        ].map((opt) => {
+                          const displayOpt = isArabic 
+                            ? opt.replace('AM', 'صباحاً').replace('PM', 'مساءً') 
+                            : opt;
+                          return (
+                            <option key={opt} value={displayOpt}>
+                              {displayOpt}
+                            </option>
+                          );
+                        })}
+                      </select>
+                    </div>
+
+                    {/* Manual Typing Field */}
+                    <div className="pt-2 border-t border-[#D4AF37]/30">
+                      <span className="text-[11px] text-[#665a3c] font-bold block mb-1">
+                        {isArabic ? 'أو اكتبي الموعد يدوياً:' : 'Or type time manually:'}
+                      </span>
+                      <input
+                        type="text"
+                        placeholder={isArabic ? 'مثال: 05:30 مساءً' : 'e.g. 05:30 PM'}
+                        value={customTimeInput}
+                        onChange={(e) => {
+                          setCustomTimeInput(e.target.value);
+                          setSelectedTimeSlot(e.target.value);
+                        }}
+                        className="w-full border border-[#D4AF37]/50 rounded-xl py-2 px-3 bg-white text-xs font-bold text-[#121212] focus:outline-none"
                       />
                     </div>
+
                     {customTimeInput && (
-                      <p className="text-[11px] font-bold text-[#121212] flex items-center gap-1">
+                      <p className="text-[11px] font-bold text-[#121212] flex items-center gap-1 bg-white p-2 rounded-xl border border-[#D4AF37]/40">
                         <span className="material-symbols-outlined text-xs text-[#D4AF37]">check_circle</span>
-                        <span>{isArabic ? `التوقيت المحدد: ${customTimeInput}` : `Selected time: ${customTimeInput}`}</span>
+                        <span>{isArabic ? `التوقيت المخصص المحدد: ${customTimeInput}` : `Selected custom time: ${customTimeInput}`}</span>
                       </p>
                     )}
                   </div>
