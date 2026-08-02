@@ -179,6 +179,8 @@ export default function App() {
     totalBookings: appointments.length,
     bookingsGrowth: appointments.length > 0 ? '+100%' : '0%',
     todayRevenueQAR: appointments.reduce((sum, apt) => {
+      if (apt.status === 'Cancelled') return sum;
+      if (typeof apt.priceQAR === 'number' && apt.priceQAR > 0) return sum + apt.priceQAR;
       const srv = services.find((s) => s.id === apt.serviceId);
       return sum + (srv ? srv.priceQAR : 0);
     }, 0),

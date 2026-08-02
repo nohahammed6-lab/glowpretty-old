@@ -31,6 +31,12 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
     const serviceName = serviceObj ? serviceObj.arabicTitle || serviceObj.title : 'خدمة تجميل';
     const priceQAR = serviceObj ? serviceObj.priceQAR : undefined;
     const priceDisplay = serviceObj ? (serviceObj.arabicPrice || `${serviceObj.priceQAR} ر.ق`) : undefined;
+    const servicesBreakdown = serviceObj ? [{
+      id: serviceObj.id,
+      title: serviceObj.arabicTitle || serviceObj.title,
+      priceQAR: serviceObj.priceQAR,
+      priceDisplay: serviceObj.arabicPrice || `${serviceObj.priceQAR} ر.ق`
+    }] : undefined;
 
     const nameParts = clientName.trim().split(' ');
     const initials = nameParts.length > 1 
@@ -46,6 +52,7 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
       serviceName,
       priceQAR,
       priceDisplay,
+      servicesBreakdown,
       date,
       time,
       status,

@@ -21,6 +21,13 @@ export interface Service {
 
 export type AppointmentStatus = 'Confirmed' | 'Pending' | 'Completed' | 'Cancelled';
 
+export interface AppointmentServiceItem {
+  id?: string;
+  title: string;
+  priceQAR?: number;
+  priceDisplay?: string;
+}
+
 export interface Appointment {
   id: string;
   clientName: string;
@@ -31,6 +38,7 @@ export interface Appointment {
   serviceName: string;
   priceQAR?: number;
   priceDisplay?: string;
+  servicesBreakdown?: AppointmentServiceItem[];
   date: string; // YYYY-MM-DD
   time: string; // e.g. "11:30 AM"
   status: AppointmentStatus;

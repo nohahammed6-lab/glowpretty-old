@@ -863,8 +863,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <tr>
                       <th className="py-3 px-4 text-start">{isArabic ? 'العميلة' : 'Client'}</th>
                       <th className="py-3 px-4 text-start">{isArabic ? 'بيانات التواصل' : 'Contact'}</th>
-                      <th className="py-3 px-4 text-start">{isArabic ? 'الخدمة المطلوبة' : 'Service'}</th>
-                      <th className="py-3 px-4 text-start">{isArabic ? 'سعر الخدمة' : 'Service Price'}</th>
+                      <th className="py-3 px-4 text-start">{isArabic ? 'الخدمات المحجوزة وتفاصيل الأسعار' : 'Booked Services & Prices'}</th>
+                      <th className="py-3 px-4 text-start">{isArabic ? 'إجمالي السعر' : 'Total Price'}</th>
                       <th className="py-3 px-4 text-start">{isArabic ? 'التاريخ والوقت' : 'Date & Time'}</th>
                       <th className="py-3 px-4 text-start">{isArabic ? 'الحالة' : 'Status'}</th>
                       <th className="py-3 px-4 text-center">{isArabic ? 'الإجراءات' : 'Actions'}</th>
@@ -873,7 +873,41 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <tbody className="divide-y divide-gray-100">
                     {filteredAppointments.map((apt) => {
                       const srv = services.find((s) => s.id === apt.serviceId);
-                      const priceVal = apt.priceDisplay || (srv ? (isArabic ? (srv.arabicPrice || `${srv.priceQAR} ر.ق`) : (srv.priceDisplay || `${srv.priceQAR} QAR`)) : (apt.priceQAR ? `${apt.priceQAR} ${isArabic ? 'ر.ق' : 'QAR'}` : '-'));
+
+                      let breakdown = apt.servicesBreakdown;
+                      if ((!breakdown || breakdown.length === 0) && apt.serviceId) {
+                        const ids = apt.serviceId.split(',').map((id) => id.trim());
+                        breakdown = ids.map((id) => {
+                          const matchedSrv = services.find((s) => s.id === id);
+                          if (matchedSrv) {
+                            return {
+                              id: matchedSrv.id,
+                              title: isArabic ? (matchedSrv.arabicTitle || matchedSrv.title) : matchedSrv.title,
+                              priceQAR: matchedSrv.priceQAR,
+                              priceDisplay: isArabic ? (matchedSrv.arabicPrice || `${matchedSrv.priceQAR} ر.ق`) : (matchedSrv.priceDisplay || `${matchedSrv.priceQAR} QAR`)
+                            };
+                          }
+                          return {
+                            id,
+                            title: apt.serviceName,
+                            priceQAR: apt.priceQAR,
+                            priceDisplay: apt.priceDisplay
+                          };
+                        });
+                      }
+
+                      // Compute accurate total sum from breakdown or priceQAR
+                      const breakdownSum = breakdown && breakdown.length > 0
+                        ? breakdown.reduce((sum, item) => sum + (item.priceQAR || 0), 0)
+                        : 0;
+
+                      const finalTotalQAR = (apt.priceQAR && apt.priceQAR > 0)
+                        ? apt.priceQAR
+                        : (breakdownSum > 0 ? breakdownSum : (srv ? srv.priceQAR : 0));
+
+                      const priceVal = finalTotalQAR > 0
+                        ? `${finalTotalQAR} ${isArabic ? 'ر.ق' : 'QAR'}`
+                        : (apt.priceDisplay || (srv ? (isArabic ? (srv.arabicPrice || `${srv.priceQAR} ر.ق`) : (srv.priceDisplay || `${srv.priceQAR} QAR`)) : '-'));
 
                       return (
                       <tr key={apt.id} className="hover:bg-[#FAF6ED]/80 transition-colors">
@@ -885,12 +919,36 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           <div className="text-[10px] text-gray-400">{apt.clientEmail}</div>
                         </td>
                         <td className="py-3.5 px-4 font-bold text-[#121212]">
-                          {apt.serviceName}
+                          {breakdown && breakdown.length > 0 ? (
+                            <div className="space-y-1.5 max-w-sm">
+                              {breakdown.map((item, idx) => (
+                                <div key={idx} className="flex items-center justify-between gap-2 bg-white border border-[#D4AF37]/50 px-2.5 py-1.5 rounded-xl shadow-2xs">
+                                  <span className="text-[#121212] font-bold text-xs truncate flex items-center gap-1.5">
+                                    <span className="material-symbols-outlined text-xs text-[#D4AF37]">check_circle</span>
+                                    <span>{item.title}</span>
+                                  </span>
+                                  <span className="text-[#9b0044] font-extrabold text-[11px] bg-[#FAF6ED] px-2 py-0.5 rounded-lg border border-[#D4AF37]/40 shrink-0">
+                                    {item.priceDisplay || (item.priceQAR ? `${item.priceQAR} ${isArabic ? 'ر.ق' : 'QAR'}` : '-')}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="font-bold text-[#121212]">{apt.serviceName}</div>
+                          )}
                         </td>
                         <td className="py-3.5 px-4 font-extrabold text-[#9b0044]">
-                          <span className="bg-[#FAF6ED] text-[#9b0044] border border-[#D4AF37]/60 px-2.5 py-1 rounded-lg text-xs font-extrabold inline-block shadow-2xs">
-                            {priceVal}
-                          </span>
+                          <div className="space-y-1">
+                            <span className="bg-[#121212] text-[#D4AF37] border border-[#D4AF37] px-3 py-1.5 rounded-xl text-xs font-black inline-flex items-center gap-1.5 shadow-xs">
+                              <span className="text-[#FAF6ED]/70 font-normal text-[10px]">{isArabic ? 'الإجمالي:' : 'Total:'}</span>
+                              <span className="text-white font-black">{priceVal}</span>
+                            </span>
+                            {breakdown && breakdown.length > 1 && (
+                              <div className="text-[10px] text-gray-500 font-bold">
+                                💐 {isArabic ? `(${breakdown.length} خدمات)` : `(${breakdown.length} items)`}
+                              </div>
+                            )}
+                          </div>
                         </td>
                         <td className="py-3.5 px-4 font-medium text-gray-700">
                           {apt.date} | {apt.time}
@@ -917,11 +975,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         </td>
                         <td className="py-3.5 px-4 text-center">
                           <button
-                            onClick={() => onDeleteAppointment(apt.id)}
-                            className="text-red-600 hover:bg-red-50 p-2 rounded-lg font-bold transition-all cursor-pointer"
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onDeleteAppointment(apt.id);
+                            }}
+                            className="bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 p-2 rounded-xl font-bold transition-all cursor-pointer border border-red-200 shadow-2xs inline-flex items-center justify-center"
                             title={isArabic ? 'حذف الموعد' : 'Delete'}
                           >
-                            <span className="material-symbols-outlined text-lg">delete</span>
+                            <span className="material-symbols-outlined text-lg block pointer-events-none">delete</span>
                           </button>
                         </td>
                       </tr>
