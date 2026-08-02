@@ -864,13 +864,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       <th className="py-3 px-4 text-start">{isArabic ? 'العميلة' : 'Client'}</th>
                       <th className="py-3 px-4 text-start">{isArabic ? 'بيانات التواصل' : 'Contact'}</th>
                       <th className="py-3 px-4 text-start">{isArabic ? 'الخدمة المطلوبة' : 'Service'}</th>
+                      <th className="py-3 px-4 text-start">{isArabic ? 'سعر الخدمة' : 'Service Price'}</th>
                       <th className="py-3 px-4 text-start">{isArabic ? 'التاريخ والوقت' : 'Date & Time'}</th>
                       <th className="py-3 px-4 text-start">{isArabic ? 'الحالة' : 'Status'}</th>
                       <th className="py-3 px-4 text-center">{isArabic ? 'الإجراءات' : 'Actions'}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
-                    {filteredAppointments.map((apt) => (
+                    {filteredAppointments.map((apt) => {
+                      const srv = services.find((s) => s.id === apt.serviceId);
+                      const priceVal = apt.priceDisplay || (srv ? (isArabic ? (srv.arabicPrice || `${srv.priceQAR} ر.ق`) : (srv.priceDisplay || `${srv.priceQAR} QAR`)) : (apt.priceQAR ? `${apt.priceQAR} ${isArabic ? 'ر.ق' : 'QAR'}` : '-'));
+
+                      return (
                       <tr key={apt.id} className="hover:bg-[#FAF6ED]/80 transition-colors">
                         <td className="py-3.5 px-4 font-bold text-[#121212]">
                           {apt.clientName}
@@ -881,6 +886,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         </td>
                         <td className="py-3.5 px-4 font-bold text-[#121212]">
                           {apt.serviceName}
+                        </td>
+                        <td className="py-3.5 px-4 font-extrabold text-[#9b0044]">
+                          <span className="bg-[#FAF6ED] text-[#9b0044] border border-[#D4AF37]/60 px-2.5 py-1 rounded-lg text-xs font-extrabold inline-block shadow-2xs">
+                            {priceVal}
+                          </span>
                         </td>
                         <td className="py-3.5 px-4 font-medium text-gray-700">
                           {apt.date} | {apt.time}
@@ -915,7 +925,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           </button>
                         </td>
                       </tr>
-                    ))}
+                    );
+                    })}
                   </tbody>
                 </table>
               </div>

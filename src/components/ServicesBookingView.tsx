@@ -107,6 +107,10 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
       ? `${serviceNamesList} (${isArabic ? 'الإجمالي' : 'Total'}: ${totalPriceQAR} ${isArabic ? 'ر.ق' : 'QAR'})`
       : serviceNamesList;
 
+    const priceDisplaySummary = totalPriceQAR > 0
+      ? `${totalPriceQAR} ${isArabic ? 'ر.ق' : 'QAR'}`
+      : (selectedServices[0] ? (isArabic ? (selectedServices[0].arabicPrice || `${selectedServices[0].priceQAR} ر.ق`) : (selectedServices[0].priceDisplay || `${selectedServices[0].priceQAR} QAR`)) : '');
+
     onConfirmBooking({
       clientName: fullName,
       clientInitials: initials,
@@ -114,6 +118,8 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
       clientPhone: phone,
       serviceId: serviceIds,
       serviceName: serviceNameSummary,
+      priceQAR: totalPriceQAR,
+      priceDisplay: priceDisplaySummary,
       date: selectedBookingDate,
       time: finalTimeSlot,
     });

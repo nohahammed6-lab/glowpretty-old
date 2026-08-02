@@ -29,6 +29,8 @@ export interface Appointment {
   clientPhone: string;
   serviceId: string;
   serviceName: string;
+  priceQAR?: number;
+  priceDisplay?: string;
   date: string; // YYYY-MM-DD
   time: string; // e.g. "11:30 AM"
   status: AppointmentStatus;

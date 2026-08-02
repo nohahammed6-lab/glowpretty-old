@@ -257,6 +257,7 @@ export function exportAppointmentsPDF(
             <th>${isArabic ? 'رقم الهاتف' : 'Phone'}</th>
             <th>${isArabic ? 'البريد الإلكتروني' : 'Email'}</th>
             <th>${isArabic ? 'الخدمة المطلوبة' : 'Service'}</th>
+            <th>${isArabic ? 'السعر' : 'Price'}</th>
             <th>${isArabic ? 'التاريخ والوقت' : 'Date & Time'}</th>
             <th>${isArabic ? 'الحالة' : 'Status'}</th>
           </tr>
@@ -271,6 +272,7 @@ export function exportAppointmentsPDF(
               <td dir="ltr" style="text-align: ${isArabic ? 'right' : 'left'}; font-weight: 700;">${apt.clientPhone}</td>
               <td dir="ltr" style="text-align: ${isArabic ? 'right' : 'left'}; color: #555;">${apt.clientEmail}</td>
               <td><strong style="color: #121212;">${apt.serviceName}</strong></td>
+              <td><strong style="color: #9b0044;">${apt.priceDisplay || (apt.priceQAR ? `${apt.priceQAR} ${isArabic ? 'ر.ق' : 'QAR'}` : '-')}</strong></td>
               <td>${apt.date} | ${apt.time}</td>
               <td>
                 <span class="badge ${
