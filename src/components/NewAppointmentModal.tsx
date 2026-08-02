@@ -112,11 +112,12 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
               </label>
               <input
                 type="tel"
+                dir="ltr"
                 required
                 placeholder="+974 5500 0000"
                 value={clientPhone}
                 onChange={(e) => setClientPhone(e.target.value)}
-                className="w-full border border-gray-300 rounded-xl py-2.5 px-3 text-sm focus:outline-none focus:border-[#9b0044]"
+                className="w-full border border-gray-300 rounded-xl py-2.5 px-3 text-sm focus:outline-none focus:border-[#9b0044] text-left"
               />
             </div>
           </div>

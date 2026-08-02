@@ -915,7 +915,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           {apt.clientName}
                         </td>
                         <td className="py-3.5 px-4 font-semibold text-gray-600">
-                          <div>{apt.clientPhone}</div>
+                          <div>
+                            <span dir="ltr" className="inline-block unicode-bidi-isolate font-bold text-[#121212]">
+                              {apt.clientPhone}
+                            </span>
+                          </div>
                           <div className="text-[10px] text-gray-400">{apt.clientEmail}</div>
                         </td>
                         <td className="py-3.5 px-4 font-bold text-[#121212]">

@@ -591,11 +591,12 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
                   </label>
                   <input
                     type="tel"
+                    dir="ltr"
                     required
                     placeholder="+974 5512 3456"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full border border-[#D4AF37]/40 rounded-xl py-2.5 px-3 bg-[#FFFDF5] focus:bg-white focus:outline-none focus:border-[#121212] text-sm text-[#1c1b1b]"
+                    className="w-full border border-[#D4AF37]/40 rounded-xl py-2.5 px-3 bg-[#FFFDF5] focus:bg-white focus:outline-none focus:border-[#121212] text-sm text-[#1c1b1b] text-left"
                   />
                 </div>
               </div>
