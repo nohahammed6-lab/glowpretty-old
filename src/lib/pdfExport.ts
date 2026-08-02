@@ -209,7 +209,7 @@ export function exportAppointmentsPDF(
     <body>
 
       <button class="print-actions" onclick="window.print()">
-        🖨️ ${isArabic ? 'حفظ بتنسيق PDF / طباعة' : 'Save as PDF / Print'}
+        📥 ${isArabic ? 'تحميل وحفظ بتنسيق PDF' : 'Download / Save as PDF'}
       </button>
 
       <div class="header">
@@ -296,21 +296,27 @@ export function exportAppointmentsPDF(
         <div>GLOW PRETTY BEAUTY SALON — ${isArabic ? 'سجل تحفظي سري لبيانات الحجوزات والعملاء' : 'Confidential Customer Backup Record'}</div>
         <div>${isArabic ? 'صفحة 1 من 1' : 'Page 1 of 1'}</div>
       </div>
-
-      <script>
-        window.onload = function() {
-          setTimeout(function() {
-            window.print();
-          }, 400);
-        };
-      </script>
     </body>
     </html>
   `;
 
-  const printWindow = window.open('', '_blank');
-  if (printWindow) {
-    printWindow.document.write(htmlContent);
-    printWindow.document.close();
+  try {
+    const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = isArabic
+      ? `جدول_حجوزات_صالون_غلو_بريتي_${new Date().toISOString().slice(0, 10)}.html`
+      : `GlowPretty_Bookings_${new Date().toISOString().slice(0, 10)}.html`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch (err) {
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(htmlContent);
+      printWindow.document.close();
+    }
   }
 }

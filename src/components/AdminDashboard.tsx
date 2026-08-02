@@ -533,16 +533,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         <div className="mt-8 space-y-3 px-2">
           {canAccess('appointments') && (
             <button
-              onClick={() => exportAppointmentsPDF(appointments, language, siteSettings)}
-              className="w-full bg-[#FAF6ED] hover:bg-[#D4AF37] text-[#121212] py-3 px-4 rounded-xl flex items-center justify-center gap-2 font-black text-xs border border-[#D4AF37] transition-all cursor-pointer shadow-md"
-            >
-              <span className="material-symbols-outlined text-lg text-[#121212]">picture_as_pdf</span>
-              <span>{isArabic ? 'تصدير فايل الحجوزات PDF' : 'Export Bookings PDF'}</span>
-            </button>
-          )}
-
-          {canAccess('appointments') && (
-            <button
               onClick={onOpenNewAppointmentModal}
               className="btn-gold w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 font-bold text-sm cursor-pointer shadow-md"
             >
@@ -590,17 +580,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <span className="material-symbols-outlined text-base">badge</span>
                 <span>{userSession.supervisorData?.name}</span>
               </span>
-            )}
-
-            {canAccess('appointments') && (
-              <button
-                onClick={() => exportAppointmentsPDF(appointments, language, siteSettings)}
-                className="bg-[#121212] hover:bg-[#262626] text-[#FAF6ED] border border-[#D4AF37] text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 cursor-pointer shadow-sm transition-all"
-                title={isArabic ? 'تصدير وحفظ الحجوزات بتنسيق PDF' : 'Export PDF'}
-              >
-                <span className="material-symbols-outlined text-base text-[#D4AF37]">picture_as_pdf</span>
-                <span>{isArabic ? 'تصدير PDF' : 'Export PDF'}</span>
-              </button>
             )}
 
             <span className="text-xs text-gray-700 font-bold bg-[#FAF6ED] px-3.5 py-2 rounded-xl border border-[#D4AF37]/40">
@@ -812,16 +791,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   </div>
                 </div>
 
-                {canAccess('appointments') && (
-                  <button
-                    onClick={() => exportAppointmentsPDF(appointments, language, siteSettings)}
-                    className="w-full bg-[#121212] hover:bg-[#262626] text-[#FAF6ED] border border-[#D4AF37] py-3 px-4 rounded-xl flex items-center justify-center gap-2 font-bold text-xs cursor-pointer shadow-md transition-all"
-                  >
-                    <span className="material-symbols-outlined text-lg text-[#D4AF37]">picture_as_pdf</span>
-                    <span>{isArabic ? 'تصدير وحفظ ملف الحجوزات PDF' : 'Download Bookings Backup PDF'}</span>
-                  </button>
-                )}
-
                 <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 text-xs text-amber-900 leading-relaxed font-medium">
                   💡 {isArabic
                     ? 'البيانات والإحصائيات مرتبطة بالريال القطري (ر.ق). جميع التغييرات تنعكس فورياً في موقع العملاء.'
@@ -852,10 +821,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <button
                   onClick={() => exportAppointmentsPDF(filteredAppointments, language, siteSettings)}
                   className="bg-[#121212] hover:bg-[#262626] text-[#FAF6ED] border border-[#D4AF37] px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-sm transition-all"
-                  title={isArabic ? 'تصدير ملف الحجوزات المعروضة PDF' : 'Export PDF'}
+                  title={isArabic ? 'تحميل فايل الحجوزات بتنسيق PDF' : 'Download PDF'}
                 >
                   <span className="material-symbols-outlined text-base text-[#D4AF37]">picture_as_pdf</span>
-                  <span>{isArabic ? 'تصدير ملف PDF' : 'Export Bookings PDF'}</span>
+                  <span>{isArabic ? 'تحميل فايل الحجوزات PDF' : 'Download Bookings PDF'}</span>
                 </button>
 
                 <select
