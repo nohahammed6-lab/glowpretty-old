@@ -28,46 +28,33 @@ export function subscribeToDoc<T extends object>(
 ) {
   const docRef = doc(db, 'app_data', docId);
 
-  let localData: T | null = null;
-  try {
-    const saved = localStorage.getItem(`glow_${docId}`);
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (parsed && typeof parsed === 'object') {
-        localData = parsed;
-      }
-    }
-  } catch {
-    // ignore parse error
-  }
-
   return onSnapshot(
     docRef,
     (snapshot: any) => {
       if (snapshot.exists()) {
         const remoteData = snapshot.data() as T;
-        if (remoteData && Object.keys(remoteData).length > 0) {
-          if (localData && Object.keys(localData).length > 0) {
-            const isLocalCustomized = JSON.stringify(localData) !== JSON.stringify(fallbackData);
-            const isRemoteDefault = JSON.stringify(remoteData) === JSON.stringify(fallbackData);
-
-            if (isLocalCustomized && isRemoteDefault) {
-              setDoc(docRef, localData as any, { merge: true }).catch(console.error);
-              onData(localData);
-              return;
-            }
-          }
-
-          try {
-            localStorage.setItem(`glow_${docId}`, JSON.stringify(remoteData));
-          } catch {}
-          onData(remoteData);
-          return;
-        }
+        const validData = remoteData || fallbackData;
+        try {
+          localStorage.setItem(`glow_${docId}`, JSON.stringify(validData));
+        } catch {}
+        onData(validData);
+        return;
       }
 
+      let localData: T | null = null;
+      try {
+        const saved = localStorage.getItem(`glow_${docId}`);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && typeof parsed === 'object') {
+            localData = parsed;
+          }
+        }
+      } catch {}
+
       const dataToUse = localData || fallbackData;
-      setDoc(docRef, dataToUse as any, { merge: true }).catch(console.error);
+      const cleanDataToUse = JSON.parse(JSON.stringify(dataToUse));
+      setDoc(docRef, cleanDataToUse, { merge: true }).catch(console.error);
       try {
         localStorage.setItem(`glow_${docId}`, JSON.stringify(dataToUse));
       } catch {}
@@ -75,9 +62,12 @@ export function subscribeToDoc<T extends object>(
     },
     (error) => {
       console.warn(`Firestore sync error for ${docId}:`, error);
-      if (localData) {
-        onData(localData);
-      }
+      try {
+        const saved = localStorage.getItem(`glow_${docId}`);
+        if (saved) {
+          onData(JSON.parse(saved));
+        }
+      } catch {}
     }
   );
 }
@@ -93,7 +83,8 @@ export async function saveDoc<T extends object>(docId: string, data: T) {
   }
   try {
     const docRef = doc(db, 'app_data', docId);
-    await setDoc(docRef, data, { merge: true });
+    const cleanData = JSON.parse(JSON.stringify(data));
+    await setDoc(docRef, cleanData, { merge: true });
   } catch (error) {
     console.error(`Failed to save ${docId} to Firestore:`, error);
   }
@@ -110,7 +101,8 @@ export async function saveDocArray<T>(docId: string, items: T[]) {
   }
   try {
     const docRef = doc(db, 'app_data', docId);
-    await setDoc(docRef, { items });
+    const cleanItems = JSON.parse(JSON.stringify(items));
+    await setDoc(docRef, { items: cleanItems });
   } catch (error) {
     console.error(`Failed to save array ${docId} to Firestore:`, error);
   }
@@ -126,48 +118,33 @@ export function subscribeToDocArray<T>(
 ) {
   const docRef = doc(db, 'app_data', docId);
 
-  let localData: T[] | null = null;
-  try {
-    const saved = localStorage.getItem(`glow_${docId}`);
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        localData = parsed;
-      }
-    }
-  } catch {
-    // ignore parse error
-  }
-
   return onSnapshot(
     docRef,
     (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.data();
-        if (data && Array.isArray(data.items) && data.items.length > 0) {
-          const remoteItems = data.items as T[];
-
-          if (localData && localData.length > 0) {
-            const isLocalCustomized = JSON.stringify(localData) !== JSON.stringify(fallbackData);
-            const isRemoteDefault = JSON.stringify(remoteItems) === JSON.stringify(fallbackData);
-
-            if (isLocalCustomized && isRemoteDefault) {
-              setDoc(docRef, { items: localData }).catch(console.error);
-              onData(localData);
-              return;
-            }
-          }
-
-          try {
-            localStorage.setItem(`glow_${docId}`, JSON.stringify(remoteItems));
-          } catch {}
-          onData(remoteItems);
-          return;
-        }
+        const remoteItems = (data && Array.isArray(data.items)) ? (data.items as T[]) : [];
+        try {
+          localStorage.setItem(`glow_${docId}`, JSON.stringify(remoteItems));
+        } catch {}
+        onData(remoteItems);
+        return;
       }
 
-      const dataToUse = (localData && localData.length > 0) ? localData : fallbackData;
-      setDoc(docRef, { items: dataToUse }).catch(console.error);
+      let localData: T[] | null = null;
+      try {
+        const saved = localStorage.getItem(`glow_${docId}`);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) {
+            localData = parsed;
+          }
+        }
+      } catch {}
+
+      const dataToUse = localData !== null ? localData : fallbackData;
+      const cleanDataToUse = JSON.parse(JSON.stringify(dataToUse));
+      setDoc(docRef, { items: cleanDataToUse }).catch(console.error);
       try {
         localStorage.setItem(`glow_${docId}`, JSON.stringify(dataToUse));
       } catch {}
@@ -175,9 +152,12 @@ export function subscribeToDocArray<T>(
     },
     (error) => {
       console.warn(`Firestore sync error for array ${docId}:`, error);
-      if (localData) {
-        onData(localData);
-      }
+      try {
+        const saved = localStorage.getItem(`glow_${docId}`);
+        if (saved) {
+          onData(JSON.parse(saved));
+        }
+      } catch {}
     }
   );
 }

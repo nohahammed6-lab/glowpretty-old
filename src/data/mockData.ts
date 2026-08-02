@@ -618,24 +618,7 @@ export const ADMIN_STATS: AdminStat = {
   customerSatisfaction: 5.0,
 };
 
-export const INITIAL_SUPERVISORS: Supervisor[] = [
-  {
-    id: 'sup-1',
-    name: 'مها أحمد (مشرفة الحجوزات)',
-    username: 'staff1',
-    password: '123',
-    permissions: {
-      manageAppointments: true,
-      manageCategories: false,
-      manageServices: false,
-      manageReviews: true,
-      manageGallery: false,
-      manageSiteInfo: false,
-      manageAbout: false,
-    },
-    createdAt: new Date().toISOString(),
-  },
-];
+export const INITIAL_SUPERVISORS: Supervisor[] = [];
 
 export const INITIAL_GALLERY: GalleryItem[] = [
   {
