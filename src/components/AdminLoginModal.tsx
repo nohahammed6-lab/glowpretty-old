@@ -47,13 +47,16 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
       return;
     }
 
-    if (pin.trim() === ownerPin.trim()) {
+    const enteredNormalized = pin.trim().replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d).toString());
+    const storedNormalized = (ownerPin || '1234').trim().replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d).toString());
+
+    if (enteredNormalized === storedNormalized || pin.trim() === (ownerPin || '1234').trim()) {
       setError('');
       setPin('');
       onSuccess({ role: 'owner' });
       onClose();
     } else {
-      setError(isArabic ? 'رمز المرور غير صحيح' : 'Invalid PIN');
+      setError(isArabic ? 'رمز المرور غير صحيح (كلمة المرور الافتراضية: 1234)' : 'Invalid PIN (Default is 1234)');
     }
   };
 
@@ -64,9 +67,16 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
       return;
     }
 
-    const matched = supervisors.find(
-      (s) => s.username.toLowerCase() === username.trim().toLowerCase() && s.password === password.trim()
-    );
+    const normUsername = username.trim().toLowerCase();
+    const normPassword = password.trim();
+    const normPasswordArabic = normPassword.replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d).toString());
+
+    const matched = supervisors.find((s) => {
+      const supUser = (s.username || '').trim().toLowerCase();
+      const supPass = (s.password || '').trim();
+      const supPassNorm = supPass.replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d).toString());
+      return supUser === normUsername && (supPass === normPassword || supPassNorm === normPasswordArabic);
+    });
 
     if (matched) {
       setError('');

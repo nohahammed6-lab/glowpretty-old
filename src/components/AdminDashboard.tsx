@@ -124,7 +124,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     e.preventDefault();
     setPinMessage(null);
 
-    if (oldPinInput.trim() !== ownerPin.trim()) {
+    const oldNorm = oldPinInput.trim().replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d).toString());
+    const ownerNorm = ownerPin.trim().replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d).toString());
+
+    if (oldNorm !== ownerNorm && oldPinInput.trim() !== ownerPin.trim()) {
       setPinMessage({
         type: 'error',
         text: isArabic ? 'كلمة المرور الحالية غير صحيحة' : 'Current password is incorrect',
