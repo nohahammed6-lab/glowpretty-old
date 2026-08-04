@@ -139,10 +139,17 @@ export default function App() {
 
   const [ownerPin, setOwnerPin] = useState<string>(() => {
     try {
+      const resetDone = localStorage.getItem('glow_pin_reset_100200300');
+      if (!resetDone) {
+        localStorage.setItem('glow_owner_pin', '100200300');
+        localStorage.setItem('glow_pin_reset_100200300', 'true');
+        saveDoc('owner_pin', { pin: '100200300' });
+        return '100200300';
+      }
       const saved = localStorage.getItem('glow_owner_pin');
-      return saved ? saved : '1234';
+      return saved && saved !== '1234' ? saved : '100200300';
     } catch {
-      return '1234';
+      return '100200300';
     }
   });
 
@@ -182,7 +189,7 @@ export default function App() {
       setSupervisors(sanitized);
     }, INITIAL_SUPERVISORS);
     const unsubCpn = subscribeToDocArray<Coupon>('coupons', (items) => setCoupons(items), INITIAL_COUPONS);
-    const unsubPin = subscribeToDoc<{ pin: string }>('owner_pin', (data) => setOwnerPin(data?.pin || '1234'), { pin: '1234' });
+    const unsubPin = subscribeToDoc<{ pin: string }>('owner_pin', (data) => setOwnerPin(data?.pin && data.pin !== '1234' ? data.pin : '100200300'), { pin: '100200300' });
 
     return () => {
       unsubSite();
