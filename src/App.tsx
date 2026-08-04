@@ -229,6 +229,23 @@ export default function App() {
     };
   }, []);
 
+  // Preload image URLs into browser cache to eliminate image loading lag and flash
+  useEffect(() => {
+    const urls = new Set<string>();
+    services.forEach((s) => { if (s?.imageUrl) urls.add(s.imageUrl); });
+    gallery.forEach((g) => { if (g?.url) urls.add(g.url); });
+    if (siteSettings?.heroImageUrl) urls.add(siteSettings.heroImageUrl);
+    if (aboutContent?.mainImageUrl) urls.add(aboutContent.mainImageUrl);
+    if (aboutContent?.secondaryImageUrl) urls.add(aboutContent.secondaryImageUrl);
+
+    urls.forEach((url) => {
+      if (url && typeof url === 'string') {
+        const img = new Image();
+        img.src = url;
+      }
+    });
+  }, [services, gallery, siteSettings, aboutContent]);
+
   const handleUpdateOwnerPin = (newPin: string) => {
     setOwnerPin(newPin);
     saveDoc('owner_pin', { pin: newPin });

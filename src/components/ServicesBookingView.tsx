@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Service, Language, Appointment, CategoryItem, SiteSettings, Coupon } from '../types';
 import { TIME_SLOTS } from '../data/mockData';
 import { PriceTag } from './PriceTag';
+import { SmartImage } from './SmartImage';
 
 const HighlightText: React.FC<{ text?: string; query: string }> = ({ text, query }) => {
   if (!text) return null;
@@ -411,9 +412,10 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
 
                   {/* Thumbnail Image */}
                   <div className="w-full h-44 mb-4 overflow-hidden rounded-xl bg-[#e5e2e1] border border-[#D4AF37]/20 relative">
-                    <img
+                    <SmartImage
                       src={service.imageUrl}
                       alt={service.title}
+                      containerClassName="w-full h-full"
                       className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                     />
                     {/* Category Overlay Tag */}

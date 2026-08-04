@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ViewMode, Language, Review, AboutContent, GalleryItem, SiteSettings, CategoryItem, Service } from '../types';
 import { WriteReviewModal } from './WriteReviewModal';
+import { SmartImage } from './SmartImage';
 
 interface HomeViewProps {
   setViewMode: (mode: ViewMode) => void;
@@ -307,9 +308,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 key={img.id}
                 className="rounded-2xl overflow-hidden relative group shadow-md hover:shadow-2xl transition-all duration-500 h-64 border border-[#D4AF37]/40"
               >
-                <img
+                <SmartImage
                   src={img.url}
                   alt={img.title}
+                  containerClassName="w-full h-full"
                   className="w-full h-full object-cover group-hover:scale-110 transition-all duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-5">
