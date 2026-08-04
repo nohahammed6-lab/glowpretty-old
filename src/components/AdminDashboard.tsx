@@ -15,6 +15,7 @@ import {
   Supervisor,
   SupervisorPermission,
   UserSession,
+  Coupon,
 } from '../types';
 
 interface AdminDashboardProps {
@@ -28,6 +29,7 @@ interface AdminDashboardProps {
   aboutContent: AboutContent;
   reviews: Review[];
   supervisors: Supervisor[];
+  coupons: Coupon[];
   userSession: UserSession;
   ownerPin?: string;
   onUpdateOwnerPin?: (newPin: string) => void;
@@ -52,6 +54,11 @@ interface AdminDashboardProps {
   onAddSupervisor: (sup: Supervisor) => void;
   onUpdateSupervisor: (sup: Supervisor) => void;
   onDeleteSupervisor: (id: string) => void;
+  // Coupon management props
+  onAddCoupon?: (coupon: Coupon) => void;
+  onUpdateCoupon?: (coupon: Coupon) => void;
+  onSaveCoupon?: (coupon: Coupon) => void;
+  onDeleteCoupon: (id: string) => void;
   // About content props
   onUpdateAboutContent: (about: AboutContent) => void;
   // Review management props
@@ -73,6 +80,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   aboutContent,
   reviews,
   supervisors,
+  coupons,
   userSession,
   ownerPin = '1234',
   onUpdateOwnerPin,
@@ -92,6 +100,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onAddSupervisor,
   onUpdateSupervisor,
   onDeleteSupervisor,
+  onAddCoupon,
+  onUpdateCoupon,
+  onSaveCoupon,
+  onDeleteCoupon,
   onUpdateAboutContent,
   onAddReview,
   onUpdateReview,
@@ -149,8 +161,51 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   };
 
   const [activeTab, setActiveTab] = useState<
-    'dashboard' | 'appointments' | 'categories' | 'services' | 'reviews' | 'siteInfo' | 'gallery' | 'about' | 'supervisors'
+    'dashboard' | 'appointments' | 'categories' | 'services' | 'reviews' | 'siteInfo' | 'gallery' | 'about' | 'supervisors' | 'coupons'
   >('dashboard');
+
+  // Coupon Management State
+  const [isCouponModalOpen, setIsCouponModalOpen] = useState(false);
+  const [editingCoupon, setEditingCoupon] = useState<Coupon | null>(null);
+  const [couponCode, setCouponCode] = useState('');
+  const [discountType, setDiscountType] = useState<'percentage' | 'fixed'>('percentage');
+  const [discountValue, setDiscountValue] = useState<number>(10);
+  const [maxUses, setMaxUses] = useState<number>(20);
+  const [isCouponActive, setIsCouponActive] = useState<boolean>(true);
+
+  const handleSaveCoupon = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!couponCode.trim()) return;
+
+    const couponData: Coupon = editingCoupon ? {
+      ...editingCoupon,
+      code: couponCode.trim().toUpperCase(),
+      discountType,
+      discountValue,
+      maxUses,
+      isActive: isCouponActive,
+    } : {
+      id: `coup-${Date.now()}`,
+      code: couponCode.trim().toUpperCase(),
+      discountType,
+      discountValue,
+      maxUses,
+      usedCount: 0,
+      isActive: isCouponActive,
+      createdAt: new Date().toISOString(),
+    };
+
+    if (onSaveCoupon) {
+      onSaveCoupon(couponData);
+    } else if (editingCoupon && onUpdateCoupon) {
+      onUpdateCoupon(couponData);
+    } else if (!editingCoupon && onAddCoupon) {
+      onAddCoupon(couponData);
+    }
+
+    setIsCouponModalOpen(false);
+    setEditingCoupon(null);
+  };
 
   // Review Edit State
   const [editingReview, setEditingReview] = useState<Review | null>(null);
@@ -369,6 +424,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     if (tab === 'gallery') return supervisorPerms.manageGallery;
     if (tab === 'siteInfo') return supervisorPerms.manageSiteInfo;
     if (tab === 'about') return supervisorPerms.manageAbout;
+    if (tab === 'coupons') return supervisorPerms.manageCoupons ?? true;
     if (tab === 'supervisors') return false; // Only Owner
     return false;
   };
@@ -426,6 +482,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               >
                 <span className="material-symbols-outlined text-xl">calendar_month</span>
                 <span>{isArabic ? 'جدول المواعيد والحجوزات' : 'Appointments'}</span>
+              </button>
+            )}
+
+            {canAccess('coupons') && (
+              <button
+                onClick={() => setActiveTab('coupons')}
+                className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all cursor-pointer ${
+                  activeTab === 'coupons'
+                    ? 'bg-[#D4AF37] text-[#121212] shadow-md border border-[#F3E5AB]'
+                    : 'text-white/80 hover:bg-white/10 hover:text-[#D4AF37]'
+                }`}
+              >
+                <span className="material-symbols-outlined text-xl">confirmation_number</span>
+                <span>{isArabic ? 'إدارة كوبونات الخصم' : 'Discount Coupons'}</span>
               </button>
             )}
 
@@ -564,6 +634,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-[#121212] mt-0.5">
               {activeTab === 'dashboard' && (isArabic ? 'نظرة عامة وإحصائيات العمليات' : 'Dashboard Overview')}
               {activeTab === 'appointments' && (isArabic ? 'جدول المواعيد والحجوزات' : 'Appointments Schedule')}
+              {activeTab === 'coupons' && (isArabic ? 'إدارة أكواد وكوبونات الخصم' : 'Discount Coupons')}
               {activeTab === 'categories' && (isArabic ? 'إدارة تصنيفات الخدمات' : 'Service Categories')}
               {activeTab === 'services' && (isArabic ? 'إدارة قائمة الخدمات والأسعار' : 'Services & Pricing')}
               {activeTab === 'reviews' && (isArabic ? 'إدارة تقييمات العملاء' : 'Customer Reviews')}
@@ -920,7 +991,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               {apt.clientPhone}
                             </span>
                           </div>
-                          <div className="text-[10px] text-gray-400">{apt.clientEmail}</div>
+                          {apt.clientEmail ? <div className="text-[10px] text-gray-400">{apt.clientEmail}</div> : null}
                         </td>
                         <td className="py-3.5 px-4 font-bold text-[#121212]">
                           {breakdown && breakdown.length > 0 ? (
@@ -950,6 +1021,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             {breakdown && breakdown.length > 1 && (
                               <div className="text-[10px] text-gray-500 font-bold">
                                 💐 {isArabic ? `(${breakdown.length} خدمات)` : `(${breakdown.length} items)`}
+                              </div>
+                            )}
+                            {apt.couponCode && (
+                              <div className="text-[10px] text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-300 font-bold flex items-center gap-1 w-max">
+                                <span className="material-symbols-outlined text-[12px]">confirmation_number</span>
+                                <span>{isArabic ? `كوبون: ${apt.couponCode} (-${apt.discountAmount} ر.ق)` : `Coupon: ${apt.couponCode} (-${apt.discountAmount} QAR)`}</span>
                               </div>
                             )}
                           </div>
@@ -1973,6 +2050,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <span>{isArabic ? 'إدارة قصة ونبذة الصالون 📖' : 'Manage About Section'}</span>
                   </label>
 
+                  <label className="flex items-center gap-2 text-xs font-bold text-[#1c1b1b] cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={supPermissions.manageCoupons ?? true}
+                      onChange={(e) => setSupPermissions({ ...supPermissions, manageCoupons: e.target.checked })}
+                      className="w-4 h-4 accent-[#9b0044]"
+                    />
+                    <span>{isArabic ? 'إدارة أكواد وكوبونات الخصم 🏷️' : 'Manage Coupons'}</span>
+                  </label>
+
                 </div>
               </div>
 
@@ -2046,6 +2133,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           الحجوزات
                         </span>
                       )}
+                      {(sup.permissions.manageCoupons ?? true) && (
+                        <span className="text-[10px] bg-amber-100 text-amber-900 font-bold px-2 py-0.5 rounded-full">
+                          الكوبونات
+                        </span>
+                      )}
                       {sup.permissions.manageCategories && (
                         <span className="text-[10px] bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded-full">
                           التصنيفات
@@ -2082,6 +2174,310 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </div>
             </div>
 
+          </div>
+        )}
+
+        {/* Coupons Tab Panel */}
+        {activeTab === 'coupons' && (
+          <div className="space-y-6 animate-fade-in">
+            {/* Coupon Stats Header */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="bg-white p-5 rounded-2xl border border-[#D4AF37]/40 shadow-xs flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-gray-500 font-bold">{isArabic ? 'إجمالي أكواد الخصم' : 'Total Coupon Codes'}</p>
+                  <h4 className="font-display text-2xl font-extrabold text-[#121212] mt-1">{coupons.length}</h4>
+                </div>
+                <div className="w-12 h-12 bg-[#FAF6ED] rounded-xl flex items-center justify-center text-[#D4AF37] border border-[#D4AF37]/40">
+                  <span className="material-symbols-outlined text-2xl">confirmation_number</span>
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-2xl border border-[#D4AF37]/40 shadow-xs flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-gray-500 font-bold">{isArabic ? 'الكوبونات المفعلة' : 'Active Coupons'}</p>
+                  <h4 className="font-display text-2xl font-extrabold text-emerald-600 mt-1">
+                    {coupons.filter(c => c.isActive).length}
+                  </h4>
+                </div>
+                <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 border border-emerald-200">
+                  <span className="material-symbols-outlined text-2xl">check_circle</span>
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-2xl border border-[#D4AF37]/40 shadow-xs flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-gray-500 font-bold">{isArabic ? 'إجمالي استخدامات العملاء' : 'Total Redemptions'}</p>
+                  <h4 className="font-display text-2xl font-extrabold text-[#9b0044] mt-1">
+                    {coupons.reduce((sum, c) => sum + (c.usedCount || 0), 0)}
+                  </h4>
+                </div>
+                <div className="w-12 h-12 bg-rose-50 rounded-xl flex items-center justify-center text-[#9b0044] border border-rose-200">
+                  <span className="material-symbols-outlined text-2xl">groups</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Actions & Form Header */}
+            <div className="bg-white p-6 rounded-3xl border border-[#D4AF37]/40 shadow-xs space-y-4">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                  <h3 className="font-display text-lg font-bold text-[#121212]">
+                    {isArabic ? 'إدارة أكواد وكوبونات الخصم' : 'Manage Discount Coupons'}
+                  </h3>
+                  <p className="text-xs text-gray-500">
+                    {isArabic ? 'أنشئي أكواد خصم وحددي نسبة أو قيمة الخصم والحد الأقصى لعدد العملاء المستخدمين' : 'Create discount codes, set percentage or fixed values and maximum usage limits'}
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setEditingCoupon(null);
+                    setCouponCode('');
+                    setDiscountType('percentage');
+                    setDiscountValue(10);
+                    setMaxUses(20);
+                    setIsCouponActive(true);
+                    setIsCouponModalOpen(true);
+                  }}
+                  className="btn-gold px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shrink-0 cursor-pointer shadow-sm"
+                >
+                  <span className="material-symbols-outlined text-lg">add_circle</span>
+                  <span>{isArabic ? 'إضافة كود خصم جديد' : 'Add New Coupon'}</span>
+                </button>
+              </div>
+
+              {/* Coupons Table */}
+              <div className="overflow-x-auto border border-[#D4AF37]/30 rounded-2xl">
+                <table className="w-full text-start text-xs text-gray-700">
+                  <thead className="bg-[#FAF6ED] border-b border-[#D4AF37]/30 text-[#121212] font-extrabold">
+                    <tr>
+                      <th className="py-3 px-4 text-start">{isArabic ? 'كود الخصم' : 'Code'}</th>
+                      <th className="py-3 px-4 text-start">{isArabic ? 'قيمة الخصم' : 'Discount'}</th>
+                      <th className="py-3 px-4 text-start">{isArabic ? 'استخدام العملاء / الحد' : 'Usage / Limit'}</th>
+                      <th className="py-3 px-4 text-start">{isArabic ? 'المتبقي' : 'Remaining'}</th>
+                      <th className="py-3 px-4 text-start">{isArabic ? 'الحالة' : 'Status'}</th>
+                      <th className="py-3 px-4 text-end">{isArabic ? 'الإجراءات' : 'Actions'}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 bg-white">
+                    {coupons.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="py-8 text-center text-gray-400 font-semibold">
+                          {isArabic ? 'لا توجد أكواد خصم حالياً. انقري على إضافة كود جديد.' : 'No coupon codes yet.'}
+                        </td>
+                      </tr>
+                    ) : (
+                      coupons.map((c) => {
+                        const usagePct = Math.min(100, Math.round(((c.usedCount || 0) / (c.maxUses || 1)) * 100));
+                        const isLimitReached = c.usedCount >= c.maxUses;
+
+                        return (
+                          <tr key={c.id} className="hover:bg-[#FAF6ED]/50 transition-colors">
+                            <td className="py-3.5 px-4 font-mono font-extrabold text-sm text-[#9b0044]">
+                              <span className="bg-rose-50 border border-rose-200 px-2.5 py-1 rounded-xl uppercase tracking-wider">
+                                {c.code}
+                              </span>
+                            </td>
+                            <td className="py-3.5 px-4 font-bold text-[#121212]">
+                              {c.discountType === 'percentage' ? (
+                                <span className="text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+                                  %{c.discountValue} {isArabic ? 'خصم' : 'OFF'}
+                                </span>
+                              ) : (
+                                <span className="text-amber-800 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
+                                  {c.discountValue} {isArabic ? 'ر.ق خصم' : 'QAR OFF'}
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-3.5 px-4 font-bold">
+                              <div className="space-y-1 max-w-[160px]">
+                                <div className="flex justify-between text-[11px]">
+                                  <span className="text-[#121212] font-bold">{c.usedCount} / {c.maxUses} {isArabic ? 'عميل' : 'clients'}</span>
+                                  <span className="text-gray-400 font-medium">{usagePct}%</span>
+                                </div>
+                                <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                                  <div
+                                    className={`h-full rounded-full ${isLimitReached ? 'bg-amber-500' : 'bg-emerald-500'}`}
+                                    style={{ width: `${usagePct}%` }}
+                                  />
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-3.5 px-4 font-bold">
+                              {isLimitReached ? (
+                                <span className="text-amber-700 bg-amber-50 px-2 py-0.5 rounded-lg text-[10px] font-extrabold border border-amber-300">
+                                  {isArabic ? 'اكتمل العدد' : 'Limit Reached'}
+                                </span>
+                              ) : (
+                                <span className="text-gray-600">
+                                  {Math.max(0, c.maxUses - c.usedCount)} {isArabic ? 'عميل متبقي' : 'left'}
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-3.5 px-4">
+                              {c.isActive && !isLimitReached ? (
+                                <span className="bg-emerald-100 text-emerald-800 border border-emerald-300 text-[10px] font-extrabold px-2.5 py-1 rounded-full flex items-center gap-1 w-max">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
+                                  <span>{isArabic ? 'مفعل' : 'Active'}</span>
+                                </span>
+                              ) : isLimitReached ? (
+                                <span className="bg-amber-100 text-amber-800 border border-amber-300 text-[10px] font-extrabold px-2.5 py-1 rounded-full flex items-center gap-1 w-max">
+                                  <span>{isArabic ? 'مكتمل الاستخدام' : 'Limit Reached'}</span>
+                                </span>
+                              ) : (
+                                <span className="bg-gray-100 text-gray-600 border border-gray-300 text-[10px] font-extrabold px-2.5 py-1 rounded-full flex items-center gap-1 w-max">
+                                  <span>{isArabic ? 'معطل' : 'Inactive'}</span>
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-3.5 px-4 text-end">
+                              <div className="flex items-center justify-end gap-1">
+                                <button
+                                  onClick={() => {
+                                    setEditingCoupon(c);
+                                    setCouponCode(c.code);
+                                    setDiscountType(c.discountType);
+                                    setDiscountValue(c.discountValue);
+                                    setMaxUses(c.maxUses);
+                                    setIsCouponActive(c.isActive);
+                                    setIsCouponModalOpen(true);
+                                  }}
+                                  className="text-[#9b0044] hover:bg-rose-50 p-1.5 rounded-lg text-xs font-bold cursor-pointer"
+                                  title={isArabic ? 'تعديل الكوبون' : 'Edit Coupon'}
+                                >
+                                  <span className="material-symbols-outlined text-base">edit</span>
+                                </button>
+
+                                <button
+                                  onClick={() => onDeleteCoupon(c.id)}
+                                  className="text-red-600 hover:bg-red-50 p-1.5 rounded-lg text-xs font-bold cursor-pointer"
+                                  title={isArabic ? 'حذف الكوبون' : 'Delete Coupon'}
+                                >
+                                  <span className="material-symbols-outlined text-base">delete</span>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Coupon Form Modal */}
+        {isCouponModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
+            <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border-2 border-[#D4AF37]/40 relative">
+              <button
+                onClick={() => setIsCouponModalOpen(false)}
+                className="absolute top-6 right-6 text-gray-400 hover:text-black p-1 cursor-pointer"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+
+              <h3 className="font-display text-xl font-extrabold text-[#9b0044] mb-1">
+                {editingCoupon ? (isArabic ? 'تعديل كود الخصم' : 'Edit Coupon Code') : (isArabic ? 'إضافة كود خصم جديد' : 'Create New Coupon')}
+              </h3>
+              <p className="text-xs text-gray-500 mb-5">
+                {isArabic ? 'حدد رمز الكود وقيمة الخصم وعدد العملاء المسموح لهم باستخدامه' : 'Set code, discount, and maximum client usage limit.'}
+              </p>
+
+              <form onSubmit={handleSaveCoupon} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-[#121212] mb-1">
+                    {isArabic ? 'رمز كود الخصم (بالإنجليزية):' : 'Coupon Code (UPPERCASE):'}
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. GLOW20"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    className="w-full border border-gray-300 rounded-xl py-2.5 px-3 text-sm font-mono font-bold uppercase focus:outline-none focus:border-[#9b0044]"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-[#121212] mb-1">
+                      {isArabic ? 'نوع الخصم:' : 'Discount Type:'}
+                    </label>
+                    <select
+                      value={discountType}
+                      onChange={(e) => setDiscountType(e.target.value as 'percentage' | 'fixed')}
+                      className="w-full border border-gray-300 rounded-xl py-2.5 px-3 text-xs font-bold focus:outline-none focus:border-[#9b0044]"
+                    >
+                      <option value="percentage">{isArabic ? 'نسبة مئوية (%)' : 'Percentage (%)'}</option>
+                      <option value="fixed">{isArabic ? 'مبلغ ثابت (ر.ق)' : 'Fixed Amount (QAR)'}</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#121212] mb-1">
+                      {isArabic ? `قيمة الخصم (${discountType === 'percentage' ? '%' : 'ر.ق'}):` : `Value (${discountType === 'percentage' ? '%' : 'QAR'}):`}
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      min={1}
+                      max={discountType === 'percentage' ? 100 : 10000}
+                      value={discountValue}
+                      onChange={(e) => setDiscountValue(Number(e.target.value))}
+                      className="w-full border border-gray-300 rounded-xl py-2.5 px-3 text-sm font-bold focus:outline-none focus:border-[#9b0044]"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-[#121212] mb-1">
+                    {isArabic ? 'عدد العملاء المسموح لهم باستخدام الكوبون (الحد الأقصى):' : 'Maximum Allowed Client Usage Limit:'}
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    min={1}
+                    value={maxUses}
+                    onChange={(e) => setMaxUses(Number(e.target.value))}
+                    className="w-full border border-gray-300 rounded-xl py-2.5 px-3 text-sm font-bold focus:outline-none focus:border-[#9b0044]"
+                  />
+                  <p className="text-[11px] text-gray-500 mt-1 font-medium">
+                    {isArabic ? '💡 مثال: 50 يعني أن أول 50 عميل فقط يمكنهم الاستفادة من الكود.' : 'e.g., 50 means only the first 50 clients can redeem this code.'}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 pt-2">
+                  <input
+                    type="checkbox"
+                    id="couponActiveCheck"
+                    checked={isCouponActive}
+                    onChange={(e) => setIsCouponActive(e.target.checked)}
+                    className="w-4 h-4 accent-[#9b0044] rounded cursor-pointer"
+                  />
+                  <label htmlFor="couponActiveCheck" className="text-xs font-bold text-[#121212] cursor-pointer">
+                    {isArabic ? 'تفعيل كود الخصم فوراً' : 'Activate coupon code immediately'}
+                  </label>
+                </div>
+
+                <div className="pt-3 flex gap-2">
+                  <button
+                    type="submit"
+                    className="btn-burgundy flex-1 py-3 rounded-xl font-bold text-xs shadow-md cursor-pointer"
+                  >
+                    {editingCoupon ? (isArabic ? 'حفظ التغييرات' : 'Save Changes') : (isArabic ? 'إنشاء الكود' : 'Create Coupon')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsCouponModalOpen(false)}
+                    className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-3 rounded-xl font-bold text-xs cursor-pointer"
+                  >
+                    {isArabic ? 'إلغاء' : 'Cancel'}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         )}
 

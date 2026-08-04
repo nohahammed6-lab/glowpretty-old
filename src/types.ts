@@ -28,16 +28,30 @@ export interface AppointmentServiceItem {
   priceDisplay?: string;
 }
 
+export interface Coupon {
+  id: string;
+  code: string;
+  discountType: 'percentage' | 'fixed'; // 'percentage' (%) or 'fixed' (QAR)
+  discountValue: number; // e.g. 10 for 10% or 50 for 50 QAR
+  maxUses: number; // Max users allowed to use this coupon
+  usedCount: number; // Current usage count
+  isActive: boolean;
+  createdAt: string;
+}
+
 export interface Appointment {
   id: string;
   clientName: string;
   clientInitials: string;
-  clientEmail: string;
+  clientEmail?: string;
   clientPhone: string;
   serviceId: string;
   serviceName: string;
   priceQAR?: number;
   priceDisplay?: string;
+  originalPriceQAR?: number;
+  couponCode?: string;
+  discountAmount?: number;
   servicesBreakdown?: AppointmentServiceItem[];
   date: string; // YYYY-MM-DD
   time: string; // e.g. "11:30 AM"
@@ -99,6 +113,7 @@ export interface SupervisorPermission {
   manageGallery: boolean;
   manageSiteInfo: boolean;
   manageAbout: boolean;
+  manageCoupons?: boolean;
 }
 
 export interface Supervisor {

@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Service, Language, Appointment, CategoryItem, SiteSettings } from '../types';
+import { Service, Language, Appointment, CategoryItem, SiteSettings, Coupon } from '../types';
 import { TIME_SLOTS } from '../data/mockData';
 import { PriceTag } from './PriceTag';
 
@@ -11,6 +11,8 @@ interface ServicesBookingViewProps {
   onConfirmBooking: (appointmentData: Omit<Appointment, 'id' | 'createdAt' | 'status'>) => void;
   categories: CategoryItem[];
   siteSettings: SiteSettings;
+  coupons?: Coupon[];
+  onUseCoupon?: (couponCode: string) => void;
 }
 
 export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
@@ -21,6 +23,8 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
   onConfirmBooking,
   categories,
   siteSettings,
+  coupons = [],
+  onUseCoupon,
 }) => {
   const isArabic = language === 'ar';
 
@@ -45,6 +49,63 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
   const totalPriceQAR = selectedServices.reduce((sum, s) => sum + (s.priceQAR || 0), 0);
   const totalDurationMinutes = selectedServices.reduce((sum, s) => sum + (s.durationMinutes || 0), 0);
 
+  // Coupon Code State
+  const [couponInput, setCouponInput] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
+  const [couponError, setCouponError] = useState('');
+  const [couponSuccess, setCouponSuccess] = useState('');
+
+  // Coupon Discount Calculation
+  let discountAmount = 0;
+  if (appliedCoupon && totalPriceQAR > 0) {
+    if (appliedCoupon.discountType === 'percentage') {
+      discountAmount = Math.round((totalPriceQAR * appliedCoupon.discountValue) / 100);
+    } else {
+      discountAmount = Math.min(totalPriceQAR, appliedCoupon.discountValue);
+    }
+  }
+  const finalPriceQAR = Math.max(0, totalPriceQAR - discountAmount);
+
+  const handleApplyCoupon = (e: React.FormEvent) => {
+    e.preventDefault();
+    setCouponError('');
+    setCouponSuccess('');
+
+    const cleanCode = couponInput.trim().toUpperCase();
+    if (!cleanCode) {
+      setCouponError(isArabic ? 'يرجى إدخال كود الخصم' : 'Please enter a coupon code');
+      return;
+    }
+
+    const found = coupons.find((c) => c.code.trim().toUpperCase() === cleanCode);
+    if (!found) {
+      setCouponError(isArabic ? 'كود الخصم غير صحيح أو غير موجود' : 'Invalid coupon code');
+      return;
+    }
+    if (!found.isActive) {
+      setCouponError(isArabic ? 'كود الخصم هذا غير مفعل حالياً' : 'This coupon code is inactive');
+      return;
+    }
+    if (found.usedCount >= found.maxUses) {
+      setCouponError(isArabic ? 'للأسف، اكتمل الحد الأقصى لاستخدام كود الخصم هذا' : 'Coupon usage limit reached');
+      return;
+    }
+
+    setAppliedCoupon(found);
+    setCouponSuccess(
+      isArabic
+        ? `تم تطبيق كود الخصم (${found.code}) بنجاح!`
+        : `Coupon code (${found.code}) applied successfully!`
+    );
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponInput('');
+    setCouponError('');
+    setCouponSuccess('');
+  };
+
   // Calendar Date selection state (Default: Today's date YYYY-MM-DD)
   const [selectedBookingDate, setSelectedBookingDate] = useState<string>(() => {
     const today = new Date();
@@ -56,9 +117,8 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
   const [isCustomTime, setIsCustomTime] = useState<boolean>(false);
   const [customTimeInput, setCustomTimeInput] = useState<string>('');
 
-  // Form Inputs
+  // Form Inputs (Email removed)
   const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('+974 ');
 
   // Form Error state
@@ -87,7 +147,7 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
       setFormError(isArabic ? 'يرجى تحديد توقيت الموعد' : 'Please select an appointment time.');
       return;
     }
-    if (!fullName.trim() || !email.trim() || !phone.trim() || phone.trim() === '+974') {
+    if (!fullName.trim() || !phone.trim() || phone.trim() === '+974') {
       setFormError(isArabic ? 'يرجى إكمال جميع حقول الحجز' : 'Please complete all required booking fields.');
       return;
     }
@@ -104,11 +164,11 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
     const serviceIds = selectedServices.map((s) => s.id).join(', ');
     const serviceNamesList = selectedServices.map((s) => (isArabic ? s.arabicTitle : s.title)).join(' + ');
     const serviceNameSummary = selectedServices.length > 1
-      ? `${serviceNamesList} (${isArabic ? 'الإجمالي' : 'Total'}: ${totalPriceQAR} ${isArabic ? 'ر.ق' : 'QAR'})`
+      ? `${serviceNamesList} (${isArabic ? 'الإجمالي' : 'Total'}: ${finalPriceQAR} ${isArabic ? 'ر.ق' : 'QAR'})`
       : serviceNamesList;
 
-    const priceDisplaySummary = totalPriceQAR > 0
-      ? `${totalPriceQAR} ${isArabic ? 'ر.ق' : 'QAR'}`
+    const priceDisplaySummary = finalPriceQAR > 0
+      ? `${finalPriceQAR} ${isArabic ? 'ر.ق' : 'QAR'}`
       : (selectedServices[0] ? (isArabic ? (selectedServices[0].arabicPrice || `${selectedServices[0].priceQAR} ر.ق`) : (selectedServices[0].priceDisplay || `${selectedServices[0].priceQAR} QAR`)) : '');
 
     const servicesBreakdown = selectedServices.map((s) => ({
@@ -121,20 +181,30 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
     onConfirmBooking({
       clientName: fullName,
       clientInitials: initials,
-      clientEmail: email,
+      clientEmail: '',
       clientPhone: phone,
       serviceId: serviceIds,
       serviceName: serviceNameSummary,
-      priceQAR: totalPriceQAR,
+      priceQAR: finalPriceQAR,
+      originalPriceQAR: totalPriceQAR > 0 ? totalPriceQAR : undefined,
+      couponCode: appliedCoupon ? appliedCoupon.code : undefined,
+      discountAmount: discountAmount > 0 ? discountAmount : undefined,
       priceDisplay: priceDisplaySummary,
       servicesBreakdown,
       date: selectedBookingDate,
       time: finalTimeSlot,
     });
 
+    if (appliedCoupon && onUseCoupon) {
+      onUseCoupon(appliedCoupon.code);
+    }
+
     setFullName('');
-    setEmail('');
     setPhone('+974 ');
+    setAppliedCoupon(null);
+    setCouponInput('');
+    setCouponError('');
+    setCouponSuccess('');
   };
 
   return (
@@ -258,10 +328,7 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
                   </div>
 
                   {/* Footer Meta */}
-                  <div className="flex justify-between items-center border-t border-[#D4AF37]/20 pt-3 mt-2 text-xs font-semibold">
-                    <span className="text-[#665a3c] text-[11px]">
-                      {service.durationMinutes ? `${service.durationMinutes} ${isArabic ? 'دقيقة' : 'mins'}` : ''}
-                    </span>
+                  <div className="flex justify-end items-center border-t border-[#D4AF37]/20 pt-3 mt-2 text-xs font-semibold">
                     <span className={isSelected ? "text-[#121212] font-bold" : "text-[#B8860B] font-bold"}>
                       {isSelected 
                         ? (isArabic ? '✓ محددة (انقري للإلغاء)' : '✓ Selected (Click to remove)') 
@@ -326,11 +393,6 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
                         <h4 className="font-bold text-xs text-[#1c1b1b] truncate">
                           {isArabic ? service.arabicTitle : service.title}
                         </h4>
-                        {service.durationMinutes ? (
-                          <span className="text-[10px] text-[#665a3c] font-semibold block">
-                            {service.durationMinutes} {isArabic ? 'دقيقة' : 'mins'}
-                          </span>
-                        ) : null}
                       </div>
                       <div className="text-end flex items-center gap-2">
                         <span className="font-extrabold text-[#121212] text-xs">
@@ -358,23 +420,96 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
                 </div>
               )}
 
-              {/* Total Price & Duration Summary */}
+              {/* Total Price & Duration Summary with Coupon Support */}
               {selectedServices.length > 0 && (
-                <div className="p-3.5 bg-gradient-to-r from-[#121212] to-[#262626] text-white rounded-2xl flex justify-between items-center shadow-md border border-[#D4AF37]/50">
-                  <div>
-                    <span className="text-[11px] text-[#D4AF37] font-bold block">
-                      {isArabic ? `الإجمالي (${selectedServices.length} خدمات):` : `Total (${selectedServices.length} services):`}
-                    </span>
-                    {totalDurationMinutes > 0 && (
-                      <span className="text-[10px] text-white/80 block font-medium">
-                        {isArabic ? `الوقت المتوقع: ${totalDurationMinutes} دقيقة` : `Est. Time: ${totalDurationMinutes} mins`}
-                      </span>
+                <div className="space-y-3">
+                  {/* Coupon Code Input Box */}
+                  <div className="bg-[#FAF6ED] p-3 rounded-2xl border border-[#D4AF37]/50 shadow-xs">
+                    <label className="block text-xs font-bold text-[#121212] mb-1.5 flex items-center gap-1">
+                      <span className="material-symbols-outlined text-sm text-[#D4AF37]">confirmation_number</span>
+                      <span>{isArabic ? 'كود الخصم / الكوبون:' : 'Promo / Discount Code:'}</span>
+                    </label>
+
+                    {appliedCoupon ? (
+                      <div className="flex items-center justify-between bg-emerald-50 border border-emerald-300 p-2.5 rounded-xl text-xs">
+                        <div className="flex items-center gap-2">
+                          <span className="material-symbols-outlined text-emerald-600 text-base">check_circle</span>
+                          <div>
+                            <span className="font-extrabold text-emerald-900 block">
+                              {appliedCoupon.code} ({appliedCoupon.discountType === 'percentage' ? `${appliedCoupon.discountValue}%` : `${appliedCoupon.discountValue} ${isArabic ? 'ر.ق' : 'QAR'}`} {isArabic ? 'خصم' : 'OFF'})
+                            </span>
+                            <span className="text-[10px] text-emerald-700">
+                              {isArabic ? `قيمة الخصم: -${discountAmount} ر.ق` : `Discount: -${discountAmount} QAR`}
+                            </span>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleRemoveCoupon}
+                          className="text-xs font-bold text-red-600 hover:text-red-800 underline bg-white px-2 py-1 rounded-lg border border-red-200 cursor-pointer"
+                        >
+                          {isArabic ? 'إلغاء الكود' : 'Remove'}
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          placeholder={isArabic ? 'مثال: GLOW10' : 'e.g., GLOW10'}
+                          value={couponInput}
+                          onChange={(e) => {
+                            setCouponInput(e.target.value);
+                            setCouponError('');
+                          }}
+                          className="flex-1 uppercase border border-[#D4AF37]/50 rounded-xl px-3 py-1.5 text-xs font-bold bg-white focus:outline-none focus:border-[#121212]"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleApplyCoupon}
+                          className="btn-burgundy px-4 py-1.5 rounded-xl font-bold text-xs shrink-0 cursor-pointer shadow-xs"
+                        >
+                          {isArabic ? 'تطبيق الكود' : 'Apply'}
+                        </button>
+                      </div>
+                    )}
+
+                    {couponError && (
+                      <p className="text-[11px] font-bold text-red-600 mt-1.5 bg-red-50 p-1.5 rounded-lg border border-red-200">
+                        {couponError}
+                      </p>
+                    )}
+                    {couponSuccess && !appliedCoupon && (
+                      <p className="text-[11px] font-bold text-emerald-700 mt-1.5 bg-emerald-50 p-1.5 rounded-lg border border-emerald-200">
+                        {couponSuccess}
+                      </p>
                     )}
                   </div>
-                  <div className="text-end">
-                    <span className="font-extrabold text-lg text-[#D4AF37]">
-                      {totalPriceQAR} {isArabic ? 'ر.ق' : 'QAR'}
-                    </span>
+
+                  {/* Summary Box */}
+                  <div className="p-3.5 bg-gradient-to-r from-[#121212] to-[#262626] text-white rounded-2xl space-y-2 shadow-md border border-[#D4AF37]/50">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <span className="text-[11px] text-[#D4AF37] font-bold block">
+                          {isArabic ? `الإجمالي (${selectedServices.length} خدمات):` : `Total (${selectedServices.length} services):`}
+                        </span>
+                      </div>
+                      <div className="text-end">
+                        {appliedCoupon && discountAmount > 0 ? (
+                          <div>
+                            <span className="text-xs text-gray-400 line-through block font-medium">
+                              {totalPriceQAR} {isArabic ? 'ر.ق' : 'QAR'}
+                            </span>
+                            <span className="font-extrabold text-lg text-[#D4AF37]">
+                              {finalPriceQAR} {isArabic ? 'ر.ق' : 'QAR'}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="font-extrabold text-lg text-[#D4AF37]">
+                            {totalPriceQAR} {isArabic ? 'ر.ق' : 'QAR'}
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -555,7 +690,7 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
                 )}
               </div>
 
-              {/* Client Info Inputs */}
+              {/* Client Info Inputs (Email Field Removed) */}
               <div className="space-y-3 pt-2">
                 <div>
                   <label className="block text-xs font-bold text-[#3a3528] mb-1">
@@ -567,20 +702,6 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
                     placeholder={isArabic ? 'مثال: شيخة الكواري' : 'e.g., Sheikha Al-Kuwari'}
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    className="w-full border border-[#D4AF37]/40 rounded-xl py-2.5 px-3 bg-[#FFFDF5] focus:bg-white focus:outline-none focus:border-[#121212] text-sm text-[#1c1b1b]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-[#3a3528] mb-1">
-                    {isArabic ? 'البريد الإلكتروني:' : 'Email Address:'}
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    placeholder="name@example.qa"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
                     className="w-full border border-[#D4AF37]/40 rounded-xl py-2.5 px-3 bg-[#FFFDF5] focus:bg-white focus:outline-none focus:border-[#121212] text-sm text-[#1c1b1b]"
                   />
                 </div>

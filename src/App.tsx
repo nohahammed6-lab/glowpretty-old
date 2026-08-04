@@ -13,6 +13,7 @@ import {
   AboutContent,
   Supervisor,
   UserSession,
+  Coupon,
 } from './types';
 import {
   INITIAL_SERVICES,
@@ -23,6 +24,7 @@ import {
   INITIAL_SITE_SETTINGS,
   INITIAL_ABOUT_CONTENT,
   INITIAL_SUPERVISORS,
+  INITIAL_COUPONS,
 } from './data/mockData';
 
 import { Header } from './components/Header';
@@ -73,13 +75,7 @@ export default function App() {
       const saved = localStorage.getItem('glow_appointments');
       if (saved) {
         const parsed: Appointment[] = JSON.parse(saved);
-        return parsed.filter(
-          (item) =>
-            item &&
-            !item.serviceName?.includes('مكياج السهرات') &&
-            !item.serviceName?.includes('Qatar Gala Evening') &&
-            !JSON.stringify(item).includes('مكياج السهرات')
-        );
+        return parsed.filter((item) => item && Boolean(item.clientName || item.serviceName));
       }
       return [];
     } catch {
@@ -132,6 +128,15 @@ export default function App() {
     }
   });
 
+  const [coupons, setCoupons] = useState<Coupon[]>(() => {
+    try {
+      const saved = localStorage.getItem('glow_coupons');
+      return saved ? JSON.parse(saved) : INITIAL_COUPONS;
+    } catch {
+      return INITIAL_COUPONS;
+    }
+  });
+
   const [ownerPin, setOwnerPin] = useState<string>(() => {
     try {
       const saved = localStorage.getItem('glow_owner_pin');
@@ -147,26 +152,12 @@ export default function App() {
     const unsubCat = subscribeToDocArray<CategoryItem>('categories', (items) => setCategories(items), INITIAL_CATEGORIES);
     const unsubSrv = subscribeToDocArray<Service>('services', (items) => setServices(items), INITIAL_SERVICES);
     const unsubApt = subscribeToDocArray<Appointment>('appointments', (items) => {
-      const validItems = items.filter((item) => {
-        if (!item) return false;
-        const sName = item.serviceName || '';
-        const rawJson = JSON.stringify(item);
-        if (
-          sName.includes('مكياج السهرات') ||
-          sName.includes('Qatar Gala Evening') ||
-          rawJson.includes('مكياج السهرات')
-        ) {
-          return false;
-        }
-        return true;
-      }).map((item, idx) => ({
-        ...item,
-        id: item.id || `apt-fixed-${idx}`,
-      }));
-
-      if (validItems.length !== items.length) {
-        saveDocArray('appointments', validItems);
-      }
+      const validItems = (items || [])
+        .filter((item) => Boolean(item && (item.clientName || item.serviceName)))
+        .map((item, idx) => ({
+          ...item,
+          id: item.id || `apt-fixed-${idx}`,
+        }));
 
       setAppointments(validItems);
     }, []);
@@ -190,6 +181,7 @@ export default function App() {
       }));
       setSupervisors(sanitized);
     }, INITIAL_SUPERVISORS);
+    const unsubCpn = subscribeToDocArray<Coupon>('coupons', (items) => setCoupons(items), INITIAL_COUPONS);
     const unsubPin = subscribeToDoc<{ pin: string }>('owner_pin', (data) => setOwnerPin(data?.pin || '1234'), { pin: '1234' });
 
     return () => {
@@ -201,6 +193,7 @@ export default function App() {
       unsubGal();
       unsubAbt();
       unsubSup();
+      unsubCpn();
       unsubPin();
     };
   }, []);
@@ -289,6 +282,46 @@ export default function App() {
       localStorage.setItem('glow_supervisors', JSON.stringify(supervisors));
     } catch (e) { console.error(e); }
   }, [supervisors]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('glow_coupons', JSON.stringify(coupons));
+    } catch (e) { console.error(e); }
+  }, [coupons]);
+
+  // Coupon Management Handlers
+  const handleUseCoupon = (code: string) => {
+    setCoupons((prev) => {
+      const nextCoupons = prev.map((c) =>
+        c.code.toUpperCase() === code.toUpperCase()
+          ? { ...c, usedCount: (c.usedCount || 0) + 1 }
+          : c
+      );
+      saveDocArray('coupons', nextCoupons);
+      return nextCoupons;
+    });
+  };
+
+  const handleSaveCoupon = (coupon: Coupon) => {
+    setCoupons((prev) => {
+      const exists = prev.some((c) => c.id === coupon.id);
+      const nextCoupons = exists
+        ? prev.map((c) => (c.id === coupon.id ? coupon : c))
+        : [coupon, ...prev];
+      saveDocArray('coupons', nextCoupons);
+      return nextCoupons;
+    });
+    showToast(language === 'ar' ? 'تم حفظ كود الخصم بنجاح' : 'Coupon code saved.');
+  };
+
+  const handleDeleteCoupon = (id: string) => {
+    setCoupons((prev) => {
+      const nextCoupons = prev.filter((c) => c.id !== id);
+      saveDocArray('coupons', nextCoupons);
+      return nextCoupons;
+    });
+    showToast(language === 'ar' ? 'تم حذف كود الخصم' : 'Coupon deleted.');
+  };
 
   // Modals & Toast State
   const [confirmedAppointment, setConfirmedAppointment] = useState<Appointment | null>(null);
@@ -616,9 +649,16 @@ export default function App() {
             selectedCategory={selectedCategory}
             setSelectedCategory={setSelectedCategory}
             language={language}
-            onConfirmBooking={handleConfirmBooking}
+            onConfirmBooking={(bookingData) => {
+              handleConfirmBooking(bookingData);
+              if (bookingData.couponCode) {
+                handleUseCoupon(bookingData.couponCode);
+              }
+            }}
             categories={categories}
             siteSettings={siteSettings}
+            coupons={coupons}
+            onUseCoupon={handleUseCoupon}
           />
         )}
 
@@ -634,6 +674,11 @@ export default function App() {
             aboutContent={aboutContent}
             reviews={reviews}
             supervisors={supervisors}
+            coupons={coupons}
+            onSaveCoupon={handleSaveCoupon}
+            onAddCoupon={handleSaveCoupon}
+            onUpdateCoupon={handleSaveCoupon}
+            onDeleteCoupon={handleDeleteCoupon}
             userSession={userSession}
             ownerPin={ownerPin}
             onUpdateOwnerPin={handleUpdateOwnerPin}

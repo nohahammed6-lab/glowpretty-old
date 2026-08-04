@@ -27,6 +27,10 @@ export function subscribeToDoc<T extends object>(
   fallbackData: T
 ) {
   const docRef = doc(db, 'app_data', docId);
+  let lastJson = '';
+  try {
+    lastJson = localStorage.getItem(`glow_${docId}`) || '';
+  } catch {}
 
   return onSnapshot(
     docRef,
@@ -34,10 +38,14 @@ export function subscribeToDoc<T extends object>(
       if (snapshot.exists()) {
         const remoteData = snapshot.data() as T;
         const validData = remoteData || fallbackData;
+        const newJson = JSON.stringify(validData);
         try {
-          localStorage.setItem(`glow_${docId}`, JSON.stringify(validData));
+          localStorage.setItem(`glow_${docId}`, newJson);
         } catch {}
-        onData(validData);
+        if (newJson !== lastJson) {
+          lastJson = newJson;
+          onData(validData);
+        }
         return;
       }
 
@@ -55,17 +63,25 @@ export function subscribeToDoc<T extends object>(
       const dataToUse = localData || fallbackData;
       const cleanDataToUse = JSON.parse(JSON.stringify(dataToUse));
       setDoc(docRef, cleanDataToUse, { merge: true }).catch(console.error);
+      const finalJson = JSON.stringify(dataToUse);
       try {
-        localStorage.setItem(`glow_${docId}`, JSON.stringify(dataToUse));
+        localStorage.setItem(`glow_${docId}`, finalJson);
       } catch {}
-      onData(dataToUse);
+      if (finalJson !== lastJson) {
+        lastJson = finalJson;
+        onData(dataToUse);
+      }
     },
     (error) => {
       console.warn(`Firestore sync error for ${docId}:`, error);
       try {
         const saved = localStorage.getItem(`glow_${docId}`);
         if (saved) {
-          onData(JSON.parse(saved));
+          const parsed = JSON.parse(saved);
+          if (parsed && JSON.stringify(parsed) !== lastJson) {
+            lastJson = JSON.stringify(parsed);
+            onData(parsed);
+          }
         }
       } catch {}
     }
@@ -117,6 +133,10 @@ export function subscribeToDocArray<T>(
   fallbackData: T[]
 ) {
   const docRef = doc(db, 'app_data', docId);
+  let lastJson = '';
+  try {
+    lastJson = localStorage.getItem(`glow_${docId}`) || '';
+  } catch {}
 
   return onSnapshot(
     docRef,
@@ -124,10 +144,14 @@ export function subscribeToDocArray<T>(
       if (snapshot.exists()) {
         const data = snapshot.data();
         const remoteItems = (data && Array.isArray(data.items)) ? (data.items as T[]) : [];
+        const newJson = JSON.stringify(remoteItems);
         try {
-          localStorage.setItem(`glow_${docId}`, JSON.stringify(remoteItems));
+          localStorage.setItem(`glow_${docId}`, newJson);
         } catch {}
-        onData(remoteItems);
+        if (newJson !== lastJson) {
+          lastJson = newJson;
+          onData(remoteItems);
+        }
         return;
       }
 
@@ -145,17 +169,25 @@ export function subscribeToDocArray<T>(
       const dataToUse = localData !== null ? localData : fallbackData;
       const cleanDataToUse = JSON.parse(JSON.stringify(dataToUse));
       setDoc(docRef, { items: cleanDataToUse }).catch(console.error);
+      const finalJson = JSON.stringify(dataToUse);
       try {
-        localStorage.setItem(`glow_${docId}`, JSON.stringify(dataToUse));
+        localStorage.setItem(`glow_${docId}`, finalJson);
       } catch {}
-      onData(dataToUse);
+      if (finalJson !== lastJson) {
+        lastJson = finalJson;
+        onData(dataToUse);
+      }
     },
     (error) => {
       console.warn(`Firestore sync error for array ${docId}:`, error);
       try {
         const saved = localStorage.getItem(`glow_${docId}`);
         if (saved) {
-          onData(JSON.parse(saved));
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && JSON.stringify(parsed) !== lastJson) {
+            lastJson = JSON.stringify(parsed);
+            onData(parsed);
+          }
         }
       } catch {}
     }

@@ -18,7 +18,6 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
   if (!isOpen) return null;
 
   const [clientName, setClientName] = useState('');
-  const [clientEmail, setClientEmail] = useState('');
   const [clientPhone, setClientPhone] = useState('+974 ');
   const [serviceId, setServiceId] = useState(services[0]?.id || '');
   const [date, setDate] = useState('2026-08-01');
@@ -46,7 +45,6 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
     onAdd({
       clientName,
       clientInitials: initials,
-      clientEmail,
       clientPhone,
       serviceId,
       serviceName,
@@ -91,35 +89,19 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold text-[#594045] mb-1">
-                البريد الإلكتروني
-              </label>
-              <input
-                type="email"
-                required
-                placeholder="client@example.qa"
-                value={clientEmail}
-                onChange={(e) => setClientEmail(e.target.value)}
-                className="w-full border border-gray-300 rounded-xl py-2.5 px-3 text-sm focus:outline-none focus:border-[#9b0044]"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-[#594045] mb-1">
-                رقم الهاتف (قطر)
-              </label>
-              <input
-                type="tel"
-                dir="ltr"
-                required
-                placeholder="+974 5500 0000"
-                value={clientPhone}
-                onChange={(e) => setClientPhone(e.target.value)}
-                className="w-full border border-gray-300 rounded-xl py-2.5 px-3 text-sm focus:outline-none focus:border-[#9b0044] text-left"
-              />
-            </div>
+          <div>
+            <label className="block text-xs font-bold text-[#594045] mb-1">
+              رقم الهاتف (قطر)
+            </label>
+            <input
+              type="tel"
+              dir="ltr"
+              required
+              placeholder="+974 5500 0000"
+              value={clientPhone}
+              onChange={(e) => setClientPhone(e.target.value)}
+              className="w-full border border-gray-300 rounded-xl py-2.5 px-3 text-sm focus:outline-none focus:border-[#9b0044] text-left"
+            />
           </div>
 
           <div>

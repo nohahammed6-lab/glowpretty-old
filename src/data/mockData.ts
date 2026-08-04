@@ -8,6 +8,7 @@ import {
   SiteSettings,
   AboutContent,
   Supervisor,
+  Coupon,
 } from '../types';
 
 export const INITIAL_CATEGORIES: CategoryItem[] = [
@@ -619,6 +620,29 @@ export const ADMIN_STATS: AdminStat = {
 };
 
 export const INITIAL_SUPERVISORS: Supervisor[] = [];
+
+export const INITIAL_COUPONS: Coupon[] = [
+  {
+    id: 'coup-1',
+    code: 'GLOW10',
+    discountType: 'percentage',
+    discountValue: 10,
+    maxUses: 50,
+    usedCount: 0,
+    isActive: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'coup-2',
+    code: 'WELCOME50',
+    discountType: 'fixed',
+    discountValue: 50,
+    maxUses: 20,
+    usedCount: 0,
+    isActive: true,
+    createdAt: new Date().toISOString(),
+  },
+];
 
 export const INITIAL_GALLERY: GalleryItem[] = [
   {
