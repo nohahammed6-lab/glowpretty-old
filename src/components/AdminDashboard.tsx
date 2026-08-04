@@ -266,6 +266,83 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     manageAbout: false,
   });
 
+  // Notifications State & Logic
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [readNotificationIds, setReadNotificationIds] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('glow_read_notifications');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('glow_read_notifications', JSON.stringify(readNotificationIds));
+    } catch (err) {
+      console.error(err);
+    }
+  }, [readNotificationIds]);
+
+  // Audio alert on new appointment arrival
+  const prevApptCountRef = React.useRef(appointments.length);
+  useEffect(() => {
+    if (appointments.length > prevApptCountRef.current) {
+      try {
+        const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
+        osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.2); // A5
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.4);
+      } catch {
+        // Audio fallback
+      }
+    }
+    prevApptCountRef.current = appointments.length;
+  }, [appointments.length]);
+
+  // Notifications sorted by newest first
+  const notificationsList = [...appointments].sort((a, b) => {
+    const timeA = new Date(a.createdAt || a.date).getTime() || 0;
+    const timeB = new Date(b.createdAt || b.date).getTime() || 0;
+    return timeB - timeA;
+  });
+
+  // Unread notifications: pending status or ID not marked as read
+  const unreadNotifications = notificationsList.filter(
+    (apt) => !readNotificationIds.includes(apt.id)
+  );
+  const unreadCount = unreadNotifications.length;
+
+  const handleMarkAllRead = () => {
+    const allIds = appointments.map((a) => a.id);
+    setReadNotificationIds(allIds);
+  };
+
+  const handleNotificationClick = (apt: Appointment) => {
+    if (!readNotificationIds.includes(apt.id)) {
+      setReadNotificationIds((prev) => [...prev, apt.id]);
+    }
+    setIsNotificationOpen(false);
+    setActiveTab('appointments');
+  };
+
+  const handleQuickConfirm = (e: React.MouseEvent, aptId: string) => {
+    e.stopPropagation();
+    onUpdateAppointmentStatus(aptId, 'Confirmed');
+    if (!readNotificationIds.includes(aptId)) {
+      setReadNotificationIds((prev) => [...prev, aptId]);
+    }
+  };
+
   // Filtered Appointments
   const filteredAppointments = appointments.filter((apt) => {
     if (filterStatus === 'All') return true;
@@ -654,6 +731,146 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Notification Bell Button & Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+                className={`relative p-2.5 rounded-xl border transition-all cursor-pointer flex items-center justify-center ${
+                  unreadCount > 0
+                    ? 'bg-rose-50 text-rose-700 border-rose-300 hover:bg-rose-100'
+                    : 'bg-[#FAF6ED] text-[#121212] border-[#D4AF37]/40 hover:bg-[#F3E5AB]/40'
+                }`}
+                title={isArabic ? 'تنبيهات الحجوزات' : 'Booking Notifications'}
+              >
+                <span className={`material-symbols-outlined text-xl ${unreadCount > 0 ? 'animate-bounce' : ''}`}>
+                  notifications
+                </span>
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 bg-rose-600 text-white font-extrabold text-[11px] min-w-[20px] h-[20px] rounded-full flex items-center justify-center px-1 shadow-md border-2 border-white">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Notification Dropdown Menu */}
+              {isNotificationOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setIsNotificationOpen(false)}
+                  />
+                  <div className="absolute left-0 sm:right-0 sm:left-auto mt-2 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-[#D4AF37]/50 z-50 overflow-hidden animate-scale-in">
+                    <div className="p-4 bg-[#121212] text-white flex items-center justify-between border-b border-[#D4AF37]/30">
+                      <div className="flex items-center gap-2">
+                        <span className="material-symbols-outlined text-[#D4AF37] text-xl">notifications_active</span>
+                        <h3 className="font-bold text-sm text-[#D4AF37]">
+                          {isArabic ? 'تنبيهات الحجوزات الجديدة' : 'New Booking Alerts'}
+                        </h3>
+                        {unreadCount > 0 && (
+                          <span className="bg-rose-600 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full">
+                            {unreadCount} {isArabic ? 'جديد' : 'new'}
+                          </span>
+                        )}
+                      </div>
+                      {unreadCount > 0 && (
+                        <button
+                          onClick={handleMarkAllRead}
+                          className="text-[11px] text-[#D4AF37] hover:underline font-bold cursor-pointer"
+                        >
+                          {isArabic ? 'تعليم الكل كمقروء' : 'Mark all as read'}
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="max-h-80 overflow-y-auto divide-y divide-gray-100">
+                      {notificationsList.length === 0 ? (
+                        <div className="p-8 text-center text-gray-400">
+                          <span className="material-symbols-outlined text-3xl mb-1 text-gray-300">notifications_off</span>
+                          <p className="text-xs font-bold">{isArabic ? 'لا توجد حجوزات حالياً' : 'No bookings yet'}</p>
+                        </div>
+                      ) : (
+                        notificationsList.slice(0, 10).map((apt) => {
+                          const isUnread = !readNotificationIds.includes(apt.id);
+                          return (
+                            <div
+                              key={apt.id}
+                              onClick={() => handleNotificationClick(apt)}
+                              className={`p-3.5 transition-colors cursor-pointer hover:bg-rose-50/50 flex flex-col gap-1.5 ${
+                                isUnread ? 'bg-amber-50/60 font-semibold border-s-4 border-[#9b0044]' : 'bg-white'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs font-extrabold text-[#121212] flex items-center gap-1.5">
+                                  {isUnread && <span className="w-2 h-2 rounded-full bg-rose-600 animate-ping" />}
+                                  👤 {apt.clientName}
+                                </span>
+                                <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-md ${
+                                  apt.status === 'Confirmed' ? 'bg-emerald-100 text-emerald-800' :
+                                  apt.status === 'Pending' ? 'bg-amber-100 text-amber-800' :
+                                  apt.status === 'Completed' ? 'bg-blue-100 text-blue-800' :
+                                  'bg-rose-100 text-rose-800'
+                                }`}>
+                                  {apt.status === 'Confirmed' ? (isArabic ? 'مؤكد' : 'Confirmed') :
+                                   apt.status === 'Pending' ? (isArabic ? 'جديد (معلق)' : 'Pending') :
+                                   apt.status === 'Completed' ? (isArabic ? 'مكتمل' : 'Completed') :
+                                   (isArabic ? 'ملغى' : 'Cancelled')}
+                                </span>
+                              </div>
+
+                              <p className="text-xs text-gray-700 flex items-center gap-1 font-medium">
+                                <span className="material-symbols-outlined text-sm text-[#9b0044]">spa</span>
+                                {apt.serviceName}
+                              </p>
+
+                              <div className="flex items-center justify-between text-[11px] text-gray-500 font-medium">
+                                <span className="flex items-center gap-1">
+                                  <span className="material-symbols-outlined text-xs">schedule</span>
+                                  {apt.date} | {apt.time}
+                                </span>
+                                <span className="text-[#9b0044] font-bold">
+                                  📱 {apt.clientPhone}
+                                </span>
+                              </div>
+
+                              {apt.couponCode && (
+                                <div className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 self-start">
+                                  🎟️ {isArabic ? 'كوبون الخصم:' : 'Coupon:'} {apt.couponCode}
+                                </div>
+                              )}
+
+                              {apt.status === 'Pending' && (
+                                <div className="flex gap-2 mt-1 pt-1 border-t border-gray-100">
+                                  <button
+                                    onClick={(e) => handleQuickConfirm(e, apt.id)}
+                                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold py-1.5 px-2 rounded-lg transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                                  >
+                                    <span className="material-symbols-outlined text-xs">check_circle</span>
+                                    {isArabic ? 'تأكيد الموعد فوراً' : 'Quick Confirm'}
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+
+                    <div className="p-2.5 bg-gray-50 text-center border-t border-gray-100">
+                      <button
+                        onClick={() => {
+                          setIsNotificationOpen(false);
+                          setActiveTab('appointments');
+                        }}
+                        className="text-xs font-extrabold text-[#9b0044] hover:underline cursor-pointer"
+                      >
+                        {isArabic ? 'عرض جميع المواعيد والتحكم بها' : 'View All Appointments'} →
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
             {!isOwner && (
               <span className="bg-[#FAF6ED] text-[#121212] border border-[#D4AF37] text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5">
                 <span className="material-symbols-outlined text-base">badge</span>
@@ -2216,7 +2433,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <div>
                   <p className="text-xs text-gray-500 font-bold">{isArabic ? 'إجمالي استخدامات العملاء' : 'Total Redemptions'}</p>
                   <h4 className="font-display text-2xl font-extrabold text-[#9b0044] mt-1">
-                    {coupons.reduce((sum, c) => sum + (c.usedCount || 0), 0)}
+                    {coupons.reduce((sum, c) => {
+                      const realUses = appointments.filter(
+                        (a) => a.couponCode && a.couponCode.trim().toUpperCase() === c.code.trim().toUpperCase() && a.status !== 'Cancelled'
+                      ).length;
+                      return sum + realUses;
+                    }, 0)}
                   </h4>
                 </div>
                 <div className="w-12 h-12 bg-rose-50 rounded-xl flex items-center justify-center text-[#9b0044] border border-rose-200">
@@ -2275,8 +2497,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       </tr>
                     ) : (
                       coupons.map((c) => {
-                        const usagePct = Math.min(100, Math.round(((c.usedCount || 0) / (c.maxUses || 1)) * 100));
-                        const isLimitReached = c.usedCount >= c.maxUses;
+                        const actualUsedCount = appointments.filter(
+                          (a) => a.couponCode && a.couponCode.trim().toUpperCase() === c.code.trim().toUpperCase() && a.status !== 'Cancelled'
+                        ).length;
+                        const usagePct = Math.min(100, Math.round((actualUsedCount / (c.maxUses || 1)) * 100));
+                        const isLimitReached = actualUsedCount >= c.maxUses;
 
                         return (
                           <tr key={c.id} className="hover:bg-[#FAF6ED]/50 transition-colors">
@@ -2299,7 +2524,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             <td className="py-3.5 px-4 font-bold">
                               <div className="space-y-1 max-w-[160px]">
                                 <div className="flex justify-between text-[11px]">
-                                  <span className="text-[#121212] font-bold">{c.usedCount} / {c.maxUses} {isArabic ? 'عميل' : 'clients'}</span>
+                                  <span className="text-[#121212] font-bold">{actualUsedCount} / {c.maxUses} {isArabic ? 'عميل' : 'clients'}</span>
                                   <span className="text-gray-400 font-medium">{usagePct}%</span>
                                 </div>
                                 <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
@@ -2317,7 +2542,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                 </span>
                               ) : (
                                 <span className="text-gray-600">
-                                  {Math.max(0, c.maxUses - c.usedCount)} {isArabic ? 'عميل متبقي' : 'left'}
+                                  {Math.max(0, c.maxUses - actualUsedCount)} {isArabic ? 'عميل متبقي' : 'left'}
                                 </span>
                               )}
                             </td>

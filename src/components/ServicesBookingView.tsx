@@ -195,10 +195,6 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
       time: finalTimeSlot,
     });
 
-    if (appliedCoupon && onUseCoupon) {
-      onUseCoupon(appliedCoupon.code);
-    }
-
     setFullName('');
     setPhone('+974 ');
     setAppliedCoupon(null);
