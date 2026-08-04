@@ -45,9 +45,33 @@ import {
 } from './lib/firebase';
 
 export default function App() {
-  // Navigation & Language
+  // Navigation & Language & Theme
   const [viewMode, setViewMode] = useState<ViewMode>('home');
   const [language, setLanguage] = useState<Language>('ar'); // Default to Arabic for Qatar
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    try {
+      const saved = localStorage.getItem('glow_theme');
+      return saved === 'dark' || saved === 'light' ? saved : 'light';
+    } catch {
+      return 'light';
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('glow_theme', theme);
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.body.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.body.classList.remove('dark');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }, [theme]);
+
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [userSession, setUserSession] = useState<UserSession>({ role: 'owner' });
 
@@ -619,6 +643,8 @@ export default function App() {
         setViewMode={setViewMode}
         language={language}
         setLanguage={setLanguage}
+        theme={theme}
+        setTheme={setTheme}
         onBookNowClick={() => {
           setViewMode('booking');
           window.scrollTo({ top: 0, behavior: 'smooth' });

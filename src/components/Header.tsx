@@ -6,6 +6,8 @@ interface HeaderProps {
   setViewMode: (mode: ViewMode) => void;
   language: Language;
   setLanguage: (lang: Language) => void;
+  theme?: 'light' | 'dark';
+  setTheme?: (theme: 'light' | 'dark') => void;
   onBookNowClick: () => void;
   onAdminLoginClick: (tab: 'owner' | 'supervisor') => void;
   siteSettings: SiteSettings;
@@ -16,6 +18,8 @@ export const Header: React.FC<HeaderProps> = ({
   setViewMode,
   language,
   setLanguage,
+  theme = 'light',
+  setTheme,
   onBookNowClick,
   onAdminLoginClick,
   siteSettings,
@@ -26,6 +30,12 @@ export const Header: React.FC<HeaderProps> = ({
 
   const toggleLanguage = () => {
     setLanguage(isArabic ? 'en' : 'ar');
+  };
+
+  const toggleTheme = () => {
+    if (setTheme) {
+      setTheme(theme === 'dark' ? 'light' : 'dark');
+    }
   };
 
   const navTo = (target: 'home' | 'booking' | 'gallery' | 'about' | 'contact') => {
@@ -83,8 +93,19 @@ export const Header: React.FC<HeaderProps> = ({
 
 
 
-          {/* Right Actions: Clean Language Switcher + Sleek Book Button */}
-          <div className="flex items-center gap-3">
+          {/* Right Actions: Clean Language Switcher + Theme Toggle + Sleek Book Button */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* High-Contrast Theme Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-full text-[#121212] hover:bg-[#121212]/10 dark:text-[#FFFDF0] dark:hover:bg-white/10 transition-all cursor-pointer border border-[#D4AF37]/40 flex items-center justify-center bg-white/60 shadow-2xs"
+              title={theme === 'dark' ? (isArabic ? 'تفعيل المظهر الفاتح' : 'Switch to Light Mode') : (isArabic ? 'تفعيل المظهر الداكن' : 'Switch to Dark Mode')}
+            >
+              <span className="material-symbols-outlined text-xl text-[#D4AF37]">
+                {theme === 'dark' ? 'light_mode' : 'dark_mode'}
+              </span>
+            </button>
+
             {/* Language Switch Button */}
             <button
               onClick={toggleLanguage}
@@ -194,6 +215,37 @@ export const Header: React.FC<HeaderProps> = ({
                 <span className="material-symbols-outlined text-[#D4AF37]">call</span>
                 <span>{isArabic ? 'اتصل بنا واللوكيشن' : 'Contact & Location'}</span>
               </button>
+
+              {/* High-Contrast Theme Switch Row in Drawer */}
+              <div className="mt-2 pt-3 border-t border-[#D4AF37]/30 flex items-center justify-between p-3 rounded-2xl bg-white dark:bg-stone-800 border border-[#D4AF37]/40">
+                <div className="flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[#D4AF37]">
+                    {theme === 'dark' ? 'dark_mode' : 'light_mode'}
+                  </span>
+                  <span className="text-xs font-bold text-[#121212] dark:text-white">
+                    {isArabic
+                      ? (theme === 'dark' ? 'المظهر الداكن' : 'المظهر الفاتح')
+                      : (theme === 'dark' ? 'Dark Mode' : 'Light Mode')}
+                  </span>
+                </div>
+                <button
+                  onClick={toggleTheme}
+                  className={`relative w-12 h-6 rounded-full transition-colors cursor-pointer p-0.5 ${
+                    theme === 'dark' ? 'bg-[#9b0044]' : 'bg-amber-200'
+                  }`}
+                  aria-label="Toggle Theme"
+                >
+                  <div
+                    className={`w-5 h-5 rounded-full bg-white shadow-md transform transition-transform flex items-center justify-center ${
+                      theme === 'dark' ? 'translate-x-6 rtl:-translate-x-6 bg-[#D4AF37]' : 'translate-x-0'
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[12px] text-black">
+                      {theme === 'dark' ? 'dark_mode' : 'light_mode'}
+                    </span>
+                  </div>
+                </button>
+              </div>
 
             </div>
 

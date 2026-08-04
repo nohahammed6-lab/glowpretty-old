@@ -116,3 +116,71 @@
 .animate-fade-in {
   animation: fadeIn 0.35s ease-out forwards;
 }
+
+/* High-Contrast Luxury Dark Mode Styling */
+html.dark, body.dark {
+  background-color: #0d0d0d !important;
+  color: #f3f3f3 !important;
+}
+
+html.dark body {
+  background-color: #0d0d0d !important;
+  color: #f3f3f3 !important;
+}
+
+html.dark header {
+  background-color: rgba(18, 18, 18, 0.95) !important;
+  border-bottom-color: rgba(212, 175, 55, 0.4) !important;
+}
+
+html.dark .bg-\[\#FFFDF5\],
+html.dark .bg-\[\#FAF6ED\],
+html.dark .bg-\[\#FAF4E1\],
+html.dark .bg-\[\#FFFDF0\],
+html.dark .bg-stone-50,
+html.dark .bg-amber-50\/60,
+html.dark .bg-rose-50\/50 {
+  background-color: #171717 !important;
+}
+
+html.dark .bg-white {
+  background-color: #1a1a1a !important;
+  color: #f3f3f3 !important;
+}
+
+html.dark .text-\[\#121212\],
+html.dark .text-\[\#1a1a1a\],
+html.dark .text-\[\#333333\],
+html.dark .text-\[\#3a3528\],
+html.dark .text-gray-900,
+html.dark .text-gray-800,
+html.dark .text-gray-700 {
+  color: #f3f3f3 !important;
+}
+
+html.dark .text-gray-600,
+html.dark .text-gray-500 {
+  color: #b0b0b0 !important;
+}
+
+html.dark .border-\[\#D4AF37\]\/40,
+html.dark .border-\[\#D4AF37\]\/30,
+html.dark .border-\[\#D4AF37\]\/50,
+html.dark .border-gray-100,
+html.dark .border-gray-200 {
+  border-color: rgba(212, 175, 55, 0.4) !important;
+}
+
+html.dark .btn-outline-gold {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+}
+
+html.dark input,
+html.dark select,
+html.dark textarea {
+  background-color: #242424 !important;
+  color: #ffffff !important;
+  border-color: rgba(212, 175, 55, 0.4) !important;
+}
+

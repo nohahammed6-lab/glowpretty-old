@@ -3,6 +3,32 @@ import { Service, Language, Appointment, CategoryItem, SiteSettings, Coupon } fr
 import { TIME_SLOTS } from '../data/mockData';
 import { PriceTag } from './PriceTag';
 
+const HighlightText: React.FC<{ text?: string; query: string }> = ({ text, query }) => {
+  if (!text) return null;
+  if (!query || !query.trim()) return <>{text}</>;
+
+  const trimmed = query.trim();
+  try {
+    const regex = new RegExp(`(${trimmed.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    const parts = text.split(regex);
+    return (
+      <>
+        {parts.map((part, i) =>
+          part.toLowerCase() === trimmed.toLowerCase() ? (
+            <mark key={i} className="bg-[#D4AF37] text-[#121212] font-black rounded px-1.5 py-0.5 shadow-2xs mx-0.5 inline-block">
+              {part}
+            </mark>
+          ) : (
+            part
+          )
+        )}
+      </>
+    );
+  } catch {
+    return <>{text}</>;
+  }
+};
+
 interface ServicesBookingViewProps {
   services: Service[];
   selectedCategory: string; // 'all' or category id
@@ -124,11 +150,29 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
   // Form Error state
   const [formError, setFormError] = useState('');
 
+  // Search Query state
+  const [searchQuery, setSearchQuery] = useState('');
+
   // Combined Category Filter Items (including "All")
   const allCategoryOption: CategoryItem = { id: 'all', label: 'All Services', arabicLabel: 'جميع الخدمات' };
   const filterCategories = [allCategoryOption, ...categories];
 
   const filteredServices = services.filter((s) => {
+    if (searchQuery.trim()) {
+      const query = searchQuery.trim().toLowerCase();
+      const catObj = categories.find((c) => c.id === s.category);
+      const catLabel = catObj?.label.toLowerCase() || '';
+      const catArabicLabel = catObj?.arabicLabel.toLowerCase() || '';
+
+      const matchTitle = (s.title || '').toLowerCase().includes(query);
+      const matchArabicTitle = (s.arabicTitle || '').toLowerCase().includes(query);
+      const matchDesc = (s.description || '').toLowerCase().includes(query);
+      const matchArabicDesc = (s.arabicDescription || '').toLowerCase().includes(query);
+      const matchCat = catLabel.includes(query) || catArabicLabel.includes(query) || (s.category || '').toLowerCase().includes(query);
+
+      return matchTitle || matchArabicTitle || matchDesc || matchArabicDesc || matchCat;
+    }
+
     if (selectedCategory === 'all') return true;
     return s.category === selectedCategory;
   });
@@ -215,11 +259,55 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
         <h1 className="font-display text-3xl sm:text-5xl text-[#121212] mb-3 font-extrabold">
           {isArabic ? 'قائمة الخدمات والحجز الفوري' : 'Luxury Beauty Services & Reservation'}
         </h1>
-        <p className="text-[#3a3528] text-base sm:text-lg max-w-2xl mx-auto leading-relaxed font-medium">
+        <p className="text-[#3a3528] text-base sm:text-lg max-w-2xl mx-auto leading-relaxed font-medium mb-6">
           {isArabic
             ? 'اختاري الخدمة المناسبة لكِ واستكملي بيانات الحجز بسهولة لضمان موعدكِ الملكي في صالون غلو بريتي بالدوحة.'
             : 'Explore our bespoke hair, nail, skincare, and makeup offerings in West Bay, Doha.'}
         </p>
+
+        {/* Quick Search Bar */}
+        <div className="max-w-xl mx-auto relative">
+          <div className="relative flex items-center">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={
+                isArabic
+                  ? 'ابحثي عن خدمة بالاسم أو الفئة (مثل: شعر، بديكير، فايشل، مكياج)...'
+                  : 'Search services by name or category (e.g. Hair, Nails, Facial, Makeup)...'
+              }
+              className="w-full bg-white border-2 border-[#D4AF37]/40 focus:border-[#121212] rounded-2xl py-3.5 px-11 text-sm text-[#121212] placeholder-gray-400 font-medium shadow-sm focus:outline-none transition-all"
+            />
+            <span className="material-symbols-outlined absolute text-gray-400 text-xl pointer-events-none ltr:left-4 rtl:right-4">
+              search
+            </span>
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute text-gray-400 hover:text-gray-700 p-1 rounded-full cursor-pointer transition-colors ltr:right-3 rtl:left-3"
+                title={isArabic ? 'مسح البحث' : 'Clear search'}
+              >
+                <span className="material-symbols-outlined text-lg">close</span>
+              </button>
+            )}
+          </div>
+          {searchQuery.trim() && (
+            <div className="mt-2 flex items-center justify-between text-xs px-2 text-gray-600 font-semibold">
+              <span>
+                {isArabic
+                  ? `نتائج البحث عن "${searchQuery}": ${filteredServices.length} خدمة`
+                  : `Search results for "${searchQuery}": ${filteredServices.length} service(s)`}
+              </span>
+              <button
+                onClick={() => setSearchQuery('')}
+                className="text-[#9b0044] hover:underline font-bold cursor-pointer"
+              >
+                {isArabic ? 'إلغاء البحث' : 'Reset search'}
+              </button>
+            </div>
+          )}
+        </div>
       </section>
 
       {/* Main Layout Grid */}
@@ -266,8 +354,36 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
 
           {/* Service Cards Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            {filteredServices.map((service) => {
+            {filteredServices.length === 0 ? (
+              <div className="col-span-1 sm:col-span-2 bg-white rounded-2xl p-8 text-center border border-[#D4AF37]/30 space-y-3">
+                <span className="material-symbols-outlined text-4xl text-gray-300">search_off</span>
+                <h3 className="font-extrabold text-gray-700 text-base">
+                  {isArabic ? 'لم نجد أية خدمات تطابق بحثكِ' : 'No matching services found'}
+                </h3>
+                <p className="text-xs text-gray-500 max-w-md mx-auto">
+                  {isArabic
+                    ? 'جربي كتابة كلمات بحث أخرى أو تصفح جميع الفئات.'
+                    : 'Try searching with different keywords or view all categories.'}
+                </p>
+                <button
+                  onClick={() => {
+                    setSearchQuery('');
+                    setSelectedCategory('all');
+                  }}
+                  className="inline-flex items-center gap-1.5 bg-[#121212] text-[#D4AF37] border border-[#D4AF37] px-4 py-2 rounded-xl text-xs font-bold hover:bg-black transition-all cursor-pointer shadow-xs"
+                >
+                  <span className="material-symbols-outlined text-sm">refresh</span>
+                  {isArabic ? 'عرض جميع الخدمات' : 'Show All Services'}
+                </button>
+              </div>
+            ) : (
+              filteredServices.map((service) => {
               const isSelected = selectedServices.some((s) => s.id === service.id);
+              const serviceCatObj = categories.find((c) => c.id === service.category);
+              const serviceCatName = isArabic
+                ? (serviceCatObj?.arabicLabel || serviceCatObj?.label || service.category)
+                : (serviceCatObj?.label || service.category);
+
               return (
                 <div
                   key={service.id}
@@ -279,7 +395,7 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
                   }`}
                 >
                   {/* Selected Badge */}
-                  <div className="absolute top-3 right-3 flex items-center gap-1">
+                  <div className="absolute top-3 right-3 flex items-center gap-1 z-10">
                     {isSelected ? (
                       <span className="bg-[#121212] text-[#D4AF37] border border-[#D4AF37] rounded-full px-2.5 py-0.5 shadow-md text-xs font-bold flex items-center gap-1">
                         <span className="material-symbols-outlined text-sm">check_circle</span>
@@ -294,19 +410,28 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
                   </div>
 
                   {/* Thumbnail Image */}
-                  <div className="w-full h-44 mb-4 overflow-hidden rounded-xl bg-[#e5e2e1] border border-[#D4AF37]/20">
+                  <div className="w-full h-44 mb-4 overflow-hidden rounded-xl bg-[#e5e2e1] border border-[#D4AF37]/20 relative">
                     <img
                       src={service.imageUrl}
                       alt={service.title}
                       className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                     />
+                    {/* Category Overlay Tag */}
+                    <div className="absolute bottom-2 ltr:left-2 rtl:right-2">
+                      <span className="bg-[#121212]/85 backdrop-blur-xs text-[#D4AF37] text-[10px] font-extrabold px-2.5 py-1 rounded-md border border-[#D4AF37]/40 shadow-xs">
+                        <HighlightText text={serviceCatName} query={searchQuery} />
+                      </span>
+                    </div>
                   </div>
 
                   {/* Details */}
                   <div className="flex-1">
                     <div className="flex justify-between items-start mb-1.5">
                       <h3 className="font-display text-lg font-extrabold text-[#121212]">
-                        {isArabic ? service.arabicTitle : service.title}
+                        <HighlightText
+                          text={isArabic ? service.arabicTitle : service.title}
+                          query={searchQuery}
+                        />
                       </h3>
                       <div className="text-end bg-[#121212] text-[#D4AF37] px-2.5 py-1 rounded-lg font-extrabold text-sm border border-[#D4AF37]/40 whitespace-nowrap ms-2">
                         <PriceTag
@@ -319,12 +444,19 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
                     </div>
 
                     <p className="text-[#3a3528] text-xs leading-relaxed mb-3 font-medium">
-                      {isArabic ? service.arabicDescription : service.description}
+                      <HighlightText
+                        text={isArabic ? service.arabicDescription : service.description}
+                        query={searchQuery}
+                      />
                     </p>
                   </div>
 
                   {/* Footer Meta */}
-                  <div className="flex justify-end items-center border-t border-[#D4AF37]/20 pt-3 mt-2 text-xs font-semibold">
+                  <div className="flex justify-between items-center border-t border-[#D4AF37]/20 pt-3 mt-2 text-xs font-semibold">
+                    <span className="text-[11px] text-gray-500 flex items-center gap-1 font-bold">
+                      <span className="material-symbols-outlined text-sm text-[#D4AF37]">schedule</span>
+                      <span>{service.durationMinutes} {isArabic ? 'دقيقة' : 'min'}</span>
+                    </span>
                     <span className={isSelected ? "text-[#121212] font-bold" : "text-[#B8860B] font-bold"}>
                       {isSelected 
                         ? (isArabic ? '✓ محددة (انقري للإلغاء)' : '✓ Selected (Click to remove)') 
@@ -334,7 +466,8 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
 
                 </div>
               );
-            })}
+            })
+            )}
           </div>
 
         </div>
