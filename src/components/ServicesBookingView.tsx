@@ -454,11 +454,7 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
                   </div>
 
                   {/* Footer Meta */}
-                  <div className="flex justify-between items-center border-t border-[#D4AF37]/20 pt-3 mt-2 text-xs font-semibold">
-                    <span className="text-[11px] text-gray-500 flex items-center gap-1 font-bold">
-                      <span className="material-symbols-outlined text-sm text-[#D4AF37]">schedule</span>
-                      <span>{service.durationMinutes} {isArabic ? 'دقيقة' : 'min'}</span>
-                    </span>
+                  <div className="flex justify-end items-center border-t border-[#D4AF37]/20 pt-3 mt-2 text-xs font-semibold">
                     <span className={isSelected ? "text-[#121212] font-bold" : "text-[#B8860B] font-bold"}>
                       {isSelected 
                         ? (isArabic ? '✓ محددة (انقري للإلغاء)' : '✓ Selected (Click to remove)') 
