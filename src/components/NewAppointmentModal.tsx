@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { Service, Appointment } from '../types';
+import React, { useState, useEffect } from 'react';
+import { Service, Appointment, Coupon } from '../types';
 import { TIME_SLOTS } from '../data/mockData';
 
 interface NewAppointmentModalProps {
   services: Service[];
+  coupons?: Coupon[];
   isOpen: boolean;
   onClose: () => void;
   onAdd: (newApt: Omit<Appointment, 'id' | 'createdAt'>) => void;
@@ -11,6 +12,7 @@ interface NewAppointmentModalProps {
 
 export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
   services,
+  coupons = [],
   isOpen,
   onClose,
   onAdd,
@@ -24,17 +26,78 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
   const [time, setTime] = useState(TIME_SLOTS[0]);
   const [status, setStatus] = useState<'Confirmed' | 'Pending'>('Confirmed');
 
+  // Coupon state
+  const [couponInput, setCouponInput] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
+  const [couponError, setCouponError] = useState('');
+
+  // Reset coupon state when modal opens
+  useEffect(() => {
+    setCouponInput('');
+    setAppliedCoupon(null);
+    setCouponError('');
+  }, [isOpen]);
+
+  const selectedService = services.find((s) => s.id === serviceId);
+  const originalPrice = selectedService ? selectedService.priceQAR : 0;
+
+  let discountAmount = 0;
+  if (appliedCoupon && originalPrice > 0) {
+    if (appliedCoupon.discountType === 'percentage') {
+      discountAmount = Math.round((originalPrice * appliedCoupon.discountValue) / 100);
+    } else {
+      discountAmount = Math.min(originalPrice, appliedCoupon.discountValue);
+    }
+  }
+
+  const finalPrice = Math.max(0, originalPrice - discountAmount);
+
+  const handleApplyCoupon = (codeToApply?: string) => {
+    const code = (codeToApply || couponInput).trim().toUpperCase();
+    if (!code) {
+      setCouponError('يرجى إدخال كود الخصم');
+      return;
+    }
+
+    const found = coupons.find((c) => c.code.toUpperCase() === code);
+    if (!found) {
+      setCouponError('كود الخصم غير صحيح أو غير موجود');
+      setAppliedCoupon(null);
+      return;
+    }
+
+    if (!found.isActive) {
+      setCouponError('كود الخصم غير مفعل حالياً');
+      setAppliedCoupon(null);
+      return;
+    }
+
+    if (found.usedCount >= found.maxUses) {
+      setCouponError('تجاوز هذا الكوبون الحد الأقصى للاستخدام');
+      setAppliedCoupon(null);
+      return;
+    }
+
+    setAppliedCoupon(found);
+    setCouponError('');
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponInput('');
+    setCouponError('');
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const serviceObj = services.find((s) => s.id === serviceId);
     const serviceName = serviceObj ? serviceObj.arabicTitle || serviceObj.title : 'خدمة تجميل';
-    const priceQAR = serviceObj ? serviceObj.priceQAR : undefined;
-    const priceDisplay = serviceObj ? (serviceObj.arabicPrice || `${serviceObj.priceQAR} ر.ق`) : undefined;
+    const priceDisplay = `${finalPrice} ر.ق`;
     const servicesBreakdown = serviceObj ? [{
       id: serviceObj.id,
       title: serviceObj.arabicTitle || serviceObj.title,
-      priceQAR: serviceObj.priceQAR,
-      priceDisplay: serviceObj.arabicPrice || `${serviceObj.priceQAR} ر.ق`
+      priceQAR: finalPrice,
+      priceDisplay: `${finalPrice} ر.ق`
     }] : undefined;
 
     const nameParts = clientName.trim().split(' ');
@@ -48,7 +111,10 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
       clientPhone,
       serviceId,
       serviceName,
-      priceQAR,
+      priceQAR: finalPrice,
+      originalPriceQAR: discountAmount > 0 ? originalPrice : undefined,
+      couponCode: appliedCoupon ? appliedCoupon.code : undefined,
+      discountAmount: discountAmount > 0 ? discountAmount : undefined,
       priceDisplay,
       servicesBreakdown,
       date,
@@ -119,6 +185,109 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
                 </option>
               ))}
             </select>
+          </div>
+
+          {/* Coupon Code Section */}
+          <div className="bg-[#FAF6ED] p-3.5 rounded-2xl border border-[#D4AF37]/40 space-y-2">
+            <div className="flex justify-between items-center">
+              <label className="block text-xs font-bold text-[#121212] flex items-center gap-1">
+                <span className="material-symbols-outlined text-sm text-[#D4AF37]">local_offer</span>
+                <span>كوبون الخصم (اختياري)</span>
+              </label>
+              {appliedCoupon && (
+                <button
+                  type="button"
+                  onClick={handleRemoveCoupon}
+                  className="text-[11px] font-bold text-red-600 hover:underline flex items-center gap-0.5 cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-xs">close</span>
+                  <span>إلغاء الخصم</span>
+                </button>
+              )}
+            </div>
+
+            {!appliedCoupon ? (
+              <div className="space-y-2">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="كود الخصم (مثال: GLOW10)"
+                    value={couponInput}
+                    onChange={(e) => {
+                      setCouponInput(e.target.value);
+                      setCouponError('');
+                    }}
+                    className="flex-1 border border-gray-300 rounded-xl py-2 px-3 text-xs uppercase font-bold focus:outline-none focus:border-[#9b0044] bg-white"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleApplyCoupon()}
+                    className="bg-[#121212] hover:bg-[#2a2a2a] text-[#D4AF37] border border-[#D4AF37] px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap cursor-pointer transition-all shadow-xs"
+                  >
+                    تطبيق
+                  </button>
+                </div>
+
+                {/* Available active coupons chips */}
+                {coupons && coupons.filter((c) => c.isActive && c.usedCount < c.maxUses).length > 0 && (
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                    <span className="text-[10px] text-gray-500 font-bold">كوبونات متوفرة:</span>
+                    {coupons
+                      .filter((c) => c.isActive && c.usedCount < c.maxUses)
+                      .map((c) => (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onClick={() => {
+                            setCouponInput(c.code);
+                            handleApplyCoupon(c.code);
+                          }}
+                          className="bg-white hover:bg-[#121212] hover:text-[#D4AF37] border border-[#D4AF37]/50 text-[#121212] text-[10px] font-bold px-2 py-0.5 rounded-lg transition-all cursor-pointer shadow-2xs"
+                        >
+                          {c.code} ({c.discountType === 'percentage' ? `${c.discountValue}%` : `${c.discountValue} ر.ق`})
+                        </button>
+                      ))}
+                  </div>
+                )}
+
+                {couponError && (
+                  <p className="text-[11px] font-bold text-red-600 flex items-center gap-1">
+                    <span className="material-symbols-outlined text-xs">error</span>
+                    <span>{couponError}</span>
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div className="bg-emerald-50 border border-emerald-300 p-2.5 rounded-xl flex items-center justify-between text-xs text-emerald-900 font-bold">
+                <div className="flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-emerald-600 text-sm">check_circle</span>
+                  <span>الكوبون المفعل: <strong className="text-emerald-700">{appliedCoupon.code}</strong></span>
+                </div>
+                <span className="bg-emerald-200 text-emerald-900 text-[11px] px-2 py-0.5 rounded-md">
+                  خصم {appliedCoupon.discountType === 'percentage' ? `${appliedCoupon.discountValue}%` : `${appliedCoupon.discountValue} ر.ق`}
+                </span>
+              </div>
+            )}
+
+            {/* Price Summary Calculation */}
+            {selectedService && (
+              <div className="pt-2 border-t border-[#D4AF37]/20 text-xs space-y-1 font-bold">
+                <div className="flex justify-between text-gray-600">
+                  <span>السعر الأصلي:</span>
+                  <span>{originalPrice} ر.ق</span>
+                </div>
+                {discountAmount > 0 && (
+                  <div className="flex justify-between text-emerald-600">
+                    <span>مبلغ الخصم:</span>
+                    <span>- {discountAmount} ر.ق</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-[#121212] font-black text-sm pt-1 border-t border-gray-200">
+                  <span>إجمالي المبلغ المستحق:</span>
+                  <span className="text-[#9b0044]">{finalPrice} ر.ق</span>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">

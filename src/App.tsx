@@ -781,9 +781,15 @@ export default function App() {
 
       <NewAppointmentModal
         services={services}
+        coupons={coupons}
         isOpen={newAppointmentModalOpen}
         onClose={() => setNewAppointmentModalOpen(false)}
-        onAdd={handleAddAppointmentAdmin}
+        onAdd={(newApt) => {
+          handleAddAppointmentAdmin(newApt);
+          if (newApt.couponCode) {
+            handleUseCoupon(newApt.couponCode);
+          }
+        }}
       />
 
       <NewServiceModal
