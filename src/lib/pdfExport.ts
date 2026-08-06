@@ -268,7 +268,10 @@ export function exportAppointmentsPDF(
               (apt, idx) => `
             <tr>
               <td><strong>${idx + 1}</strong></td>
-              <td><strong>${apt.clientName}</strong></td>
+              <td>
+                <strong>${apt.clientName}</strong>
+                ${apt.numberOfPersons && apt.numberOfPersons > 1 ? `<div style="font-size: 10px; color: #D4AF37; font-weight: bold;">👥 ${apt.numberOfPersons} ${isArabic ? 'أفراد' : 'persons'}</div>` : ''}
+              </td>
               <td dir="ltr" style="text-align: ${isArabic ? 'right' : 'left'}; font-weight: 700;">${apt.clientPhone}</td>
               <td dir="ltr" style="text-align: ${isArabic ? 'right' : 'left'}; color: #555;">${apt.clientEmail}</td>
               <td><strong style="color: #121212;">${apt.serviceName}</strong></td>

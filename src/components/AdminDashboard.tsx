@@ -1035,7 +1035,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         {appointments.slice(0, 5).map((apt) => (
                           <tr key={apt.id} className="hover:bg-[#FAF6ED]/80">
                             <td className="py-3 px-3 font-bold text-[#121212]">
-                              {apt.clientName}
+                              <div>{apt.clientName}</div>
+                              {apt.numberOfPersons && apt.numberOfPersons > 1 ? (
+                                <div className="inline-flex items-center gap-1 bg-[#FAF6ED] text-[#121212] border border-[#D4AF37]/50 px-1.5 py-0.2 rounded text-[9px] font-black mt-0.5">
+                                  <span>👥 {apt.numberOfPersons} {isArabic ? 'أفراد' : 'persons'}</span>
+                                </div>
+                              ) : null}
                             </td>
                             <td className="py-3 px-3 font-semibold text-[#121212]">
                               {apt.serviceName}
@@ -1208,7 +1213,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       return (
                       <tr key={apt.id} className="hover:bg-[#FAF6ED]/80 transition-colors">
                         <td className="py-3.5 px-4 font-bold text-[#121212]">
-                          {apt.clientName}
+                          <div>{apt.clientName}</div>
+                          {apt.numberOfPersons && apt.numberOfPersons > 1 ? (
+                            <div className="inline-flex items-center gap-1 bg-[#FAF6ED] text-[#121212] border border-[#D4AF37]/60 px-2 py-0.5 rounded-md text-[10px] font-extrabold mt-1 shadow-2xs">
+                              <span className="material-symbols-outlined text-[12px] text-[#D4AF37]">group</span>
+                              <span>{apt.numberOfPersons} {isArabic ? 'أفراد' : 'persons'}</span>
+                            </div>
+                          ) : null}
                         </td>
                         <td className="py-3.5 px-4 font-semibold text-gray-600">
                           <div>

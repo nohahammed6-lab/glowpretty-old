@@ -73,8 +73,12 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
     setSelectedServices((prev) => prev.filter((s) => s.id !== serviceId));
   };
 
-  const totalPriceQAR = selectedServices.reduce((sum, s) => sum + (s.priceQAR || 0), 0);
-  const totalDurationMinutes = selectedServices.reduce((sum, s) => sum + (s.durationMinutes || 0), 0);
+  // Number of Persons / Guests
+  const [numberOfPersons, setNumberOfPersons] = useState<number>(1);
+
+  const baseServicesPriceQAR = selectedServices.reduce((sum, s) => sum + (s.priceQAR || 0), 0);
+  const totalPriceQAR = baseServicesPriceQAR * numberOfPersons;
+  const totalDurationMinutes = selectedServices.reduce((sum, s) => sum + (s.durationMinutes || 0), 0) * numberOfPersons;
 
   // Coupon Code State
   const [couponInput, setCouponInput] = useState('');
@@ -208,9 +212,12 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
 
     const serviceIds = selectedServices.map((s) => s.id).join(', ');
     const serviceNamesList = selectedServices.map((s) => (isArabic ? s.arabicTitle : s.title)).join(' + ');
-    const serviceNameSummary = selectedServices.length > 1
-      ? `${serviceNamesList} (${isArabic ? 'الإجمالي' : 'Total'}: ${finalPriceQAR} ${isArabic ? 'ر.ق' : 'QAR'})`
-      : serviceNamesList;
+    let serviceNameSummary = serviceNamesList;
+    if (numberOfPersons > 1) {
+      serviceNameSummary = `${serviceNamesList} (${numberOfPersons} ${isArabic ? 'أفراد' : 'persons'})`;
+    } else if (selectedServices.length > 1) {
+      serviceNameSummary = `${serviceNamesList} (${isArabic ? 'الإجمالي' : 'Total'}: ${finalPriceQAR} ${isArabic ? 'ر.ق' : 'QAR'})`;
+    }
 
     const priceDisplaySummary = finalPriceQAR > 0
       ? `${finalPriceQAR} ${isArabic ? 'ر.ق' : 'QAR'}`
@@ -230,6 +237,7 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
       clientPhone: phone,
       serviceId: serviceIds,
       serviceName: serviceNameSummary,
+      numberOfPersons,
       priceQAR: finalPriceQAR,
       originalPriceQAR: totalPriceQAR > 0 ? totalPriceQAR : undefined,
       couponCode: appliedCoupon ? appliedCoupon.code : undefined,
@@ -242,6 +250,7 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
 
     setFullName('');
     setPhone('+974 ');
+    setNumberOfPersons(1);
     setAppliedCoupon(null);
     setCouponInput('');
     setCouponError('');
@@ -550,6 +559,64 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
               {/* Total Price & Duration Summary with Coupon Support */}
               {selectedServices.length > 0 && (
                 <div className="space-y-3">
+                  
+                  {/* Number of Persons / Guests Selector */}
+                  <div className="bg-[#FAF6ED] p-3 rounded-2xl border border-[#D4AF37]/50 shadow-xs space-y-2">
+                    <div className="flex justify-between items-center">
+                      <label className="text-xs font-bold text-[#121212] flex items-center gap-1.5">
+                        <span className="material-symbols-outlined text-sm text-[#D4AF37]">group</span>
+                        <span>{isArabic ? 'عدد الأشخاص / الضيوف:' : 'Number of Guests:'}</span>
+                      </label>
+                      <span className="text-xs font-black text-[#9b0044] bg-white border border-[#D4AF37]/40 px-2 py-0.5 rounded-lg shadow-2xs">
+                        {numberOfPersons} {isArabic ? (numberOfPersons === 1 ? 'شخص واحد' : numberOfPersons === 2 ? 'شخصين' : 'أشخاص') : (numberOfPersons === 1 ? 'Person' : 'Persons')}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setNumberOfPersons((prev) => Math.max(1, prev - 1))}
+                        disabled={numberOfPersons <= 1}
+                        className="w-9 h-9 rounded-xl bg-white border-2 border-[#D4AF37] disabled:opacity-40 text-[#121212] font-black text-lg flex items-center justify-center cursor-pointer hover:bg-[#121212] hover:text-[#D4AF37] transition-all shadow-2xs"
+                        title={isArabic ? 'إنقاص عدد الأشخاص' : 'Decrease persons'}
+                      >
+                        -
+                      </button>
+
+                      <div className="flex-1 grid grid-cols-5 gap-1">
+                        {[1, 2, 3, 4, 5].map((num) => (
+                          <button
+                            key={num}
+                            type="button"
+                            onClick={() => setNumberOfPersons(num)}
+                            className={`py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+                              numberOfPersons === num
+                                ? 'bg-[#121212] text-[#D4AF37] border-[#D4AF37] shadow-xs'
+                                : 'bg-white text-[#121212] border-gray-200 hover:border-[#D4AF37]'
+                            }`}
+                          >
+                            {num}
+                          </button>
+                        ))}
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setNumberOfPersons((prev) => prev + 1)}
+                        className="w-9 h-9 rounded-xl bg-white border-2 border-[#D4AF37] text-[#121212] font-black text-lg flex items-center justify-center cursor-pointer hover:bg-[#121212] hover:text-[#D4AF37] transition-all shadow-2xs"
+                        title={isArabic ? 'زيادة عدد الأشخاص' : 'Increase persons'}
+                      >
+                        +
+                      </button>
+                    </div>
+
+                    {numberOfPersons > 1 && baseServicesPriceQAR > 0 && (
+                      <p className="text-[11px] text-stone-600 font-bold text-end pt-1">
+                        💡 {isArabic ? `حساب السعر: (${baseServicesPriceQAR} ر.ق × ${numberOfPersons} أشخاص = ${totalPriceQAR} ر.ق)` : `Calculation: (${baseServicesPriceQAR} QAR × ${numberOfPersons} persons = ${totalPriceQAR} QAR)`}
+                      </p>
+                    )}
+                  </div>
+
                   {/* Coupon Code Input Box */}
                   <div className="bg-[#FAF6ED] p-3 rounded-2xl border border-[#D4AF37]/50 shadow-xs">
                     <label className="block text-xs font-bold text-[#121212] mb-1.5 flex items-center gap-1">

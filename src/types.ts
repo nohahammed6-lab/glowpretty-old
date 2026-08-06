@@ -47,6 +47,7 @@ export interface Appointment {
   clientPhone: string;
   serviceId: string;
   serviceName: string;
+  numberOfPersons?: number;
   priceQAR?: number;
   priceDisplay?: string;
   originalPriceQAR?: number;

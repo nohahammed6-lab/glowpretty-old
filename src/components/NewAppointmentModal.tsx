@@ -22,6 +22,7 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
   const [clientName, setClientName] = useState('');
   const [clientPhone, setClientPhone] = useState('+974 ');
   const [serviceId, setServiceId] = useState(services[0]?.id || '');
+  const [numberOfPersons, setNumberOfPersons] = useState<number>(1);
   const [date, setDate] = useState('2026-08-01');
   const [time, setTime] = useState(TIME_SLOTS[0]);
   const [status, setStatus] = useState<'Confirmed' | 'Pending'>('Confirmed');
@@ -31,15 +32,17 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
   const [couponError, setCouponError] = useState('');
 
-  // Reset coupon state when modal opens
+  // Reset state when modal opens
   useEffect(() => {
     setCouponInput('');
     setAppliedCoupon(null);
     setCouponError('');
+    setNumberOfPersons(1);
   }, [isOpen]);
 
   const selectedService = services.find((s) => s.id === serviceId);
-  const originalPrice = selectedService ? selectedService.priceQAR : 0;
+  const basePrice = selectedService ? selectedService.priceQAR : 0;
+  const originalPrice = basePrice * numberOfPersons;
 
   let discountAmount = 0;
   if (appliedCoupon && originalPrice > 0) {
@@ -91,7 +94,8 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const serviceObj = services.find((s) => s.id === serviceId);
-    const serviceName = serviceObj ? serviceObj.arabicTitle || serviceObj.title : 'خدمة تجميل';
+    let baseServiceName = serviceObj ? serviceObj.arabicTitle || serviceObj.title : 'خدمة تجميل';
+    const serviceName = numberOfPersons > 1 ? `${baseServiceName} (${numberOfPersons} أفراد)` : baseServiceName;
     const priceDisplay = `${finalPrice} ر.ق`;
     const servicesBreakdown = serviceObj ? [{
       id: serviceObj.id,
@@ -111,6 +115,7 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
       clientPhone,
       serviceId,
       serviceName,
+      numberOfPersons,
       priceQAR: finalPrice,
       originalPriceQAR: discountAmount > 0 ? originalPrice : undefined,
       couponCode: appliedCoupon ? appliedCoupon.code : undefined,
@@ -185,6 +190,38 @@ export const NewAppointmentModal: React.FC<NewAppointmentModalProps> = ({
                 </option>
               ))}
             </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-[#594045] mb-1">
+              عدد الأشخاص / الضيوف
+            </label>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setNumberOfPersons((prev) => Math.max(1, prev - 1))}
+                disabled={numberOfPersons <= 1}
+                className="w-10 h-10 rounded-xl bg-[#FAF6ED] border-2 border-[#D4AF37] disabled:opacity-40 text-[#121212] font-black text-lg flex items-center justify-center cursor-pointer hover:bg-[#121212] hover:text-[#D4AF37] transition-all"
+              >
+                -
+              </button>
+              <div className="flex-1 bg-white border border-gray-300 rounded-xl py-2 px-3 text-center font-black text-sm text-[#121212] flex items-center justify-center gap-2">
+                <span className="material-symbols-outlined text-base text-[#D4AF37]">group</span>
+                <span>{numberOfPersons} {numberOfPersons === 1 ? 'شخص واحد' : numberOfPersons === 2 ? 'شخصين' : 'أشخاص'}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setNumberOfPersons((prev) => prev + 1)}
+                className="w-10 h-10 rounded-xl bg-[#FAF6ED] border-2 border-[#D4AF37] text-[#121212] font-black text-lg flex items-center justify-center cursor-pointer hover:bg-[#121212] hover:text-[#D4AF37] transition-all"
+              >
+                +
+              </button>
+            </div>
+            {numberOfPersons > 1 && selectedService && (
+              <p className="text-[11px] font-bold text-[#9b0044] mt-1 text-end">
+                إجمالي السعر للخدمة: ({selectedService.priceQAR} ر.ق × {numberOfPersons} = {basePrice * numberOfPersons} ر.ق)
+              </p>
+            )}
           </div>
 
           {/* Coupon Code Section */}
