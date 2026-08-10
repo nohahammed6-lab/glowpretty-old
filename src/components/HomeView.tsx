@@ -34,7 +34,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative min-h-[85vh] flex items-center pt-12 pb-16 overflow-hidden">
+      <section className="relative min-h-[75vh] sm:min-h-[85vh] flex items-center pt-8 sm:pt-12 pb-12 sm:pb-16 overflow-hidden">
         {/* Background Image with High-End Overlay */}
         <div className="absolute inset-0 z-0">
           <div
@@ -43,18 +43,18 @@ export const HomeView: React.FC<HomeViewProps> = ({
               backgroundImage: `url('https://lh3.googleusercontent.com/aida-public/AB6AXuAsMGMXYhPrbH1WJ_aj9vE92B6K-WMS0arHtFnIauna3ItgRupCK4TPg_9yAcnWrjlvHwryuTvw3SB3ZtnpoGjAcYeDccrPC5kqrd5yyEXOYmPaECy5zTC44GbsSDkGdcpl0R0REnYWCcUnw-s2CDEkfUPc2bQi7QIqZg-MOBOlIG9GmhZLiS_gZAPvdKP0DRv3Cxqr_9cc2TAYibe2ed3pToJxqhnp1zUR84yCHeIJGHC8NUP-v18I')`,
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#fcf9f8] via-[#fcf9f8]/80 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-b sm:bg-gradient-to-r from-[#fcf9f8] via-[#fcf9f8]/95 sm:via-[#fcf9f8]/80 to-[#fcf9f8]/80 sm:to-transparent" />
         </div>
 
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-16 flex flex-col items-start gap-6 py-8">
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-8 md:px-16 flex flex-col items-start gap-4 sm:gap-6 py-4 sm:py-8">
           
           {/* Qatar Badge Header */}
-          <div className="inline-flex items-center gap-2 bg-[#121212] text-[#D4AF37] px-4 py-1.5 rounded-full text-xs font-extrabold border border-[#D4AF37]/60 shadow-md">
+          <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-[#121212] text-[#D4AF37] px-3 sm:px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-extrabold border border-[#D4AF37]/60 shadow-md max-w-full">
             <span>🇶🇦</span>
-            <span>{isArabic ? 'صالون التجميل الملكي الأول في قطر - الدوحة' : 'Qatar’s Premier Luxury Sanctuary - Doha'}</span>
+            <span className="truncate">{isArabic ? 'صالون التجميل الملكي الأول في قطر - الدوحة' : 'Qatar’s Premier Luxury Sanctuary - Doha'}</span>
           </div>
 
-          <h1 className="font-display text-4xl sm:text-5xl md:text-6xl text-[#121212] max-w-2xl leading-tight font-extrabold tracking-tight">
+          <h1 className="font-display text-3xl sm:text-5xl md:text-6xl text-[#121212] max-w-2xl leading-tight font-extrabold tracking-tight">
             {isArabic ? (
               <>
                 إشراقة ملكية، <br />
@@ -68,18 +68,18 @@ export const HomeView: React.FC<HomeViewProps> = ({
             )}
           </h1>
 
-          <p className="text-base sm:text-lg text-[#3a3528] max-w-xl leading-relaxed font-medium">
+          <p className="text-sm sm:text-lg text-[#3a3528] max-w-xl leading-relaxed font-medium">
             {isArabic
               ? 'اختبري أرقى تجارب الرفاهية والعناية بالذات في مدينة خليفة، الدوحة. نجمع بين أحدث صيحات التجميل العالمية والضيافة القطرية الأصيلة.'
               : 'Experience the pinnacle of royal pampering in Madinat Khalifa, Doha. From hair transformations to dermal therapy, we refine your natural beauty.'}
           </p>
 
-          <div className="flex flex-wrap items-center gap-4 mt-2">
+          <div className="w-full flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2.5 sm:gap-4 mt-2">
             <button
               onClick={() => setViewMode('booking')}
-              className="btn-black px-8 py-4 rounded-full font-bold text-base flex items-center gap-2 cursor-pointer shadow-xl border border-[#D4AF37]"
+              className="btn-black px-6 sm:px-8 py-3.5 sm:py-4 rounded-full font-bold text-sm sm:text-base flex items-center justify-center gap-2 cursor-pointer shadow-xl border border-[#D4AF37]"
             >
-              <span className="material-symbols-outlined text-xl text-[#D4AF37]">calendar_month</span>
+              <span className="material-symbols-outlined text-lg sm:text-xl text-[#D4AF37]">calendar_month</span>
               <span>{isArabic ? 'احجزي جلستكِ الآن' : 'Reserve Your Session'}</span>
             </button>
 
@@ -87,19 +87,19 @@ export const HomeView: React.FC<HomeViewProps> = ({
               onClick={() => {
                 document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' });
               }}
-              className="btn-outline-gold px-7 py-3.5 rounded-full font-bold text-base flex items-center gap-2 cursor-pointer"
+              className="btn-outline-gold px-6 sm:px-7 py-3 sm:py-3.5 rounded-full font-bold text-sm sm:text-base flex items-center justify-center gap-2 cursor-pointer"
             >
               <span>{isArabic ? 'استكشفي الخدمات' : 'Explore Services'}</span>
-              <span className="material-symbols-outlined text-lg">arrow_downward</span>
+              <span className="material-symbols-outlined text-base sm:text-lg">arrow_downward</span>
             </button>
 
             <a
               href={`https://wa.me/${siteSettings.whatsapp.replace(/[^0-9]/g, '')}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-[#25D366] hover:bg-[#1ebd53] text-white px-5 py-3.5 rounded-full font-bold text-sm flex items-center gap-2 shadow-md transition-all"
+              className="bg-[#25D366] hover:bg-[#1ebd53] text-white px-5 py-3 sm:py-3.5 rounded-full font-bold text-sm flex items-center justify-center gap-2 shadow-md transition-all"
             >
-              <span className="material-symbols-outlined text-xl">chat</span>
+              <span className="material-symbols-outlined text-lg sm:text-xl">chat</span>
               <span>{isArabic ? 'استشارة واتساب' : 'WhatsApp'}</span>
             </a>
           </div>

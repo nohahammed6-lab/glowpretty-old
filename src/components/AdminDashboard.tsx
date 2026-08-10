@@ -518,16 +518,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     <div className="flex flex-col lg:flex-row min-h-screen bg-[#fcf9f8]">
       
       {/* Sidebar Navigation */}
-      <aside className="w-full lg:w-72 bg-[#121212] text-white border-e border-[#D4AF37]/40 flex flex-col justify-between py-6 px-4 shrink-0 shadow-2xl">
+      <aside className="w-full lg:w-72 bg-[#121212] text-white border-e border-[#D4AF37]/40 flex flex-col justify-between py-4 lg:py-6 px-3 sm:px-4 shrink-0 shadow-2xl">
         
         <div>
           {/* Brand & Badge */}
-          <div className="px-3 mb-6 flex justify-between items-center">
+          <div className="px-2 sm:px-3 mb-4 lg:mb-6 flex justify-between items-center">
             <div>
-              <h1 className="font-display text-2xl font-extrabold text-[#D4AF37] tracking-tight">
+              <h1 className="font-display text-xl sm:text-2xl font-extrabold text-[#D4AF37] tracking-tight">
                 GLOW PRETTY
               </h1>
-              <p className="text-xs text-[#FAF6ED]/80 font-bold mt-0.5">
+              <p className="text-[11px] sm:text-xs text-[#FAF6ED]/80 font-bold mt-0.5">
                 {isOwner
                   ? isArabic ? '👑 لوحة تحكم المدير العام' : '👑 Owner Admin Console'
                   : isArabic ? `🔑 حساب مشرف: ${userSession.supervisorData?.name}` : `🔑 Supervisor: ${userSession.supervisorData?.name}`}
@@ -535,173 +535,173 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
             <button
               onClick={onBackToClientView}
-              className="bg-[#262626] hover:bg-[#D4AF37] hover:text-[#121212] text-[#D4AF37] text-xs font-bold px-3 py-1.5 rounded-full border border-[#D4AF37]/50 transition-all cursor-pointer shadow-sm"
+              className="bg-[#262626] hover:bg-[#D4AF37] hover:text-[#121212] text-[#D4AF37] text-[11px] sm:text-xs font-bold px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-[#D4AF37]/50 transition-all cursor-pointer shadow-sm shrink-0"
               title={isArabic ? 'العودة لموقع العملاء' : 'Back to Client Site'}
             >
               {isArabic ? 'الموقع' : 'Client Site'}
             </button>
           </div>
 
-          {/* Nav Tabs */}
-          <nav className="space-y-1.5">
+          {/* Nav Tabs - Horizontal scrollable pills on mobile, Vertical on Desktop */}
+          <nav className="flex lg:flex-col gap-1.5 overflow-x-auto no-scrollbar pb-2 lg:pb-0">
             <button
               onClick={() => setActiveTab('dashboard')}
-              className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all cursor-pointer ${
+              className={`flex items-center gap-2 lg:gap-3 rounded-2xl px-3.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 lg:w-full ${
                 activeTab === 'dashboard'
                   ? 'bg-[#D4AF37] text-[#121212] shadow-md border border-[#F3E5AB]'
                   : 'text-white/80 hover:bg-white/10 hover:text-[#D4AF37]'
               }`}
             >
-              <span className="material-symbols-outlined text-xl">dashboard</span>
-              <span>{isArabic ? 'نظرة عامة وإحصائيات' : 'Dashboard Overview'}</span>
+              <span className="material-symbols-outlined text-lg sm:text-xl">dashboard</span>
+              <span>{isArabic ? 'نظرة عامة' : 'Dashboard'}</span>
             </button>
 
             {canAccess('appointments') && (
               <button
                 onClick={() => setActiveTab('appointments')}
-                className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-2 lg:gap-3 rounded-2xl px-3.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 lg:w-full ${
                   activeTab === 'appointments'
                     ? 'bg-[#D4AF37] text-[#121212] shadow-md border border-[#F3E5AB]'
                     : 'text-white/80 hover:bg-white/10 hover:text-[#D4AF37]'
                 }`}
               >
-                <span className="material-symbols-outlined text-xl">calendar_month</span>
-                <span>{isArabic ? 'جدول المواعيد والحجوزات' : 'Appointments'}</span>
+                <span className="material-symbols-outlined text-lg sm:text-xl">calendar_month</span>
+                <span>{isArabic ? 'المواعيد والحجوزات' : 'Appointments'}</span>
               </button>
             )}
 
             {canAccess('coupons') && (
               <button
                 onClick={() => setActiveTab('coupons')}
-                className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-2 lg:gap-3 rounded-2xl px-3.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 lg:w-full ${
                   activeTab === 'coupons'
                     ? 'bg-[#D4AF37] text-[#121212] shadow-md border border-[#F3E5AB]'
                     : 'text-white/80 hover:bg-white/10 hover:text-[#D4AF37]'
                 }`}
               >
-                <span className="material-symbols-outlined text-xl">confirmation_number</span>
-                <span>{isArabic ? 'إدارة كوبونات الخصم' : 'Discount Coupons'}</span>
+                <span className="material-symbols-outlined text-lg sm:text-xl">confirmation_number</span>
+                <span>{isArabic ? 'كوبونات الخصم' : 'Coupons'}</span>
               </button>
             )}
 
             {canAccess('categories') && (
               <button
                 onClick={() => setActiveTab('categories')}
-                className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-2 lg:gap-3 rounded-2xl px-3.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 lg:w-full ${
                   activeTab === 'categories'
                     ? 'bg-[#D4AF37] text-[#121212] shadow-md border border-[#F3E5AB]'
                     : 'text-white/80 hover:bg-white/10 hover:text-[#D4AF37]'
                 }`}
               >
-                <span className="material-symbols-outlined text-xl">category</span>
-                <span>{isArabic ? 'إدارة تصنيفات الخدمات' : 'Service Categories'}</span>
+                <span className="material-symbols-outlined text-lg sm:text-xl">category</span>
+                <span>{isArabic ? 'تصنيفات الخدمات' : 'Categories'}</span>
               </button>
             )}
 
             {canAccess('services') && (
               <button
                 onClick={() => setActiveTab('services')}
-                className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-2 lg:gap-3 rounded-2xl px-3.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 lg:w-full ${
                   activeTab === 'services'
                     ? 'bg-[#D4AF37] text-[#121212] shadow-md border border-[#F3E5AB]'
                     : 'text-white/80 hover:bg-white/10 hover:text-[#D4AF37]'
                 }`}
               >
-                <span className="material-symbols-outlined text-xl">spa</span>
-                <span>{isArabic ? 'إدارة قائمة الخدمات' : 'Services & Pricing'}</span>
+                <span className="material-symbols-outlined text-lg sm:text-xl">spa</span>
+                <span>{isArabic ? 'قائمة الخدمات' : 'Services'}</span>
               </button>
             )}
 
             {canAccess('reviews') && (
               <button
                 onClick={() => setActiveTab('reviews')}
-                className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-2 lg:gap-3 rounded-2xl px-3.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 lg:w-full ${
                   activeTab === 'reviews'
                     ? 'bg-[#D4AF37] text-[#121212] shadow-md border border-[#F3E5AB]'
                     : 'text-white/80 hover:bg-white/10 hover:text-[#D4AF37]'
                 }`}
               >
-                <span className="material-symbols-outlined text-xl">rate_review</span>
-                <span>{isArabic ? 'إدارة تقييمات العملاء' : 'Customer Reviews'}</span>
+                <span className="material-symbols-outlined text-lg sm:text-xl">rate_review</span>
+                <span>{isArabic ? 'تقييمات العملاء' : 'Reviews'}</span>
               </button>
             )}
 
             {canAccess('gallery') && (
               <button
                 onClick={() => setActiveTab('gallery')}
-                className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-2 lg:gap-3 rounded-2xl px-3.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 lg:w-full ${
                   activeTab === 'gallery'
                     ? 'bg-[#D4AF37] text-[#121212] shadow-md border border-[#F3E5AB]'
                     : 'text-white/80 hover:bg-white/10 hover:text-[#D4AF37]'
                 }`}
               >
-                <span className="material-symbols-outlined text-xl">photo_library</span>
-                <span>{isArabic ? 'إدارة معرض الصور' : 'Gallery Manager'}</span>
+                <span className="material-symbols-outlined text-lg sm:text-xl">photo_library</span>
+                <span>{isArabic ? 'معرض الصور' : 'Gallery'}</span>
               </button>
             )}
 
             {canAccess('siteInfo') && (
               <button
                 onClick={() => setActiveTab('siteInfo')}
-                className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-2 lg:gap-3 rounded-2xl px-3.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 lg:w-full ${
                   activeTab === 'siteInfo'
                     ? 'bg-[#D4AF37] text-[#121212] shadow-md border border-[#F3E5AB]'
                     : 'text-white/80 hover:bg-white/10 hover:text-[#D4AF37]'
                 }`}
               >
-                <span className="material-symbols-outlined text-xl">settings_suggest</span>
-                <span>{isArabic ? 'بيانات الموقع والتواصل' : 'Site Settings'}</span>
+                <span className="material-symbols-outlined text-lg sm:text-xl">settings_suggest</span>
+                <span>{isArabic ? 'بيانات التواصل' : 'Site Settings'}</span>
               </button>
             )}
 
             {canAccess('about') && (
               <button
                 onClick={() => setActiveTab('about')}
-                className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-2 lg:gap-3 rounded-2xl px-3.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 lg:w-full ${
                   activeTab === 'about'
                     ? 'bg-[#D4AF37] text-[#121212] shadow-md border border-[#F3E5AB]'
                     : 'text-white/80 hover:bg-white/10 hover:text-[#D4AF37]'
                 }`}
               >
-                <span className="material-symbols-outlined text-xl">info</span>
-                <span>{isArabic ? 'إدارة عن الصالون' : 'About Section'}</span>
+                <span className="material-symbols-outlined text-lg sm:text-xl">info</span>
+                <span>{isArabic ? 'عن الصالون' : 'About'}</span>
               </button>
             )}
 
             {isOwner && (
               <button
                 onClick={() => setActiveTab('supervisors')}
-                className={`w-full flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-2 lg:gap-3 rounded-2xl px-3.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 lg:w-full ${
                   activeTab === 'supervisors'
                     ? 'bg-[#D4AF37] text-[#121212] shadow-md border border-[#F3E5AB]'
                     : 'text-white/80 hover:bg-white/10 hover:text-[#D4AF37]'
                 }`}
               >
-                <span className="material-symbols-outlined text-xl">manage_accounts</span>
-                <span>{isArabic ? 'إدارة المشرفين والصلاحيات' : 'Supervisors & Permissions'}</span>
+                <span className="material-symbols-outlined text-lg sm:text-xl">manage_accounts</span>
+                <span>{isArabic ? 'إدارة المشرفين' : 'Supervisors'}</span>
               </button>
             )}
           </nav>
         </div>
 
         {/* CTAs Bottom */}
-        <div className="mt-8 space-y-3 px-2">
+        <div className="mt-4 lg:mt-8 space-y-2 lg:space-y-3 px-1 lg:px-2 flex lg:flex-col gap-2 lg:gap-0">
           {canAccess('appointments') && (
             <button
               onClick={onOpenNewAppointmentModal}
-              className="btn-gold w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2 font-bold text-sm cursor-pointer shadow-md"
+              className="btn-gold flex-1 lg:w-full py-2.5 lg:py-3 px-3 lg:px-4 rounded-xl flex items-center justify-center gap-1.5 lg:gap-2 font-bold text-xs lg:text-sm cursor-pointer shadow-md whitespace-nowrap"
             >
-              <span className="material-symbols-outlined text-lg">add</span>
-              <span>{isArabic ? 'إضافة موعد جديد' : 'New Appointment'}</span>
+              <span className="material-symbols-outlined text-base lg:text-lg">add</span>
+              <span>{isArabic ? 'موعد جديد' : 'New Appointment'}</span>
             </button>
           )}
 
           <button
             onClick={onBackToClientView}
-            className="w-full bg-white/10 hover:bg-white/20 text-white/80 py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 font-semibold text-xs border border-white/20 transition-all cursor-pointer"
+            className="flex-1 lg:w-full bg-white/10 hover:bg-white/20 text-white/80 py-2.5 px-3 lg:px-4 rounded-xl flex items-center justify-center gap-1.5 lg:gap-2 font-semibold text-xs border border-white/20 transition-all cursor-pointer whitespace-nowrap"
           >
-            <span className="material-symbols-outlined text-base">storefront</span>
-            <span>{isArabic ? 'عرض موقع العملاء' : 'View Public Website'}</span>
+            <span className="material-symbols-outlined text-sm lg:text-base">storefront</span>
+            <span>{isArabic ? 'موقع العملاء' : 'Client Site'}</span>
           </button>
         </div>
 

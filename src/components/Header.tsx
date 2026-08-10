@@ -61,14 +61,14 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <>
       <header className="sticky top-0 z-40 w-full bg-[#FFFDF5]/95 backdrop-blur-md border-b border-[#D4AF37]/40 shadow-sm transition-all duration-300">
-        <nav className="flex justify-between items-center px-4 md:px-8 py-3.5 w-full max-w-7xl mx-auto">
+        <nav className="flex justify-between items-center px-2.5 sm:px-4 md:px-8 py-2.5 sm:py-3.5 w-full max-w-7xl mx-auto gap-1 sm:gap-3">
           
           {/* Left / Start: Side Menu Toggle + Brand Logo */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
             {/* Sidebar Toggle Button */}
             <button
               onClick={() => setSidebarOpen(true)}
-              className="p-2 rounded-full text-[#121212] hover:bg-[#121212]/10 transition-colors cursor-pointer"
+              className="p-1.5 sm:p-2 rounded-full text-[#121212] hover:bg-[#121212]/10 transition-colors cursor-pointer shrink-0"
               title={isArabic ? 'افتح القائمة الجانبية' : 'Open Sidebar Menu'}
             >
               <span className="material-symbols-outlined text-2xl">
@@ -79,29 +79,27 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Brand Logo & Qatar Badge */}
             <div 
               onClick={() => navTo('home')}
-              className="cursor-pointer group flex items-center gap-2"
+              className="cursor-pointer group flex items-center gap-1.5 sm:gap-2 min-w-0"
             >
-              <span className="font-display text-2xl md:text-3xl font-extrabold text-[#121212] tracking-tight group-hover:text-[#333333] transition-colors">
+              <span className="font-display text-base xs:text-lg sm:text-2xl md:text-3xl font-extrabold text-[#121212] tracking-tight group-hover:text-[#333333] transition-colors truncate">
                 GLOW PRETTY
               </span>
-              <span className="bg-[#121212] text-[#D4AF37] border border-[#D4AF37]/60 text-[10px] font-extrabold px-2 py-0.5 rounded-full tracking-wider flex items-center gap-1 shadow-2xs">
+              <span className="hidden xs:flex bg-[#121212] text-[#D4AF37] border border-[#D4AF37]/60 text-[9px] sm:text-[10px] font-extrabold px-1.5 sm:px-2 py-0.5 rounded-full tracking-wider items-center gap-0.5 sm:gap-1 shadow-2xs shrink-0">
                 <span>🇶🇦</span>
                 <span>{isArabic ? 'قطر' : 'QATAR'}</span>
               </span>
             </div>
           </div>
 
-
-
           {/* Right Actions: Clean Language Switcher + Theme Toggle + Sleek Book Button */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-1 sm:gap-2 md:gap-3 shrink-0">
             {/* High-Contrast Theme Toggle Button */}
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-full text-[#121212] hover:bg-[#121212]/10 dark:text-[#FFFDF0] dark:hover:bg-white/10 transition-all cursor-pointer border border-[#D4AF37]/40 flex items-center justify-center bg-white/60 shadow-2xs"
+              className="p-1.5 sm:p-2 rounded-full text-[#121212] hover:bg-[#121212]/10 dark:text-[#FFFDF0] dark:hover:bg-white/10 transition-all cursor-pointer border border-[#D4AF37]/40 flex items-center justify-center bg-white/60 shadow-2xs"
               title={theme === 'dark' ? (isArabic ? 'تفعيل المظهر الفاتح' : 'Switch to Light Mode') : (isArabic ? 'تفعيل المظهر الداكن' : 'Switch to Dark Mode')}
             >
-              <span className="material-symbols-outlined text-xl text-[#D4AF37]">
+              <span className="material-symbols-outlined text-lg sm:text-xl text-[#D4AF37]">
                 {theme === 'dark' ? 'light_mode' : 'dark_mode'}
               </span>
             </button>
@@ -109,19 +107,20 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Language Switch Button */}
             <button
               onClick={toggleLanguage}
-              className="flex items-center gap-1.5 text-xs font-bold text-[#121212] hover:bg-[#121212]/10 px-3 py-1.5 rounded-full transition-all cursor-pointer border border-[#D4AF37]/30"
+              className="flex items-center gap-1 text-[11px] sm:text-xs font-bold text-[#121212] hover:bg-[#121212]/10 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full transition-all cursor-pointer border border-[#D4AF37]/30 whitespace-nowrap"
               title={isArabic ? 'Switch to English' : 'التحويل للغة العربية'}
             >
-              <span className="material-symbols-outlined text-base text-[#D4AF37]">language</span>
-              <span className="font-extrabold">{isArabic ? 'English' : 'العربية'}</span>
+              <span className="material-symbols-outlined text-sm sm:text-base text-[#D4AF37]">language</span>
+              <span className="font-extrabold hidden sm:inline">{isArabic ? 'English' : 'العربية'}</span>
+              <span className="font-extrabold sm:hidden">{isArabic ? 'EN' : 'عربي'}</span>
             </button>
 
             {/* Sleek Fancy Book Button */}
             <button
               onClick={onBookNowClick}
-              className="btn-black px-5 py-2.5 rounded-full font-extrabold text-xs md:text-sm flex items-center gap-2 cursor-pointer shadow-sm hover:shadow-md transition-all border border-[#D4AF37]"
+              className="btn-black px-2.5 sm:px-5 py-1.5 sm:py-2.5 rounded-full font-extrabold text-[11px] sm:text-xs md:text-sm flex items-center gap-1 sm:gap-2 cursor-pointer shadow-sm hover:shadow-md transition-all border border-[#D4AF37] whitespace-nowrap"
             >
-              <span className="material-symbols-outlined text-base text-[#D4AF37]">calendar_month</span>
+              <span className="material-symbols-outlined text-sm sm:text-base text-[#D4AF37]">calendar_month</span>
               <span>{isArabic ? 'احجزي الآن' : 'Book Now'}</span>
             </button>
           </div>
@@ -131,7 +130,7 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Slide-Out Side Navigation Drawer (القائمة الجانبية) */}
       {sidebarOpen && (
-        <div className="fixed inset-0 z-50 flex">
+        <div className="fixed inset-0 z-50">
           {/* Dark Glass Overlay */}
           <div 
             onClick={() => setSidebarOpen(false)}
@@ -139,8 +138,8 @@ export const Header: React.FC<HeaderProps> = ({
           />
 
           {/* Side Drawer Content */}
-          <div className={`relative w-80 max-w-[85vw] bg-[#FFFDF5] h-full shadow-2xl flex flex-col justify-between border-e border-[#D4AF37]/40 z-10 animate-fade-in overflow-y-auto ${
-            isArabic ? 'right-0 ms-auto' : 'left-0 me-auto'
+          <div className={`fixed top-0 bottom-0 w-80 max-w-[85vw] bg-[#FFFDF5] h-full shadow-2xl flex flex-col justify-between border-x border-[#D4AF37]/40 z-10 animate-fade-in overflow-y-auto ${
+            isArabic ? 'right-0' : 'left-0'
           }`}>
             
             {/* Top Bar */}

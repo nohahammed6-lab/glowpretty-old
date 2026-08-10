@@ -16,8 +16,8 @@ export const BookingModal: React.FC<BookingModalProps> = ({
   const isArabic = language === 'ar';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in">
-      <div className="bg-[#FFFDF5] rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border-2 border-[#D4AF37] relative overflow-hidden text-center transform transition-all animate-scale-up">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-md animate-fade-in">
+      <div className="bg-[#FFFDF5] rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto p-5 sm:p-8 shadow-2xl border-2 border-[#D4AF37] relative text-center transform transition-all animate-scale-up">
         {/* Top Decorative Gold & Black Gradient Bar */}
         <div className="absolute top-0 left-0 right-0 h-2.5 bg-gradient-to-r from-[#121212] via-[#D4AF37] to-[#121212]" />
 

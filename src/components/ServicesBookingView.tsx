@@ -480,8 +480,8 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
         </div>
 
         {/* Right Column: Reservation Widget Box */}
-        <div className="lg:col-span-5 lg:sticky lg:top-24">
-          <div className="bg-white p-6 sm:p-8 rounded-3xl shadow-2xl border-2 border-[#D4AF37]/40">
+        <div id="booking-form" className="lg:col-span-5 lg:sticky lg:top-24">
+          <div className="bg-white p-5 sm:p-8 rounded-3xl shadow-2xl border-2 border-[#D4AF37]/40">
             
             <div className="flex justify-between items-center mb-6">
               <h2 className="font-display text-2xl text-[#121212] font-extrabold">
@@ -962,6 +962,31 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
         </div>
 
       </div>
+
+      {/* Mobile Sticky Booking Footer Bar */}
+      {selectedServices.length > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#121212] text-[#FFFDF0] p-3.5 px-4 border-t-2 border-[#D4AF37] shadow-2xl flex items-center justify-between lg:hidden animate-fade-in">
+          <div>
+            <div className="text-[11px] text-[#D4AF37] font-extrabold flex items-center gap-1">
+              <span>{selectedServices.length} {isArabic ? 'خدمات محددة' : 'Selected'}</span>
+              {numberOfPersons > 1 && <span>({numberOfPersons} {isArabic ? 'أفراد' : 'persons'})</span>}
+            </div>
+            <div className="text-base font-black text-white">
+              {finalPriceQAR} {isArabic ? 'ر.ق' : 'QAR'}
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              document.getElementById('booking-form')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className="btn-gold px-4 py-2.5 rounded-xl font-extrabold text-xs flex items-center gap-1.5 shadow-md cursor-pointer"
+          >
+            <span>{isArabic ? 'متابعة الحجز' : 'Proceed'}</span>
+            <span className="material-symbols-outlined text-sm">arrow_downward</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 };
