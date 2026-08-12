@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Service, CategoryItem } from '../types';
+import { CloudinaryImageUploader } from './CloudinaryImageUploader';
 
 interface NewServiceModalProps {
   isOpen: boolean;
@@ -167,18 +168,14 @@ export const NewServiceModal: React.FC<NewServiceModalProps> = ({
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-[#594045] mb-1">
-              رابط صورة الخدمة (Image URL)
-            </label>
-            <input
-              type="url"
-              required
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              className="w-full border border-gray-300 rounded-xl py-2.5 px-3 text-sm focus:outline-none focus:border-[#9b0044]"
-            />
-          </div>
+          <CloudinaryImageUploader
+            label="صورة الخدمة (رفع مباشر إلى Cloudinary ☁️)"
+            value={imageUrl}
+            onChange={setImageUrl}
+            isArabic={true}
+            required
+            placeholder="رابط الصورة المرفوعة (secure_url)..."
+          />
 
           <div className="pt-4 flex gap-3">
             <button

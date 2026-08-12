@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { PriceTag } from './PriceTag';
 import { exportAppointmentsPDF } from '../lib/pdfExport';
+import { CloudinaryImageUploader } from './CloudinaryImageUploader';
+import { CloudinaryMigrationManager } from './CloudinaryMigrationManager';
 import {
   Appointment,
   Service,
@@ -169,7 +171,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   };
 
   const [activeTab, setActiveTab] = useState<
-    'dashboard' | 'appointments' | 'categories' | 'services' | 'reviews' | 'siteInfo' | 'gallery' | 'about' | 'supervisors' | 'coupons'
+    'dashboard' | 'appointments' | 'categories' | 'services' | 'reviews' | 'siteInfo' | 'gallery' | 'about' | 'supervisors' | 'coupons' | 'cloudinary_migration'
   >('dashboard');
 
   // Coupon Management State
@@ -510,6 +512,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     if (tab === 'siteInfo') return supervisorPerms.manageSiteInfo;
     if (tab === 'about') return supervisorPerms.manageAbout;
     if (tab === 'coupons') return supervisorPerms.manageCoupons ?? true;
+    if (tab === 'cloudinary_migration') return isOwner || Boolean(supervisorPerms.manageGallery || supervisorPerms.manageServices);
     if (tab === 'supervisors') return false; // Only Owner
     return false;
   };
@@ -665,6 +668,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               >
                 <span className="material-symbols-outlined text-lg sm:text-xl">info</span>
                 <span>{isArabic ? 'عن الصالون' : 'About'}</span>
+              </button>
+            )}
+
+            {canAccess('cloudinary_migration') && (
+              <button
+                onClick={() => setActiveTab('cloudinary_migration')}
+                className={`flex items-center gap-2 lg:gap-3 rounded-2xl px-3.5 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap shrink-0 lg:w-full ${
+                  activeTab === 'cloudinary_migration'
+                    ? 'bg-[#D4AF37] text-[#121212] shadow-md border border-[#F3E5AB]'
+                    : 'text-white/80 hover:bg-white/10 hover:text-[#D4AF37]'
+                }`}
+              >
+                <span className="material-symbols-outlined text-lg sm:text-xl">cloud_sync</span>
+                <span>{isArabic ? 'ترحيل الصور إلى Cloudinary' : 'Cloudinary Migration'}</span>
               </button>
             )}
 
@@ -1485,15 +1502,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       </div>
                     </div>
 
-                    <div>
-                      <label className="block text-xs font-bold text-gray-600 mb-1">رابط الصورة (Image URL)</label>
-                      <input
-                        type="text"
-                        value={editingService.imageUrl}
-                        onChange={(e) => setEditingService({ ...editingService, imageUrl: e.target.value })}
-                        className="w-full border rounded-xl p-2 text-xs"
-                      />
-                    </div>
+                    <CloudinaryImageUploader
+                      label={isArabic ? 'صورة الخدمة (رفع مباشر إلى Cloudinary ☁️)' : 'Service Image (Cloudinary Upload)'}
+                      value={editingService.imageUrl}
+                      onChange={(url) => setEditingService({ ...editingService, imageUrl: url })}
+                      isArabic={isArabic}
+                    />
 
                     <div>
                       <label className="block text-xs font-bold text-gray-600 mb-1">الوصف بالعربية</label>
@@ -1582,16 +1596,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   </h4>
 
                   <form onSubmit={handleSaveGalleryEdit} className="space-y-3 text-start">
-                    <div>
-                      <label className="block text-xs font-bold text-gray-600 mb-1">Image URL (رابط الصورة)</label>
-                      <input
-                        type="text"
-                        required
-                        value={editingGalleryItem.url}
-                        onChange={(e) => setEditingGalleryItem({ ...editingGalleryItem, url: e.target.value })}
-                        className="w-full border rounded-xl p-2.5 text-xs bg-white font-mono"
-                      />
-                    </div>
+                    <CloudinaryImageUploader
+                      label={isArabic ? 'صورة المعرض (رفع مباشر إلى Cloudinary ☁️)' : 'Gallery Image (Cloudinary Upload)'}
+                      value={editingGalleryItem.url}
+                      onChange={(url) => setEditingGalleryItem({ ...editingGalleryItem, url })}
+                      isArabic={isArabic}
+                      required
+                    />
 
                     <div>
                       <label className="block text-xs font-bold text-gray-600 mb-1">العنوان بالعربية</label>
@@ -1649,22 +1660,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <form onSubmit={handleAddGalleryItem} className="bg-[#fdf5f7] p-5 rounded-2xl border border-[#D4AF37]/30 space-y-3">
               <h4 className="font-bold text-sm text-[#9b0044] flex items-center gap-1.5">
                 <span className="material-symbols-outlined text-base">add_photo_alternate</span>
-                <span>{isArabic ? 'إضافة صورة جديدة للمعرض' : 'Add New Gallery Photo'}</span>
+                <span>{isArabic ? 'إضافة صورة جديدة للمعرض (Cloudinary ☁️)' : 'Add New Gallery Photo (Cloudinary)'}</span>
               </h4>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-gray-600 mb-1">Image URL *</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="https://..."
-                    value={newGalleryUrl}
-                    onChange={(e) => setNewGalleryUrl(e.target.value)}
-                    className="w-full border rounded-xl p-2.5 text-xs bg-white font-mono"
-                  />
-                </div>
+              <CloudinaryImageUploader
+                label={isArabic ? 'اختاري ملف الصورة لرفعه إلى Cloudinary' : 'Choose image file to upload to Cloudinary'}
+                value={newGalleryUrl}
+                onChange={setNewGalleryUrl}
+                isArabic={isArabic}
+                required
+              />
 
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-gray-600 mb-1">عنوان الصورة بالعربية *</label>
                   <input
@@ -2064,6 +2071,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   className="w-full border rounded-xl p-2.5 text-sm bg-white font-medium"
                 />
               </div>
+
+              <CloudinaryImageUploader
+                label={isArabic ? 'صورة قسم "عن الصالون" (رفع مباشر إلى Cloudinary ☁️)' : 'About Section Image (Cloudinary Upload)'}
+                value={aboutForm.mainImageUrl || ''}
+                onChange={(url) => setAboutForm({ ...aboutForm, mainImageUrl: url })}
+                isArabic={isArabic}
+              />
 
               <button type="submit" className="btn-burgundy px-8 py-3 rounded-xl text-sm font-bold cursor-pointer shadow-md">
                 {isArabic ? 'حفظ النبذة والقصة' : 'Save About Section'}
@@ -2723,6 +2737,29 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </form>
             </div>
           </div>
+        )}
+
+        {/* TAB 11: CLOUDINARY IMAGE MIGRATION */}
+        {activeTab === 'cloudinary_migration' && (
+          <CloudinaryMigrationManager
+            appData={{
+              services,
+              gallery,
+              aboutContent,
+              siteSettings,
+              categories,
+              reviews,
+            }}
+            callbacks={{
+              onUpdateService,
+              onUpdateGalleryItem,
+              onUpdateAboutContent,
+              onUpdateSiteSettings,
+              onUpdateCategory,
+              onUpdateReview,
+            }}
+            isArabic={isArabic}
+          />
         )}
 
       </main>
