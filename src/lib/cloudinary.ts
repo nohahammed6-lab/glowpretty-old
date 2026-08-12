@@ -79,3 +79,60 @@ export async function uploadImageToCloudinary(
     xhr.send(formData);
   });
 }
+
+/**
+ * Optimizes Cloudinary and external image URLs by appending automatic formatting (f_auto, q_auto)
+ * and target dimension constraints (e.g. w_500, c_limit) without breaking or corrupting existing URLs.
+ */
+export function getOptimizedImageUrl(
+  url: string,
+  options: { width?: number; height?: number; crop?: string; quality?: string } = {}
+): string {
+  if (!url || typeof url !== 'string' || !url.trim()) return url;
+
+  // Cloudinary Optimization
+  if (url.includes('res.cloudinary.com') || url.includes('cloudinary.com')) {
+    // If it already has transformations, avoid duplicating or corrupting
+    if (url.includes('/upload/f_auto') || url.includes('/upload/q_auto')) {
+      return url;
+    }
+
+    const { width, height, crop = 'limit', quality = 'auto' } = options;
+    const transformParts: string[] = ['f_auto', `q_${quality}`];
+
+    if (width && width > 0) transformParts.push(`w_${width}`);
+    if (height && height > 0) transformParts.push(`h_${height}`);
+    if (width || height) transformParts.push(`c_${crop}`);
+
+    const transformStr = transformParts.join(',');
+
+    // Safely insert right after /upload/
+    return url.replace('/upload/', `/upload/${transformStr}/`);
+  }
+
+  // Unsplash Optimization
+  if (url.includes('images.unsplash.com')) {
+    try {
+      const parsed = new URL(url);
+      if (options.width) parsed.searchParams.set('w', options.width.toString());
+      parsed.searchParams.set('q', '80');
+      parsed.searchParams.set('auto', 'format');
+      return parsed.toString();
+    } catch {
+      return url;
+    }
+  }
+
+  // Googleusercontent Optimization
+  if (url.includes('lh3.googleusercontent.com')) {
+    if (options.width) {
+      if (url.includes('=')) {
+        return url.replace(/=s\d+/, `=s${options.width}`).replace(/=w\d+/, `=w${options.width}`);
+      } else {
+        return `${url}=w${options.width}-rw`;
+      }
+    }
+  }
+
+  return url;
+}

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { getOptimizedImageUrl } from '../lib/cloudinary';
 
 interface SmartImageProps {
   src: string;
@@ -7,12 +8,16 @@ interface SmartImageProps {
   containerClassName?: string;
   fallbackIcon?: string;
   onClick?: () => void;
+  priority?: boolean;
+  targetWidth?: number;
+  width?: number | string;
+  height?: number | string;
 }
 
 /**
  * SmartImage Component
- * Prevents old image flashing/lag by preloading new image sources in background
- * and smoothly fading in the newly loaded image over a clean luxury skeleton placeholder.
+ * Optimized for high-speed rendering with Cloudinary transformation,
+ * native lazy-loading, layout shift prevention, and smooth fade-in.
  */
 export const SmartImage: React.FC<SmartImageProps> = ({
   src,
@@ -21,41 +26,34 @@ export const SmartImage: React.FC<SmartImageProps> = ({
   containerClassName = '',
   fallbackIcon = 'photo_camera',
   onClick,
+  priority = false,
+  targetWidth = 600,
+  width,
+  height,
 }) => {
-  const [loadedSrc, setLoadedSrc] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [hasError, setHasError] = useState<boolean>(false);
+  const imgRef = useRef<HTMLImageElement>(null);
+
+  // Get transformed, compressed image URL
+  const optimizedSrc = getOptimizedImageUrl(src, { width: targetWidth });
 
   useEffect(() => {
     if (!src) {
       setHasError(true);
-      setIsLoading(false);
+      setIsLoaded(false);
       return;
     }
 
-    setIsLoading(true);
     setHasError(false);
 
-    // Preload image in background
-    const img = new Image();
-    img.src = src;
-
-    img.onload = () => {
-      setLoadedSrc(src);
-      setIsLoading(false);
-      setHasError(false);
-    };
-
-    img.onerror = () => {
-      setIsLoading(false);
-      setHasError(true);
-    };
-
-    return () => {
-      img.onload = null;
-      img.onerror = null;
-    };
-  }, [src]);
+    // If already cached by browser, show immediately without skeleton delay
+    if (imgRef.current && imgRef.current.complete && imgRef.current.naturalWidth > 0) {
+      setIsLoaded(true);
+    } else {
+      setIsLoaded(false);
+    }
+  }, [src, optimizedSrc]);
 
   return (
     <div
@@ -63,9 +61,9 @@ export const SmartImage: React.FC<SmartImageProps> = ({
       className={`relative overflow-hidden ${containerClassName}`}
     >
       {/* Luxury Skeleton Loading Shimmer */}
-      {isLoading && (
-        <div className="absolute inset-0 bg-gradient-to-r from-stone-200 via-stone-100 to-stone-200 dark:from-stone-800 dark:via-stone-700 dark:to-stone-800 animate-pulse flex items-center justify-center z-10">
-          <span className="material-symbols-outlined text-amber-500/50 text-2xl animate-spin">
+      {!isLoaded && !hasError && (
+        <div className="absolute inset-0 bg-stone-200/60 dark:bg-stone-800/60 animate-pulse flex items-center justify-center z-10">
+          <span className="material-symbols-outlined text-amber-500/40 text-xl animate-spin">
             sync
           </span>
         </div>
@@ -82,15 +80,26 @@ export const SmartImage: React.FC<SmartImageProps> = ({
           </span>
         </div>
       ) : (
-        /* Rendered Image with Smooth Fade-in */
+        /* Rendered Image with Native Fast Loading and Smooth Fade-in */
         <img
-          src={loadedSrc || src}
+          ref={imgRef}
+          src={optimizedSrc}
           alt={alt}
-          className={`transition-opacity duration-500 ease-out ${
-            isLoading ? 'opacity-0 scale-102' : 'opacity-100 scale-100'
+          width={width}
+          height={height}
+          loading={priority ? 'eager' : 'lazy'}
+          decoding="async"
+          onLoad={() => setIsLoaded(true)}
+          onError={() => {
+            setIsLoaded(false);
+            setHasError(true);
+          }}
+          className={`transition-opacity duration-300 ease-out ${
+            isLoaded ? 'opacity-100' : 'opacity-0'
           } ${className}`}
         />
       )}
     </div>
   );
 };
+

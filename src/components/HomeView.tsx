@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ViewMode, Language, Review, AboutContent, GalleryItem, SiteSettings, CategoryItem, Service } from '../types';
 import { WriteReviewModal } from './WriteReviewModal';
 import { SmartImage } from './SmartImage';
+import { getOptimizedImageUrl } from '../lib/cloudinary';
 
 interface HomeViewProps {
   setViewMode: (mode: ViewMode) => void;
@@ -40,7 +41,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <div
             className="w-full h-full bg-cover bg-center scale-105 transition-transform duration-[12s] ease-linear hover:scale-100"
             style={{
-              backgroundImage: `url('https://lh3.googleusercontent.com/aida-public/AB6AXuAsMGMXYhPrbH1WJ_aj9vE92B6K-WMS0arHtFnIauna3ItgRupCK4TPg_9yAcnWrjlvHwryuTvw3SB3ZtnpoGjAcYeDccrPC5kqrd5yyEXOYmPaECy5zTC44GbsSDkGdcpl0R0REnYWCcUnw-s2CDEkfUPc2bQi7QIqZg-MOBOlIG9GmhZLiS_gZAPvdKP0DRv3Cxqr_9cc2TAYibe2ed3pToJxqhnp1zUR84yCHeIJGHC8NUP-v18I')`,
+              backgroundImage: `url('${getOptimizedImageUrl('https://lh3.googleusercontent.com/aida-public/AB6AXuAsMGMXYhPrbH1WJ_aj9vE92B6K-WMS0arHtFnIauna3ItgRupCK4TPg_9yAcnWrjlvHwryuTvw3SB3ZtnpoGjAcYeDccrPC5kqrd5yyEXOYmPaECy5zTC44GbsSDkGdcpl0R0REnYWCcUnw-s2CDEkfUPc2bQi7QIqZg-MOBOlIG9GmhZLiS_gZAPvdKP0DRv3Cxqr_9cc2TAYibe2ed3pToJxqhnp1zUR84yCHeIJGHC8NUP-v18I', { width: 1200 })}')`,
             }}
           />
           <div className="absolute inset-0 bg-gradient-to-b sm:bg-gradient-to-r from-[#fcf9f8] via-[#fcf9f8]/95 sm:via-[#fcf9f8]/80 to-[#fcf9f8]/80 sm:to-transparent" />
@@ -139,8 +140,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
             {/* Visual Feature Banner */}
             <div className="relative rounded-3xl overflow-hidden shadow-2xl border-2 border-[#D4AF37]/40 h-[400px]">
               <img
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDa1kmAYlPAESsmMTj8fLNVnuNpGhcEbhb_sA3eLnpMjMojqKWbzpWE7m5pe6vWWxJoDMl0RK4X9n8RqVn6gLqu2eLQjajQrq-PP8ilxlnTS7f4B3EbM5MCqmlijpgaCiCrXvqqWvx6qW0kSt2F_MwhawkhFDJOTuPKEsjdsgWvrHl9NyEj2Ul7NVGzl_Ljdejn3Gup7WkjCKLlrbeDw1JEQGITH36Ylrzw7fpRMl4t6jCX52Ffz_ON"
+                src={getOptimizedImageUrl("https://lh3.googleusercontent.com/aida-public/AB6AXuDa1kmAYlPAESsmMTj8fLNVnuNpGhcEbhb_sA3eLnpMjMojqKWbzpWE7m5pe6vWWxJoDMl0RK4X9n8RqVn6gLqu2eLQjajQrq-PP8ilxlnTS7f4B3EbM5MCqmlijpgaCiCrXvqqWvx6qW0kSt2F_MwhawkhFDJOTuPKEsjdsgWvrHl9NyEj2Ul7NVGzl_Ljdejn3Gup7WkjCKLlrbeDw1JEQGITH36Ylrzw7fpRMl4t6jCX52Ffz_ON", { width: 800 })}
                 alt="Glow Pretty Salon"
+                loading="lazy"
+                decoding="async"
+                width={800}
+                height={400}
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />

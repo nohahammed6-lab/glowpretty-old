@@ -3,6 +3,7 @@ import { Service, Language, Appointment, CategoryItem, SiteSettings, Coupon } fr
 import { TIME_SLOTS } from '../data/mockData';
 import { PriceTag } from './PriceTag';
 import { SmartImage } from './SmartImage';
+import { getOptimizedImageUrl } from '../lib/cloudinary';
 
 const HighlightText: React.FC<{ text?: string; query: string }> = ({ text, query }) => {
   if (!text) return null;
@@ -521,8 +522,12 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
                       className="p-3 bg-[#FAF6ED] rounded-xl border border-[#D4AF37]/40 flex items-center justify-between gap-3 shadow-2xs"
                     >
                       <img
-                        src={service.imageUrl}
+                        src={getOptimizedImageUrl(service.imageUrl, { width: 100 })}
                         alt={service.title}
+                        loading="lazy"
+                        decoding="async"
+                        width={40}
+                        height={40}
                         className="w-10 h-10 rounded-lg object-cover border border-[#D4AF37]"
                       />
                       <div className="flex-1 min-w-0">

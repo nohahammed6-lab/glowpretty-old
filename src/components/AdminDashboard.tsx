@@ -3,6 +3,7 @@ import { PriceTag } from './PriceTag';
 import { exportAppointmentsPDF } from '../lib/pdfExport';
 import { CloudinaryImageUploader } from './CloudinaryImageUploader';
 import { CloudinaryMigrationManager } from './CloudinaryMigrationManager';
+import { getOptimizedImageUrl } from '../lib/cloudinary';
 import {
   Appointment,
   Service,
@@ -1540,7 +1541,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {services.map((srv) => (
                 <div key={srv.id} className="p-4 rounded-2xl border border-[#D4AF37]/30 bg-white shadow-2xs flex gap-3">
-                  <img src={srv.imageUrl} alt={srv.title} className="w-16 h-16 rounded-xl object-cover shrink-0" />
+                  <img
+                    src={getOptimizedImageUrl(srv.imageUrl, { width: 150 })}
+                    alt={srv.title}
+                    loading="lazy"
+                    decoding="async"
+                    width={64}
+                    height={64}
+                    className="w-16 h-16 rounded-xl object-cover shrink-0"
+                  />
                   <div className="flex-1 min-w-0 flex flex-col justify-between">
                     <div>
                       <h4 className="font-bold text-xs text-[#9b0044] truncate">{srv.arabicTitle}</h4>
@@ -1706,7 +1715,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {gallery.map((img) => (
                 <div key={img.id} className="relative group rounded-2xl overflow-hidden border border-[#D4AF37]/30 shadow-2xs h-52">
-                  <img src={img.url} alt={img.title} className="w-full h-full object-cover" />
+                  <img
+                    src={getOptimizedImageUrl(img.url, { width: 400 })}
+                    alt={img.title}
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover"
+                  />
                   <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity p-4 flex flex-col justify-between text-white">
                     <div>
                       <p className="font-bold text-sm text-[#D4AF37]">{img.arabicTitle}</p>
