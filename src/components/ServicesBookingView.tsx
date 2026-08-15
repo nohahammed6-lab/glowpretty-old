@@ -522,6 +522,7 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
                       className="p-3 bg-[#FAF6ED] rounded-xl border border-[#D4AF37]/40 flex items-center justify-between gap-3 shadow-2xs"
                     >
                       <img
+                        key={service.imageUrl}
                         src={getOptimizedImageUrl(service.imageUrl, { width: 100 })}
                         alt={service.title}
                         loading="lazy"

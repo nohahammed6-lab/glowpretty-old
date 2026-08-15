@@ -1542,6 +1542,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               {services.map((srv) => (
                 <div key={srv.id} className="p-4 rounded-2xl border border-[#D4AF37]/30 bg-white shadow-2xs flex gap-3">
                   <img
+                    key={srv.imageUrl}
                     src={getOptimizedImageUrl(srv.imageUrl, { width: 150 })}
                     alt={srv.title}
                     loading="lazy"
@@ -1716,6 +1717,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               {gallery.map((img) => (
                 <div key={img.id} className="relative group rounded-2xl overflow-hidden border border-[#D4AF37]/30 shadow-2xs h-52">
                   <img
+                    key={img.url}
                     src={getOptimizedImageUrl(img.url, { width: 400 })}
                     alt={img.title}
                     loading="lazy"

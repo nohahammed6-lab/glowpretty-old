@@ -33,27 +33,25 @@ export const SmartImage: React.FC<SmartImageProps> = ({
 }) => {
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [hasError, setHasError] = useState<boolean>(false);
-  const imgRef = useRef<HTMLImageElement>(null);
-
-  // Get transformed, compressed image URL
   const optimizedSrc = getOptimizedImageUrl(src, { width: targetWidth });
 
   useEffect(() => {
-    if (!src) {
-      setHasError(true);
+    if (!optimizedSrc) {
       setIsLoaded(false);
+      setHasError(true);
       return;
     }
 
     setHasError(false);
+    setIsLoaded(false);
 
-    // If already cached by browser, show immediately without skeleton delay
-    if (imgRef.current && imgRef.current.complete && imgRef.current.naturalWidth > 0) {
+    // Fast check: if the browser has already cached this exact URL, show it immediately
+    const img = new Image();
+    img.src = optimizedSrc;
+    if (img.complete && img.naturalWidth > 0) {
       setIsLoaded(true);
-    } else {
-      setIsLoaded(false);
     }
-  }, [src, optimizedSrc]);
+  }, [optimizedSrc]);
 
   return (
     <div
@@ -80,16 +78,19 @@ export const SmartImage: React.FC<SmartImageProps> = ({
           </span>
         </div>
       ) : (
-        /* Rendered Image with Native Fast Loading and Smooth Fade-in */
+        /* Rendered Image with key to force immediate unmount of stale image buffer and smooth transition */
         <img
-          ref={imgRef}
+          key={optimizedSrc}
           src={optimizedSrc}
           alt={alt}
           width={width}
           height={height}
           loading={priority ? 'eager' : 'lazy'}
           decoding="async"
-          onLoad={() => setIsLoaded(true)}
+          onLoad={() => {
+            setIsLoaded(true);
+            setHasError(false);
+          }}
           onError={() => {
             setIsLoaded(false);
             setHasError(true);
