@@ -75,10 +75,10 @@ export default function App() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [userSession, setUserSession] = useState<UserSession>({ role: 'owner' });
 
-  // Dynamic Application State with localStorage Persistence & Firestore Real-time Sync
+  // Dynamic Application State with localStorage/sessionStorage Persistence & Firestore Real-time Sync
   const [categories, setCategories] = useState<CategoryItem[]>(() => {
     try {
-      const saved = localStorage.getItem('glow_categories');
+      const saved = sessionStorage.getItem('glow_categories') || localStorage.getItem('glow_categories');
       return saved ? JSON.parse(saved) : INITIAL_CATEGORIES;
     } catch {
       return INITIAL_CATEGORIES;
@@ -87,7 +87,7 @@ export default function App() {
 
   const [services, setServices] = useState<Service[]>(() => {
     try {
-      const saved = localStorage.getItem('glow_services');
+      const saved = sessionStorage.getItem('glow_services') || localStorage.getItem('glow_services');
       return saved ? JSON.parse(saved) : INITIAL_SERVICES;
     } catch {
       return INITIAL_SERVICES;
@@ -96,7 +96,7 @@ export default function App() {
 
   const [appointments, setAppointments] = useState<Appointment[]>(() => {
     try {
-      const saved = localStorage.getItem('glow_appointments');
+      const saved = sessionStorage.getItem('glow_appointments') || localStorage.getItem('glow_appointments');
       if (saved) {
         const parsed: Appointment[] = JSON.parse(saved);
         return parsed.filter((item) => item && Boolean(item.clientName || item.serviceName));
@@ -109,7 +109,7 @@ export default function App() {
 
   const [reviews, setReviews] = useState<Review[]>(() => {
     try {
-      const saved = localStorage.getItem('glow_reviews');
+      const saved = sessionStorage.getItem('glow_reviews') || localStorage.getItem('glow_reviews');
       return saved ? JSON.parse(saved) : INITIAL_REVIEWS;
     } catch {
       return INITIAL_REVIEWS;
@@ -118,7 +118,7 @@ export default function App() {
 
   const [gallery, setGallery] = useState<GalleryItem[]>(() => {
     try {
-      const saved = localStorage.getItem('glow_gallery');
+      const saved = sessionStorage.getItem('glow_gallery') || localStorage.getItem('glow_gallery');
       return saved ? JSON.parse(saved) : INITIAL_GALLERY;
     } catch {
       return INITIAL_GALLERY;
@@ -127,7 +127,7 @@ export default function App() {
 
   const [siteSettings, setSiteSettings] = useState<SiteSettings>(() => {
     try {
-      const saved = localStorage.getItem('glow_site_settings');
+      const saved = sessionStorage.getItem('glow_site_settings') || localStorage.getItem('glow_site_settings');
       return saved ? JSON.parse(saved) : INITIAL_SITE_SETTINGS;
     } catch {
       return INITIAL_SITE_SETTINGS;
@@ -136,7 +136,7 @@ export default function App() {
 
   const [aboutContent, setAboutContent] = useState<AboutContent>(() => {
     try {
-      const saved = localStorage.getItem('glow_about_content');
+      const saved = sessionStorage.getItem('glow_about_content') || localStorage.getItem('glow_about_content');
       return saved ? JSON.parse(saved) : INITIAL_ABOUT_CONTENT;
     } catch {
       return INITIAL_ABOUT_CONTENT;
@@ -145,7 +145,7 @@ export default function App() {
 
   const [supervisors, setSupervisors] = useState<Supervisor[]>(() => {
     try {
-      const saved = localStorage.getItem('glow_supervisors');
+      const saved = sessionStorage.getItem('glow_supervisors') || localStorage.getItem('glow_supervisors');
       return saved ? JSON.parse(saved) : INITIAL_SUPERVISORS;
     } catch {
       return INITIAL_SUPERVISORS;
@@ -154,7 +154,7 @@ export default function App() {
 
   const [coupons, setCoupons] = useState<Coupon[]>(() => {
     try {
-      const saved = localStorage.getItem('glow_coupons');
+      const saved = sessionStorage.getItem('glow_coupons') || localStorage.getItem('glow_coupons');
       return saved ? JSON.parse(saved) : INITIAL_COUPONS;
     } catch {
       return INITIAL_COUPONS;
