@@ -454,8 +454,12 @@ export const CloudinaryMigrationManager: React.FC<CloudinaryMigrationManagerProp
                 className="bg-white p-3 rounded-xl border border-red-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs"
               >
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-lg overflow-hidden border bg-gray-100 shrink-0">
-                    <img src={failedItem.currentUrl} alt="" className="w-full h-full object-cover" />
+                  <div className="w-10 h-10 rounded-lg overflow-hidden border bg-gray-100 shrink-0 flex items-center justify-center">
+                    {failedItem.currentUrl && failedItem.currentUrl.trim() ? (
+                      <img src={failedItem.currentUrl} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="material-symbols-outlined text-gray-400 text-sm">broken_image</span>
+                    )}
                   </div>
                   <div className="min-w-0">
                     <div className="font-bold text-gray-800 truncate">{failedItem.sourceLabel}</div>
@@ -540,8 +544,12 @@ export const CloudinaryMigrationManager: React.FC<CloudinaryMigrationManagerProp
             filteredImages.map((img) => (
               <div key={img.id} className="py-3 flex items-center justify-between gap-3 text-xs">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-12 h-12 rounded-xl overflow-hidden border border-gray-200 shrink-0 bg-gray-50">
-                    <img src={img.currentUrl} alt="" className="w-full h-full object-cover" />
+                  <div className="w-12 h-12 rounded-xl overflow-hidden border border-gray-200 shrink-0 bg-gray-50 flex items-center justify-center">
+                    {img.currentUrl && img.currentUrl.trim() ? (
+                      <img src={img.currentUrl} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="material-symbols-outlined text-gray-400 text-base">image</span>
+                    )}
                   </div>
                   <div className="min-w-0">
                     <div className="font-bold text-[#121212] truncate">{img.sourceLabel}</div>

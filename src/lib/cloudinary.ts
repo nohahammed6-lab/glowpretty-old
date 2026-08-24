@@ -85,10 +85,10 @@ export async function uploadImageToCloudinary(
  * and target dimension constraints (e.g. w_500, c_limit) without breaking or corrupting existing URLs.
  */
 export function getOptimizedImageUrl(
-  url: string,
+  url?: string | null,
   options: { width?: number; height?: number; crop?: string; quality?: string } = {}
 ): string {
-  if (!url || typeof url !== 'string' || !url.trim()) return url;
+  if (!url || typeof url !== 'string' || !url.trim()) return '';
 
   // Cloudinary Optimization
   if (url.includes('res.cloudinary.com') || url.includes('cloudinary.com')) {

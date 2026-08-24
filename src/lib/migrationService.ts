@@ -198,6 +198,10 @@ export function discoverAllImages(data: AppDataForMigration): DiscoveredImage[] 
  * Downloads an image from any remote URL or Data URI and converts it to a Blob.
  */
 export async function downloadImageAsBlob(url: string): Promise<Blob> {
+  if (!url || typeof url !== 'string' || !url.trim()) {
+    throw new Error('رابط الصورة فارغ وغير صالح للتحميل');
+  }
+
   // If Data URI
   if (url.startsWith('data:')) {
     const res = await fetch(url);
@@ -213,49 +217,57 @@ export async function downloadImageAsBlob(url: string): Promise<Blob> {
     }
   } catch {}
 
-  // Attempt 2: HTML Image + Canvas
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    // Append timestamp to prevent cache issues
-    const cacheBuster = url.includes('?') ? `&_cb=${Date.now()}` : `?_cb=${Date.now()}`;
-    img.src = `${url}${cacheBuster}`;
+  // Attempt 2: HTML Image + Canvas with clean URL first
+  const tryLoadImage = (srcUrl: string): Promise<Blob> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.src = srcUrl;
 
-    img.onload = () => {
-      try {
-        const canvas = document.createElement('canvas');
-        canvas.width = img.naturalWidth || img.width || 800;
-        canvas.height = img.naturalHeight || img.height || 600;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-          reject(new Error('تعذر إعداد Canvas لتحويل الصورة'));
-          return;
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.naturalWidth || img.width || 800;
+          canvas.height = img.naturalHeight || img.height || 600;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('تعذر إعداد Canvas لتحويل الصورة'));
+            return;
+          }
+          ctx.drawImage(img, 0, 0);
+          canvas.toBlob(
+            (blob) => {
+              if (blob && blob.size > 0) {
+                resolve(blob);
+              } else {
+                reject(new Error('فشل استخراج ملف الصورة Blob من Canvas'));
+              }
+            },
+            'image/jpeg',
+            0.92
+          );
+        } catch (err: any) {
+          reject(
+            new Error(
+              `تقييدات حماية المتصفح (CORS) منعت قراءة الصورة الأصلية (${err?.message || 'Tainted Canvas'})`
+            )
+          );
         }
-        ctx.drawImage(img, 0, 0);
-        canvas.toBlob(
-          (blob) => {
-            if (blob && blob.size > 0) {
-              resolve(blob);
-            } else {
-              reject(new Error('فشل استخراج ملف الصورة Blob من Canvas'));
-            }
-          },
-          'image/jpeg',
-          0.92
-        );
-      } catch (err: any) {
-        reject(
-          new Error(
-            `تقييدات حماية المتصفح (CORS) منعت قراءة الصورة الأصلية (${err?.message || 'Tainted Canvas'})`
-          )
-        );
-      }
-    };
+      };
 
-    img.onerror = () => {
-      reject(new Error('فشل تحميل الصورة المصدرية من سيرفرها الأصلي (أو انقطاع الاتصال)'));
-    };
-  });
+      img.onerror = () => {
+        reject(new Error('فشل تحميل الصورة المصدرية من سيرفرها الأصلي (أو انقطاع الاتصال)'));
+      };
+    });
+  };
+
+  try {
+    return await tryLoadImage(url);
+  } catch {
+    // Attempt with timestamp cache-buster if initial clean load failed
+    const cacheBuster = url.includes('?') ? `&_cb=${Date.now()}` : `?_cb=${Date.now()}`;
+    return await tryLoadImage(`${url}${cacheBuster}`);
+  }
 }
 
 /**
