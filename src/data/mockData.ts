@@ -32,7 +32,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'تسريحة شعر + مكياج',
     arabicPrice: '٥٠٠ ر.ق',
     arabicDescription: 'باقة تسريحة شعر متكاملة ومميزة مع مكياج سهرة فاخر للمناسبات.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=800&q=80',
     isSignature: true,
   },
   {
@@ -46,7 +46,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'تسريحة شعر ويفي',
     arabicPrice: '١٥٠ - ٢٥٠ ر.ق',
     arabicDescription: 'تسريحة تموجات ويفي ناعمة وجذابة لجميع أطوال وأنواع الشعر.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'hair-3',
@@ -59,7 +59,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'جدائل ضفائر إفريقية',
     arabicPrice: '١٥٠ - ٣٥٠ ر.ق',
     arabicDescription: 'جدائل وضفائر إفريقية أنيقة لحماية الشعر بتصاميم وأشكال جذابة.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1605980776566-0486c3ac7617?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'hair-4',
@@ -72,7 +72,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'علاج البروتين للشعر',
     arabicPrice: '١٠٠٠ - ٢٥٠٠ ر.ق',
     arabicDescription: 'معالج البروتين العضوي الفاخر لتغذية وتنعيم الشعر والقضاء على الهيشان.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1560869713-7d0a29430803?auto=format&fit=crop&w=800&q=80',
     isSignature: true,
   },
   {
@@ -99,7 +99,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'غسيل وتجفيف الشعر',
     arabicPrice: '٥٠ ر.ق',
     arabicDescription: 'غسيل أنيق للشعر باستخدام شامبو وبلسم مغذي عالي الجودة مع تجفيف بسشوار احترافي.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'hair-blowdry-short',
@@ -112,7 +112,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'سشوار - شعر قصير',
     arabicPrice: '٨٠ ر.ق',
     arabicDescription: 'سشوار احترافي للشعر القصير لإعطائه كثافة ونعومة فائقة ولمعان جذّاب.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1595476108010-b4d1f102b1b1?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'hair-blowdry-medium',
@@ -125,7 +125,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'سشوار - شعر متوسط',
     arabicPrice: '١٠٠ ر.ق',
     arabicDescription: 'تصفيف بسشوار حراري ناعم ومتقن للشعر متوسط الطول لمظهر ساحر ومكتمل.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'hair-blowdry-long',
@@ -138,7 +138,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'سشوار - شعر طويل',
     arabicPrice: '١٥٠ - ٢٠٠ ر.ق',
     arabicDescription: 'سشوار فاخر ومكثف للشعر الطويل مع حماية حرارية متكاملة لإبراز أنوثة الشعر.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1519699047748-de8e457a634e?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'hair-bangs-cut',
@@ -151,7 +151,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'قص غرة (قُصّة)',
     arabicPrice: '٥٠ ر.ق',
     arabicDescription: 'قص وتحديد الغرة الأمامية بدقة واحترافية لتأطير وملائمة ملامح الوجه بشكل ساحر.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1580618672591-eb180b1a973f?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'hair-trimmings',
@@ -164,7 +164,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'قص أطراف الشعر',
     arabicPrice: '٨٠ ر.ق',
     arabicDescription: 'إزالة الأطراف التالفة والمتقصفة للحفاظ على صحة الشعر وقوته بدون تقصير الطول الأساسي.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1582095133179-bfd08e2fc6b3?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'hair-style-cut',
@@ -177,7 +177,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'قصة شعر مودرن',
     arabicPrice: '١٤٠ ر.ق',
     arabicDescription: 'قصة شعر عصرية ومميزة مصممة بأيدي أخصائيات الشعر لإطلالة متجددة تفيض أنوثة.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1605497788044-5a32c7078486?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'hair-ceramic-short',
@@ -190,7 +190,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'فير سيراميك - شعر قصير',
     arabicPrice: '٨٠ ر.ق',
     arabicDescription: 'تسريحة فير سيراميك حريرية أو تمويج متقن للشعر القصير مفعم بالحيوية.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'hair-ceramic-medium',
@@ -203,7 +203,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'فير سيراميك - شعر متوسط',
     arabicPrice: '١٠٠ - ١٥٠ ر.ق',
     arabicDescription: 'فير سيراميك ناعم أو كيرلي حراري للشعر متوسط الطول لمظهر جذاب ومبهر.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'hair-ceramic-long',
@@ -216,7 +216,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'فير سيراميك - شعر طويل',
     arabicPrice: '٢٠٠ - ٢٥٠ ر.ق',
     arabicDescription: 'تصفيف فير سيراميك فاخر للشعر الطويل يمنحه الانسيابية واللمعان الحريري.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'hair-style',
@@ -229,7 +229,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'تسريحة شعر راقية',
     arabicPrice: '٣٥٠ ر.ق',
     arabicDescription: 'تسريحة مرفوعة أو كلاسيكية راقية لحفلات السهرة والمناسبات الخاصة.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'hair-engagement',
@@ -242,7 +242,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'تسريحة خطوبة ملكية',
     arabicPrice: '١٥٠٠ ر.ق',
     arabicDescription: 'تسريحة خطوبة فاخرة متكاملة تشمل تثبيت الإكسسوارات والتاج لعروس الخطوبة.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80',
     isSignature: true,
   },
   {
@@ -256,7 +256,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'تسريحة عروس ملكية',
     arabicPrice: '٣٥٠٠ ر.ق',
     arabicDescription: 'تسريحة العروس الملكية الفاخرة تشمل تركيب الوصلات والشرائح وتثبيت الطرحة الملكية.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80',
     isSignature: true,
   },
 
@@ -272,7 +272,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'حمام مغربي بالمنزل',
     arabicPrice: '١٥٠ ر.ق',
     arabicDescription: 'جلسة حمام مغربي تقليدي بالصابون البلدي والأعشاب لتقشير وترطيب الجسم.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'skin-2',
@@ -285,7 +285,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'مساج ودلكة سودانية',
     arabicPrice: '١٥٠ ر.ق',
     arabicDescription: 'جلسة دلكة سودانية معطرة ومساج مريح لتغذية وتفتيح البشرة وإرخاء العضلات.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'skin-3',
@@ -311,7 +311,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'جلسة مساج لمدة ساعة',
     arabicPrice: '١٥٠ ر.ق',
     arabicDescription: 'جلسة مساج استرخائي متكامل لمدة ساعة بالزيوت العطرية المهدئة للأعصاب.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?auto=format&fit=crop&w=800&q=80',
   },
 
   // --- NAILS & HENNA (الأظافر والنقش) ---
@@ -339,7 +339,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'نقش حناء أصابع',
     arabicPrice: '٣٠ ر.ق',
     arabicDescription: 'نقش حناء ناعم وأنيق على أصابع اليد.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1615397349754-cfa2066a298e?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'henna-2',
@@ -352,7 +352,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'نقش حناء كف اليد',
     arabicPrice: '٤٠ ر.ق',
     arabicDescription: 'نقش حناء مميز على كف اليد بتفاصيل جليلة.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1583209814683-c023dd293cc6?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'henna-3',
@@ -365,7 +365,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'نقش حناء نصف ذراع',
     arabicPrice: '١٠٠ - ١٥٠ ر.ق',
     arabicDescription: 'نقش حناء فاخر يمتد حتى نصف الذراع.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1560750588-73207b1ef5b8?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'henna-4',
@@ -378,7 +378,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'نقش حناء ذراع كامل',
     arabicPrice: '٢٥٠ ر.ق',
     arabicDescription: 'نقش حناء كامل وكثيف للذراعين للمناسبات والعرائس.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'henna-5',
@@ -391,7 +391,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'نقش حناء قدم',
     arabicPrice: '٥٠ ر.ق',
     arabicDescription: 'نقش حناء أنيق ومتقن للأقدام.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1519014816548-bf5fe059798b?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'henna-6',
@@ -404,7 +404,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'نقش حناء نصف ساق',
     arabicPrice: '١٥٠ ر.ق',
     arabicDescription: 'نقش حناء ممتد حتى منتصف الساق.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'henna-7',
@@ -417,7 +417,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'نقش حناء رجل كاملة',
     arabicPrice: '٥٠٠ ر.ق',
     arabicDescription: 'نقش حناء كامل وفاخر للساقين للأعراس والمناسبات.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'henna-8',
@@ -430,7 +430,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'نقش حناء ظهر',
     arabicPrice: '٤٠ ر.ق',
     arabicDescription: 'نقش حناء فني أنيق لأسفل أو أعلى الظهر.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1509967419530-da38b4704bc6?auto=format&fit=crop&w=800&q=80',
   },
 
   // --- WAXING & THREADING (الشمع والحلاوة) ---
@@ -445,7 +445,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'تحديد وتنظيف الحواجب',
     arabicPrice: '٢٠ ر.ق',
     arabicDescription: 'تحديد وتنظيف احترافي للحواجب الخيط أو الشمع.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'wax-2',
@@ -458,7 +458,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'إزالة شعر الشفة العليا',
     arabicPrice: '١٠ ر.ق',
     arabicDescription: 'إزالة ناعمة وسريعة لشعر الشارب بالخيط أو الشمع.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'wax-3',
@@ -471,7 +471,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'تنظيف وجه كامل بالشمع/الخيط',
     arabicPrice: '٥٠ ر.ق',
     arabicDescription: 'إزالة شعر الوجه كامل للنعومة والنضارة المثالية.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'wax-4',
@@ -484,7 +484,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'إزالة شعر نصف ذراع',
     arabicPrice: '٤٠ ر.ق',
     arabicDescription: 'إزالة شعر نصف الذراع بالشمع الناعم.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'wax-5',
@@ -497,7 +497,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'إزالة شعر نصف ساق',
     arabicPrice: '٦٠ ر.ق',
     arabicDescription: 'إزالة شعر نصف الساق بالكامل بالشمع الفاخر.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1519014816548-bf5fe059798b?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'wax-6',
@@ -510,7 +510,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'إزالة شعر رجل كاملة',
     arabicPrice: '٨٠ ر.ق',
     arabicDescription: 'إزالة شعر الرجلين بالكامل بشرائح الشمع الملطفة.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'wax-7',
@@ -523,7 +523,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'إزالة شعر الإبط',
     arabicPrice: '٣٠ ر.ق',
     arabicDescription: 'تنظيف وإزالة شعر منطقة الإبط بالشمع اللطيف.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1560750588-73207b1ef5b8?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'wax-8',
@@ -536,7 +536,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'إزالة شعر منطقة البطن',
     arabicPrice: '٥٠ ر.ق',
     arabicDescription: 'إزالة شعر البطن لطيفة وناعمة للبشرة.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'wax-9',
@@ -549,7 +549,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'إزالة شعر الظهر',
     arabicPrice: '٦٠ ر.ق',
     arabicDescription: 'إزالة شعر منطقة الظهر بالشمع المرطب.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'wax-10',
@@ -562,7 +562,7 @@ export const INITIAL_SERVICES: Service[] = [
     arabicTitle: 'باقة إزالة شعر الجسم كامل',
     arabicPrice: '٢٥٠ ر.ق',
     arabicDescription: 'باقة متكاملة لإزالة شعر الجسم بالكامل لنعومة وإشراقة الحرير.',
-    imageUrl: '',
+    imageUrl: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80',
   },
 
   // --- GLAMOUR MAKEUP (المكياج والسهرات) ---

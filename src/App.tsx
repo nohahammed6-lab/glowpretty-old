@@ -42,9 +42,14 @@ import {
   subscribeToDocArray,
   saveDoc,
   saveDocArray,
+  hasLocalCache,
+  preloadAllDatabaseData,
 } from './lib/firebase';
 
 export default function App() {
+  // Initial Sync state for first-time device visits to eliminate flashing old mock data
+  const [isInitialSyncing, setIsInitialSyncing] = useState<boolean>(() => !hasLocalCache());
+
   // Navigation & Language & Theme
   const [viewMode, setViewMode] = useState<ViewMode>('home');
   const [language, setLanguage] = useState<Language>('ar'); // Default to Arabic for Qatar
@@ -88,7 +93,17 @@ export default function App() {
   const [services, setServices] = useState<Service[]>(() => {
     try {
       const saved = sessionStorage.getItem('glow_services') || localStorage.getItem('glow_services');
-      return saved ? JSON.parse(saved) : INITIAL_SERVICES;
+      if (saved) {
+        const parsed: Service[] = JSON.parse(saved);
+        return parsed.map((srv) => {
+          if (!srv.imageUrl || !srv.imageUrl.trim()) {
+            const fallback = INITIAL_SERVICES.find((s) => s.id === srv.id);
+            return fallback && fallback.imageUrl ? { ...srv, imageUrl: fallback.imageUrl } : srv;
+          }
+          return srv;
+        });
+      }
+      return INITIAL_SERVICES;
     } catch {
       return INITIAL_SERVICES;
     }
@@ -177,11 +192,68 @@ export default function App() {
     }
   });
 
-  // Real-time listener for Firestore DB synchronization across all devices
+  // Perform immediate parallel prefetch and establish real-time Firestore listeners
   useEffect(() => {
+    let isMounted = true;
+
+    // Fast batch prefetch
+    preloadAllDatabaseData()
+      .then((preloaded) => {
+        if (!isMounted) return;
+        if (preloaded.siteSettings) setSiteSettings(preloaded.siteSettings);
+        if (preloaded.categories && preloaded.categories.length > 0) setCategories(preloaded.categories);
+        if (preloaded.services && preloaded.services.length > 0) {
+          const enriched = preloaded.services.map((srv) => {
+            if (!srv.imageUrl || !srv.imageUrl.trim()) {
+              const fallback = INITIAL_SERVICES.find((s) => s.id === srv.id);
+              return fallback && fallback.imageUrl ? { ...srv, imageUrl: fallback.imageUrl } : srv;
+            }
+            return srv;
+          });
+          setServices(enriched);
+        }
+        if (preloaded.appointments) {
+          const validItems = preloaded.appointments
+            .filter((item) => Boolean(item && (item.clientName || item.serviceName)))
+            .map((item, idx) => ({
+              ...item,
+              id: item.id || `apt-pre-${idx}`,
+            }));
+          setAppointments(validItems);
+        }
+        if (preloaded.reviews && preloaded.reviews.length > 0) setReviews(preloaded.reviews);
+        if (preloaded.gallery && preloaded.gallery.length > 0) setGallery(preloaded.gallery);
+        if (preloaded.aboutContent) setAboutContent(preloaded.aboutContent);
+        if (preloaded.supervisors) setSupervisors(preloaded.supervisors);
+        if (preloaded.coupons) setCoupons(preloaded.coupons);
+        if (preloaded.ownerPin) setOwnerPin(preloaded.ownerPin);
+      })
+      .finally(() => {
+        if (isMounted) {
+          setIsInitialSyncing(false);
+        }
+      });
+
+    // Safety fallback timeout to ensure UI is never stuck on slow networks
+    const fallbackTimer = setTimeout(() => {
+      if (isMounted) {
+        setIsInitialSyncing(false);
+      }
+    }, 1000);
+
+    // Continuous Real-time Listeners across all devices
     const unsubSite = subscribeToDoc<SiteSettings>('site_settings', (data) => setSiteSettings(data), INITIAL_SITE_SETTINGS);
     const unsubCat = subscribeToDocArray<CategoryItem>('categories', (items) => setCategories(items), INITIAL_CATEGORIES);
-    const unsubSrv = subscribeToDocArray<Service>('services', (items) => setServices(items), INITIAL_SERVICES);
+    const unsubSrv = subscribeToDocArray<Service>('services', (items) => {
+      const enriched = (items && items.length > 0 ? items : INITIAL_SERVICES).map((srv) => {
+        if (!srv.imageUrl || !srv.imageUrl.trim()) {
+          const fallback = INITIAL_SERVICES.find((s) => s.id === srv.id);
+          return fallback && fallback.imageUrl ? { ...srv, imageUrl: fallback.imageUrl } : srv;
+        }
+        return srv;
+      });
+      setServices(enriched);
+    }, INITIAL_SERVICES);
     const unsubApt = subscribeToDocArray<Appointment>('appointments', (items) => {
       const validItems = (items || [])
         .filter((item) => Boolean(item && (item.clientName || item.serviceName)))
@@ -216,6 +288,8 @@ export default function App() {
     const unsubPin = subscribeToDoc<{ pin: string }>('owner_pin', (data) => setOwnerPin(data?.pin && data.pin !== '1234' ? data.pin : '100200300'), { pin: '100200300' });
 
     return () => {
+      isMounted = false;
+      clearTimeout(fallbackTimer);
       unsubSite();
       unsubCat();
       unsubSrv();
@@ -608,6 +682,51 @@ export default function App() {
     });
     showToast(language === 'ar' ? 'تم حذف التقييم' : 'Review deleted.');
   };
+
+  if (isInitialSyncing) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-[#2a0011] via-[#3f0018] to-[#1a000a] text-white flex flex-col items-center justify-center p-6 select-none" dir="rtl">
+        <div className="max-w-md w-full text-center flex flex-col items-center animate-fade-in">
+          {/* Logo & Glow Circle */}
+          <div className="relative mb-6">
+            <div className="absolute inset-0 bg-[#D4AF37]/25 blur-2xl rounded-full scale-125 animate-pulse"></div>
+            <div className="relative w-24 h-24 rounded-full border-2 border-[#D4AF37] bg-[#530025] flex items-center justify-center shadow-2xl shadow-[#D4AF37]/20">
+              <span className="material-symbols-outlined text-4xl text-[#D4AF37] animate-spin-slow">
+                spa
+              </span>
+            </div>
+          </div>
+
+          {/* Salon Title */}
+          <h1 className="text-2xl md:text-3xl font-extrabold text-[#D4AF37] font-serif mb-2 tracking-wide">
+            صالون جلو بريتي للتجميل
+          </h1>
+          <p className="text-xs md:text-sm text-pink-200/80 mb-8 font-medium">
+            Glow Pretty Beauty Salon • قطر
+          </p>
+
+          {/* Sync Progress Indicator */}
+          <div className="w-full bg-[#1c000b]/80 border border-[#D4AF37]/30 rounded-2xl p-5 shadow-xl backdrop-blur-md">
+            <div className="flex items-center justify-center gap-3 text-sm text-[#ffd9df] mb-4">
+              <span className="material-symbols-outlined text-[#D4AF37] text-xl animate-spin">
+                sync
+              </span>
+              <span className="font-semibold">جاري مزامنة أحدث الخدمات والأسعار من قاعدة البيانات...</span>
+            </div>
+
+            {/* Glowing Golden Bar */}
+            <div className="w-full bg-[#3a0018] h-2 rounded-full overflow-hidden p-0.5 border border-[#D4AF37]/20">
+              <div className="h-full bg-gradient-to-r from-[#D4AF37] via-[#fff2af] to-[#D4AF37] rounded-full animate-pulse w-full"></div>
+            </div>
+
+            <p className="text-[11px] text-pink-300/60 mt-3">
+              اتصال مباشر وفوري • يظهر لكِ أحدث العروض والخدمات مباشرة
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col font-body bg-[#fcf9f8] text-[#1c1b1b] selection:bg-[#ffd9df] selection:text-[#3f0018]">

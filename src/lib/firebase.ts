@@ -5,6 +5,7 @@ import {
   setDoc,
   onSnapshot,
   getDoc,
+  getDocFromServer,
 } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
@@ -17,6 +18,19 @@ export const db = getFirestore(
   firebaseConfig.firestoreDatabaseId || undefined
 );
 
+// Validate connection to Firestore on initial boot as per best practices
+if (typeof window !== 'undefined') {
+  getDocFromServer(doc(db, 'app_data', 'site_settings'))
+    .then(() => {
+      console.log('⚡ Firestore connection successfully established.');
+    })
+    .catch((err) => {
+      if (err instanceof Error && err.message.includes('the client is offline')) {
+        console.warn('Firestore is running in offline mode.');
+      }
+    });
+}
+
 // In-Memory Multi-Layer Cache for instantaneous cross-component and in-app browser state
 const memoryCache = new Map<string, string>();
 
@@ -28,7 +42,7 @@ try {
   }
 } catch {}
 
-function getStoredJson(docId: string): string {
+export function getStoredJson(docId: string): string {
   if (memoryCache.has(docId)) {
     return memoryCache.get(docId)!;
   }
@@ -49,7 +63,7 @@ function getStoredJson(docId: string): string {
   return '';
 }
 
-function persistJson(docId: string, json: string) {
+export function persistJson(docId: string, json: string) {
   memoryCache.set(docId, json);
   try {
     sessionStorage.setItem(`glow_${docId}`, json);
@@ -62,6 +76,103 @@ function persistJson(docId: string, json: string) {
       syncChannel.postMessage({ docId, json, timestamp: Date.now() });
     } catch {}
   }
+}
+
+/**
+ * Checks if local device cache already exists for key salon data
+ */
+export function hasLocalCache(): boolean {
+  try {
+    const hasSrv = Boolean(localStorage.getItem('glow_services') || sessionStorage.getItem('glow_services'));
+    const hasSettings = Boolean(localStorage.getItem('glow_site_settings') || sessionStorage.getItem('glow_site_settings'));
+    return hasSrv || hasSettings;
+  } catch {
+    return false;
+  }
+}
+
+export interface PreloadedData {
+  services?: any[];
+  categories?: any[];
+  siteSettings?: any;
+  appointments?: any[];
+  reviews?: any[];
+  gallery?: any[];
+  aboutContent?: any;
+  supervisors?: any[];
+  coupons?: any[];
+  ownerPin?: string;
+}
+
+/**
+ * High-speed parallel prefetcher for all core database documents on initial app launch.
+ * Ensures that on fresh devices/browsers, the latest live data is fetched immediately.
+ */
+export async function preloadAllDatabaseData(): Promise<PreloadedData> {
+  const docIds = [
+    'services',
+    'categories',
+    'site_settings',
+    'appointments',
+    'reviews',
+    'gallery',
+    'about_content',
+    'supervisors',
+    'coupons',
+    'owner_pin',
+  ];
+
+  const results: PreloadedData = {};
+
+  try {
+    const fetchPromises = docIds.map(async (docId) => {
+      try {
+        const docRef = doc(db, 'app_data', docId);
+        const snap = await getDoc(docRef);
+        if (snap.exists()) {
+          const data = snap.data();
+          const json = JSON.stringify(data);
+          persistJson(docId, json);
+          return { docId, data, success: true };
+        }
+      } catch (e) {
+        console.warn(`Preload fetch error for ${docId}:`, e);
+      }
+      return { docId, data: null, success: false };
+    });
+
+    const settled = await Promise.allSettled(fetchPromises);
+    settled.forEach((res) => {
+      if (res.status === 'fulfilled' && res.value.success && res.value.data) {
+        const { docId, data } = res.value;
+        if (docId === 'services' && Array.isArray(data.items)) {
+          results.services = data.items;
+        } else if (docId === 'categories' && Array.isArray(data.items)) {
+          results.categories = data.items;
+        } else if (docId === 'site_settings') {
+          results.siteSettings = data;
+        } else if (docId === 'appointments' && Array.isArray(data.items)) {
+          results.appointments = data.items;
+        } else if (docId === 'reviews' && Array.isArray(data.items)) {
+          results.reviews = data.items;
+        } else if (docId === 'gallery' && Array.isArray(data.items)) {
+          results.gallery = data.items;
+        } else if (docId === 'about_content') {
+          results.aboutContent = data;
+        } else if (docId === 'supervisors' && Array.isArray(data.items)) {
+          results.supervisors = data.items;
+        } else if (docId === 'coupons' && Array.isArray(data.items)) {
+          results.coupons = data.items;
+        } else if (docId === 'owner_pin' && data.pin) {
+          results.ownerPin = data.pin;
+        }
+      }
+    });
+  } catch (err) {
+    console.warn('Preload batch error:', err);
+  }
+
+  return results;
 }
 
 /**
@@ -195,7 +306,7 @@ export async function saveDocArray<T>(docId: string, items: T[]) {
   try {
     const docRef = doc(db, 'app_data', docId);
     const cleanItems = JSON.parse(json);
-    await setDoc(docRef, { items: cleanItems });
+    await setDoc(docRef, { items: cleanItems }, { merge: true });
   } catch (error) {
     console.error(`Failed to save array ${docId} to Firestore:`, error);
   }
@@ -278,7 +389,7 @@ export function subscribeToDocArray<T>(
 
       const dataToUse = localData !== null ? localData : fallbackData;
       const cleanDataToUse = JSON.parse(JSON.stringify(dataToUse));
-      setDoc(docRef, { items: cleanDataToUse }).catch(console.error);
+      setDoc(docRef, { items: cleanDataToUse }, { merge: true }).catch(console.error);
       const finalJson = JSON.stringify(dataToUse);
       persistJson(docId, finalJson);
       if (finalJson !== lastJson) {

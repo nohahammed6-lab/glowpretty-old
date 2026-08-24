@@ -516,30 +516,38 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
                 </div>
               ) : (
                 <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
-                  {selectedServices.map((service) => (
-                    <div
-                      key={service.id}
-                      className="p-3 bg-[#FAF6ED] rounded-xl border border-[#D4AF37]/40 flex items-center justify-between gap-3 shadow-2xs"
-                    >
-                      <img
-                        key={service.imageUrl}
-                        src={getOptimizedImageUrl(service.imageUrl, { width: 100 })}
-                        alt={service.title}
-                        loading="lazy"
-                        decoding="async"
-                        width={40}
-                        height={40}
-                        className="w-10 h-10 rounded-lg object-cover border border-[#D4AF37]"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-bold text-xs text-[#1c1b1b] truncate">
-                          {isArabic ? service.arabicTitle : service.title}
-                        </h4>
-                      </div>
-                      <div className="text-end flex items-center gap-2">
-                        <span className="font-extrabold text-[#121212] text-xs">
-                          <PriceTag
-                            priceQAR={service.priceQAR}
+                  {selectedServices.map((service) => {
+                    const optSrc = getOptimizedImageUrl(service.imageUrl, { width: 100 });
+                    return (
+                      <div
+                        key={service.id}
+                        className="p-3 bg-[#FAF6ED] rounded-xl border border-[#D4AF37]/40 flex items-center justify-between gap-3 shadow-2xs"
+                      >
+                        {optSrc ? (
+                          <img
+                            key={optSrc}
+                            src={optSrc}
+                            alt={service.title}
+                            loading="lazy"
+                            decoding="async"
+                            width={40}
+                            height={40}
+                            className="w-10 h-10 rounded-lg object-cover border border-[#D4AF37] shrink-0"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-lg bg-stone-200 border border-[#D4AF37]/40 flex items-center justify-center text-[#D4AF37] shrink-0">
+                            <span className="material-symbols-outlined text-lg">spa</span>
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-bold text-xs text-[#1c1b1b] truncate">
+                            {isArabic ? service.arabicTitle : service.title}
+                          </h4>
+                        </div>
+                        <div className="text-end flex items-center gap-2">
+                          <span className="font-extrabold text-[#121212] text-xs">
+                            <PriceTag
+                              priceQAR={service.priceQAR}
                             priceDisplay={service.priceDisplay}
                             arabicPrice={service.arabicPrice}
                             isArabic={isArabic}
@@ -558,8 +566,9 @@ export const ServicesBookingView: React.FC<ServicesBookingViewProps> = ({
                         </button>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  );
+                })}
+              </div>
               )}
 
               {/* Total Price & Duration Summary with Coupon Support */}

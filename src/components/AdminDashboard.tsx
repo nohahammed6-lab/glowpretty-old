@@ -1539,45 +1539,54 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
             {/* Services Cards List */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {services.map((srv) => (
-                <div key={srv.id} className="p-4 rounded-2xl border border-[#D4AF37]/30 bg-white shadow-2xs flex gap-3">
-                  <img
-                    key={srv.imageUrl}
-                    src={getOptimizedImageUrl(srv.imageUrl, { width: 150 })}
-                    alt={srv.title}
-                    loading="lazy"
-                    decoding="async"
-                    width={64}
-                    height={64}
-                    className="w-16 h-16 rounded-xl object-cover shrink-0"
-                  />
-                  <div className="flex-1 min-w-0 flex flex-col justify-between">
-                    <div>
-                      <h4 className="font-bold text-xs text-[#9b0044] truncate">{srv.arabicTitle}</h4>
-                      <p className="text-[10px] text-gray-500 font-medium truncate">{srv.description}</p>
-                    </div>
-                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
-                      <span className="font-extrabold text-xs text-[#9b0044]">
-                        {srv.priceQAR} ر.ق
-                      </span>
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={() => setEditingService(srv)}
-                          className="text-[#9b0044] hover:bg-[#ffd9df] p-1 rounded-lg text-xs font-bold cursor-pointer"
-                        >
-                          <span className="material-symbols-outlined text-base">edit</span>
-                        </button>
-                        <button
-                          onClick={() => onDeleteService(srv.id)}
-                          className="text-red-600 hover:bg-red-50 p-1 rounded-lg text-xs font-bold cursor-pointer"
-                        >
-                          <span className="material-symbols-outlined text-base">delete</span>
-                        </button>
+              {services.map((srv) => {
+                const optSrc = getOptimizedImageUrl(srv.imageUrl, { width: 150 });
+                return (
+                  <div key={srv.id} className="p-4 rounded-2xl border border-[#D4AF37]/30 bg-white shadow-2xs flex gap-3">
+                    {optSrc ? (
+                      <img
+                        key={optSrc}
+                        src={optSrc}
+                        alt={srv.title}
+                        loading="lazy"
+                        decoding="async"
+                        width={64}
+                        height={64}
+                        className="w-16 h-16 rounded-xl object-cover shrink-0"
+                      />
+                    ) : (
+                      <div className="w-16 h-16 rounded-xl bg-stone-100 border border-[#D4AF37]/30 flex items-center justify-center text-[#9b0044] shrink-0">
+                        <span className="material-symbols-outlined text-2xl">spa</span>
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0 flex flex-col justify-between">
+                      <div>
+                        <h4 className="font-bold text-xs text-[#9b0044] truncate">{srv.arabicTitle}</h4>
+                        <p className="text-[10px] text-gray-500 font-medium truncate">{srv.description}</p>
+                      </div>
+                      <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
+                        <span className="font-extrabold text-xs text-[#9b0044]">
+                          {srv.priceQAR} ر.ق
+                        </span>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => setEditingService(srv)}
+                            className="text-[#9b0044] hover:bg-[#ffd9df] p-1 rounded-lg text-xs font-bold cursor-pointer"
+                          >
+                            <span className="material-symbols-outlined text-base">edit</span>
+                          </button>
+                          <button
+                            onClick={() => onDeleteService(srv.id)}
+                            className="text-red-600 hover:bg-red-50 p-1 rounded-lg text-xs font-bold cursor-pointer"
+                          >
+                            <span className="material-symbols-outlined text-base">delete</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
           </div>
@@ -1714,41 +1723,50 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
             {/* Gallery Grid with Edit and Delete Buttons */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {gallery.map((img) => (
-                <div key={img.id} className="relative group rounded-2xl overflow-hidden border border-[#D4AF37]/30 shadow-2xs h-52">
-                  <img
-                    key={img.url}
-                    src={getOptimizedImageUrl(img.url, { width: 400 })}
-                    alt={img.title}
-                    loading="lazy"
-                    decoding="async"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity p-4 flex flex-col justify-between text-white">
-                    <div>
-                      <p className="font-bold text-sm text-[#D4AF37]">{img.arabicTitle}</p>
-                      <p className="text-[10px] text-white/80">{img.title}</p>
-                    </div>
-                    
-                    <div className="flex justify-end gap-2">
-                      <button
-                        onClick={() => setEditingGalleryItem(img)}
-                        className="bg-[#D4AF37] hover:bg-white text-[#3f0018] text-xs font-bold py-1.5 px-3 rounded-lg flex items-center gap-1 cursor-pointer transition-colors"
-                      >
-                        <span className="material-symbols-outlined text-sm">edit</span>
-                        <span>{isArabic ? 'تعديل' : 'Edit'}</span>
-                      </button>
-                      <button
-                        onClick={() => onDeleteGalleryItem(img.id)}
-                        className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-1.5 px-3 rounded-lg flex items-center gap-1 cursor-pointer transition-colors"
-                      >
-                        <span className="material-symbols-outlined text-sm">delete</span>
-                        <span>{isArabic ? 'حذف' : 'Delete'}</span>
-                      </button>
+              {gallery.map((img) => {
+                const optSrc = getOptimizedImageUrl(img.url, { width: 400 });
+                return (
+                  <div key={img.id} className="relative group rounded-2xl overflow-hidden border border-[#D4AF37]/30 shadow-2xs h-52">
+                    {optSrc ? (
+                      <img
+                        key={optSrc}
+                        src={optSrc}
+                        alt={img.title}
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-stone-100 border border-[#D4AF37]/30 flex items-center justify-center text-[#D4AF37]">
+                        <span className="material-symbols-outlined text-3xl">photo_camera</span>
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 transition-opacity p-4 flex flex-col justify-between text-white">
+                      <div>
+                        <p className="font-bold text-sm text-[#D4AF37]">{img.arabicTitle}</p>
+                        <p className="text-[10px] text-white/80">{img.title}</p>
+                      </div>
+                      
+                      <div className="flex justify-end gap-2">
+                        <button
+                          onClick={() => setEditingGalleryItem(img)}
+                          className="bg-[#D4AF37] hover:bg-white text-[#3f0018] text-xs font-bold py-1.5 px-3 rounded-lg flex items-center gap-1 cursor-pointer transition-colors"
+                        >
+                          <span className="material-symbols-outlined text-sm">edit</span>
+                          <span>{isArabic ? 'تعديل' : 'Edit'}</span>
+                        </button>
+                        <button
+                          onClick={() => onDeleteGalleryItem(img.id)}
+                          className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-1.5 px-3 rounded-lg flex items-center gap-1 cursor-pointer transition-colors"
+                        >
+                          <span className="material-symbols-outlined text-sm">delete</span>
+                          <span>{isArabic ? 'حذف' : 'Delete'}</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
           </div>

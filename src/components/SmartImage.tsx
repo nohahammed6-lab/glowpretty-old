@@ -31,12 +31,14 @@ export const SmartImage: React.FC<SmartImageProps> = ({
   width,
   height,
 }) => {
-  const [isLoaded, setIsLoaded] = useState<boolean>(false);
-  const [hasError, setHasError] = useState<boolean>(false);
   const optimizedSrc = getOptimizedImageUrl(src, { width: targetWidth });
+  const hasValidSrc = Boolean(optimizedSrc && optimizedSrc.trim().length > 0);
+
+  const [isLoaded, setIsLoaded] = useState<boolean>(false);
+  const [hasError, setHasError] = useState<boolean>(!hasValidSrc);
 
   useEffect(() => {
-    if (!optimizedSrc) {
+    if (!hasValidSrc) {
       setIsLoaded(false);
       setHasError(true);
       return;
@@ -51,7 +53,7 @@ export const SmartImage: React.FC<SmartImageProps> = ({
     if (img.complete && img.naturalWidth > 0) {
       setIsLoaded(true);
     }
-  }, [optimizedSrc]);
+  }, [optimizedSrc, hasValidSrc]);
 
   return (
     <div
@@ -59,7 +61,7 @@ export const SmartImage: React.FC<SmartImageProps> = ({
       className={`relative overflow-hidden ${containerClassName}`}
     >
       {/* Luxury Skeleton Loading Shimmer */}
-      {!isLoaded && !hasError && (
+      {hasValidSrc && !isLoaded && !hasError && (
         <div className="absolute inset-0 bg-stone-200/60 dark:bg-stone-800/60 animate-pulse flex items-center justify-center z-10">
           <span className="material-symbols-outlined text-amber-500/40 text-xl animate-spin">
             sync
@@ -67,8 +69,8 @@ export const SmartImage: React.FC<SmartImageProps> = ({
         </div>
       )}
 
-      {/* Error Fallback */}
-      {hasError ? (
+      {/* Error / Empty Fallback */}
+      {!hasValidSrc || hasError ? (
         <div className="w-full h-full bg-[#FAF6ED] dark:bg-stone-800 border border-[#D4AF37]/30 flex flex-col items-center justify-center text-[#D4AF37] p-3 text-center">
           <span className="material-symbols-outlined text-3xl mb-1 opacity-70">
             {fallbackIcon}
